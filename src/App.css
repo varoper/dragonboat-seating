@@ -1,0 +1,90 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html,
+body {
+  touch-action: manipulation;
+  -webkit-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+body {
+  @apply bg-gray-50 text-gray-800 font-sans;
+}
+
+button {
+  @apply bg-blue-500 text-white px-4 py-2 rounded-xl shadow hover:bg-blue-600 transition;
+}
+
+ul {
+  @apply list-none pl-0;
+}
+
+li {
+  @apply mb-1;
+}
+
+input[type="checkbox"] {
+  @apply mr-2;
+}
+
+label {
+  @apply block mb-1;
+}
+
+.paddler-selection {
+  @apply p-3 mb-3;
+}
+
+.seating-display {
+  @apply bg-white p-3 mt-3;
+}
+
+.boat-seating {
+  max-width: 400px;
+}
+
+.weights p {
+  @apply text-sm mt-2;
+}
+
+.draggable {
+  touch-action: none;
+}
+
+.seating-chart {
+  max-width: 800px;
+  margin: auto;
+  padding: 20px;
+  font-family: sans-serif;
+}
+
+.rows {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.row {
+  display: flex;
+  justify-content: space-between;
+  border: 1px solid #ddd;
+  padding: 10px;
+  border-radius: 8px;
+  background: #f9f9f9;
+}
+
+.paddler {
+  width: 48%;
+}
+
+.paddler strong {
+  display: block;
+  margin-bottom: 4px;
+}
+
+.grid-rows-10 {
+  grid-template-rows: repeat(10, minmax(0, 1fr));
+}
