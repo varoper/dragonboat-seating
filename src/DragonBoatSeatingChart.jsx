@@ -14,12 +14,16 @@ import {
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 
-const DragonBoatSeatingChart = ({ selectedPaddlers, extraFrontWeight = 0, extraBackWeight = 0 }) => {
-  const [seats, setSeats] = useState([]);
-  const [activeId, setActiveId] = useState(null);
-  const [overId, setOverId] = useState(null);
-  const [maxWidth, setMaxWidth] = useState(0);
+const DragonBoatSeatingChart = ({ seatingChart, updateSeatingChart, extraFrontWeight = 0, extraBackWeight = 0 }) => {
+  //  const [seats, setSeats] = useState([]);       // Seating chart within component
+  const [activeId, setActiveId] = useState(null); // Currently dragged paddler
+  const [overId, setOverId] = useState(null);     // ID of seat currently hovered over
+  const [maxWidth, setMaxWidth] = useState(0);    // Used to standardize width of all seat containers
 
+  // console.log("seatingChart", seatingChart);
+  // console.log("seats", seats);
+
+  // DnD sensor configuration
   const sensors = useSensors(
     useSensor(PointerSensor, {
       activationConstraint: {
@@ -28,27 +32,36 @@ const DragonBoatSeatingChart = ({ selectedPaddlers, extraFrontWeight = 0, extraB
       },
     })
   );
+
+  // Refs to track DOM widths of each seat
   const seatRefs = useRef([]);
 
+  // Fill the seat state with 20 elements (empty if not passed)
+  /*
   useEffect(() => {
-    const filledSeats = Array.from({ length: 20 }, (_, i) => selectedPaddlers[i] || null);
+    const filledSeats = Array.from({ length: 20 }, (_, i) => seatingChart[i] || null);
     setSeats(filledSeats);
-  }, [selectedPaddlers]);
+  }, [seatingChart]);
+  */
 
+  // Track the widest seat container for layout consistency
   useEffect(() => {
     const widths = seatRefs.current.map((ref) => ref?.offsetWidth || 0);
     const widest = Math.max(...widths);
     setMaxWidth(widest);
-  }, [seats]);
+  });
 
+  // Called when dragging starts
   const handleDragStart = (event) => {
     setActiveId(event.active.id);
   };
 
+  // Called when drag hovers over another item
   const handleDragOver = (event) => {
     setOverId(event.over?.id ?? null);
   };
 
+  // Called when drag ends — updates local seat arrangement
   const handleDragEnd = (event) => {
     const { active, over } = event;
     setActiveId(null);
@@ -59,7 +72,8 @@ const DragonBoatSeatingChart = ({ selectedPaddlers, extraFrontWeight = 0, extraB
     const oldIndex = parseInt(active.id, 10);
     const newIndex = parseInt(over.id, 10);
 
-    setSeats((prev) => {
+    // Create updated seat array with swapped paddlers
+    updateSeatingChart((prev) => {
       const updated = [...prev];
       const temp = updated[oldIndex];
       updated[oldIndex] = updated[newIndex];
@@ -68,6 +82,7 @@ const DragonBoatSeatingChart = ({ selectedPaddlers, extraFrontWeight = 0, extraB
     });
   };
 
+  // TEMPORARY: Display weight imbalance between seat sides (can be removed)
   const renderImbalance = (label_a, label_b, a, b, tolerance) => {
     const diff = Math.abs(a - b);
     const balanced = diff <= tolerance;
@@ -79,13 +94,14 @@ const DragonBoatSeatingChart = ({ selectedPaddlers, extraFrontWeight = 0, extraB
     );
   };
 
+  // TEMPORARY: Calculate front/back and left/right weight (can be removed)
   const calculateWeightStats = () => {
     let frontWeight = 0,
       backWeight = 0,
       leftWeight = 0,
       rightWeight = 0;
 
-    seats.forEach((paddler, i) => {
+    seatingChart.forEach((paddler, i) => {
       if (!paddler || !paddler.weight) return;
       if (i < 10) frontWeight += paddler.weight;
       else backWeight += paddler.weight;
@@ -99,6 +115,7 @@ const DragonBoatSeatingChart = ({ selectedPaddlers, extraFrontWeight = 0, extraB
     return { frontWeight, backWeight, leftWeight, rightWeight };
   };
 
+  // Renders a single sortable seat cell
   const SortableSeat = ({ id, paddler, isActive, isOver }) => {
     const {
       attributes,
@@ -156,6 +173,8 @@ const DragonBoatSeatingChart = ({ selectedPaddlers, extraFrontWeight = 0, extraB
 
   const { frontWeight, backWeight, leftWeight, rightWeight } = calculateWeightStats();
 
+
+
   return (
     <>
       <div className="weights">
@@ -170,7 +189,7 @@ const DragonBoatSeatingChart = ({ selectedPaddlers, extraFrontWeight = 0, extraB
         onDragOver={handleDragOver}
         onDragEnd={handleDragEnd}
       >
-        <SortableContext items={seats.map((_, i) => i.toString())} strategy={rectSortingStrategy}>
+        <SortableContext items={seatingChart.map((_, i) => i.toString())} strategy={rectSortingStrategy}>
           <div className="boat-seating grid grid-rows-10 gap-3 py-4">
             {Array.from({ length: 10 }).map((_, rowIndex) => {
               const leftIndex = rowIndex * 2;
@@ -183,13 +202,13 @@ const DragonBoatSeatingChart = ({ selectedPaddlers, extraFrontWeight = 0, extraB
                   </div>
                   <SortableSeat
                     id={leftIndex}
-                    paddler={seats[leftIndex]}
+                    paddler={seatingChart[leftIndex]}
                     isActive={activeId === leftIndex.toString()}
                     isOver={overId === leftIndex.toString() && activeId !== overId}
                   />
                   <SortableSeat
                     id={rightIndex}
-                    paddler={seats[rightIndex]}
+                    paddler={seatingChart[rightIndex]}
                     isActive={activeId === rightIndex.toString()}
                     isOver={overId === rightIndex.toString() && activeId !== overId}
                   />

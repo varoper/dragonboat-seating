@@ -4,12 +4,10 @@ import Papa from 'papaparse';
 import './App.css';
 
 function App() {
-  // State for all paddlers from CSV
-  const [paddlers, setPaddlers] = useState([]);
+  // Set of all paddlers from CSV
+  const [allPaddlers, setAllPaddlers] = useState([]);
   // Paddlers selected by user (up to 20)
   const [selectedPaddlers, setSelectedPaddlers] = useState([]);
-  // State for if chart has been created
-  const [chartCreated, setChartCreated] = useState(false);
   // Initial seating chart, after loading from csv and accounting for empty seats
   const [seatingChart, setSeatingChart] = useState([]);
   // Stores weight distribution stats
@@ -34,7 +32,7 @@ function App() {
               weight: parseInt(p.weight, 10),
               side: p.side.toLowerCase()
             }));
-            setPaddlers(parsed);
+            setAllPaddlers(parsed);
           }
         });
       });
@@ -57,7 +55,7 @@ function App() {
   // Check if paddler can sit on a particular side
   const canSit = (paddler, side) => paddler.side === 'either' || paddler.side === side;
 
-  // Create balanced seating chart with constraints
+  // Create initial semi-balanced seating chart
   const createSeatingChart = () => {
     let paddlers = [...selectedPaddlers];
 
@@ -101,63 +99,17 @@ function App() {
     const rightWeight = rows.reduce((sum, row) => sum + row.right.weight, 0);
 
     // Save results
-    setSeatingChart(rows);
+    setSeatingChart(rows.flatMap(row => [row.left, row.right]));
     setWeightStats({ frontWeight, backWeight, leftWeight, rightWeight });
-    setChartCreated(true);
     setTimeout(() => {
       seatingChartRef.current?.scrollIntoView({ behavior: 'smooth' });
     }, 100); // slight delay to ensure DOM has updated
   };
 
-  // Updates the seating chart (add or remove paddlers)
-  const updateSeatingChart = () => {
-    // Clone current chart
-    const updatedChart = [...seatingChart];
-
-    // Flatten current chart to easier reference
-    const flatChart = seatingChart.flatMap(row => [row.left, row.right]);
-
-    // Determine who was removed
-    const updatedNames = selectedPaddlers.map(p => p.name);
-    const currentNames = flatChart.map(p => p.name).filter(n => n !== 'Empty');
-    const removedNames = currentNames.filter(name => !updatedNames.includes(name));
-    const addedPaddlers = selectedPaddlers.filter(p => !currentNames.includes(p.name));
-
-    // Replace removed paddlers with 'Empty'
-    for (let row of updatedChart) {
-      if (removedNames.includes(row.left.name)) row.left = { name: 'Empty', weight: 0, side: 'either' };
-      if (removedNames.includes(row.right.name)) row.right = { name: 'Empty', weight: 0, side: 'either' };
-    }
-
-    // Fill in added paddlers where 'Empty' exists
-    for (let paddler of addedPaddlers) {
-      let placed = false;
-      for (let row of updatedChart) {
-        if (!placed && row.left.name === 'Empty' && canSit(paddler, 'left')) {
-          row.left = paddler;
-          placed = true;
-        } else if (!placed && row.right.name === 'Empty' && canSit(paddler, 'right')) {
-          row.right = paddler;
-          placed = true;
-        }
-      }
-    }
-
-    // Ensure selectedPaddlers contains only actual paddlers (excluding "Empty")
-    const newSelected = updatedChart.flatMap(row => [row.left, row.right])
-      .filter(p => p.name !== 'Empty');
-    setSelectedPaddlers(newSelected);
-
-    // Recalculate weights
-    const frontWeight = updatedChart.slice(0, 5).reduce((sum, row) => sum + row.left.weight + row.right.weight, 0);
-    const backWeight = updatedChart.slice(5).reduce((sum, row) => sum + row.left.weight + row.right.weight, 0);
-    const leftWeight = updatedChart.reduce((sum, row) => sum + row.left.weight, 0);
-    const rightWeight = updatedChart.reduce((sum, row) => sum + row.right.weight, 0);
-
-    setSeatingChart(updatedChart);
-    setWeightStats({ frontWeight, backWeight, leftWeight, rightWeight });
+  // Updates the seating chart from drag & drop
+  const updateSeatingChart = (seats) => {
+    setSeatingChart(seats);
   };
-
 
   return (
     <div className="App">
@@ -171,7 +123,7 @@ function App() {
 
         {/* Render paddler names as selectable containers */}
         <div className="flex flex-wrap gap-2 mb-4">
-          {paddlers.map((p) => {
+          {allPaddlers.map((p) => {
             const isSelected = selectedPaddlers.some(sp => sp.name === p.name);
             const isDisabled = !isSelected && selectedPaddlers.length >= 20;
             return (
@@ -214,23 +166,13 @@ function App() {
 
         {/* Button to create seating chart */}
         <div className="flex items-start gap-8 mt-8">
-          {!chartCreated ? (
-            <button
-              className="bg-gray-700 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded"
-              onClick={createSeatingChart}
-              disabled={selectedPaddlers.length === 0}
-            >
-              Create Chart
-            </button>
-          ) : (
-            <button
-              className="bg-blue-600 hover:bg-blue-500 text-white font-bold py-2 px-4 rounded"
-              onClick={updateSeatingChart}
-              disabled={selectedPaddlers.length === 0}
-            >
-              Update Chart
-            </button>
-          )}
+          <button
+            className="bg-gray-700 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded"
+            onClick={createSeatingChart}
+            disabled={selectedPaddlers.length === 0}
+          >
+            Create Chart
+          </button>
         </div>
       </div>
 
@@ -241,7 +183,9 @@ function App() {
           <h2 className="font-bold text-lg text-gray-900 mb-4">Boat Seating</h2>
           <p className="mb-3"> Press down, then drag & drop to change positions. Note that right side can be slightly heavier due to steering mechanism on left.</p>
           <DragonBoatSeatingChart
-            selectedPaddlers={seatingChart.flatMap(row => [row.left, row.right])}
+            // seatingChart={seatingChart.flatMap(row => [row.left, row.right])}
+            seatingChart={seatingChart}
+            updateSeatingChart={updateSeatingChart}
             extraFrontWeight={extraFrontWeight}
             extraBackWeight={extraBackWeight}
           />
