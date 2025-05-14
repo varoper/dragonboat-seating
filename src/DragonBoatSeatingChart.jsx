@@ -75,32 +75,80 @@ const DragonBoatSeatingChart = ({ seatingChart, updateSeatingChart, stern, extra
     const diff = Math.abs(a - b);
     const balanced = diff <= tolerance;
     const compare = a === b ? "=" : a > b ? ">" : "<";
+
+    const aContent = (
+      <>
+        {label_a}:{' '}
+        {a > b ? (
+          <strong>{a} lbs</strong>
+        ) : (
+          `${a} lbs`
+        )}
+      </>
+    );
+
+    const bContent = (
+      <>
+        {label_b}:{' '}
+        {b > a ? (
+          <strong>{b} lbs</strong>
+        ) : (
+          `${b} lbs`
+        )}
+      </>
+    );
+
     return (
       <p>
-        {label_a}: <strong>{a} lbs <span style={{ color: balanced ? 'green' : 'red' }}>{compare}</span></strong> {label_b}: <strong>{b} lbs</strong> <span style={{ color: balanced ? 'green' : 'red' }}> {balanced ? '(Balanced)' : `(Off by ${diff} lbs)`}</span>
+        {aContent}{' '}
+        <span style={{ color: balanced ? 'green' : 'red' }}>
+          {compare}
+        </span>{' '}
+        {bContent}{' '}
+        <span style={{ color: balanced ? 'green' : 'red' }}>
+          {balanced ? '(Balanced)' : `(Off by ${diff} lbs)`}
+        </span>
       </p>
     );
   };
 
-  // Calculate front/back and left/right weights.
+  // Calculate front/back, left/right, and pacer/rocket weights.
   const calculateWeightStats = () => {
     let frontWeight = 0,
       backWeight = 0,
       leftWeight = 0,
-      rightWeight = 0;
+      rightWeight = 0,
+      pacerWeight = 0,
+      rocketWeight = 0;
 
     seatingChart.forEach((paddler, i) => {
       if (!paddler || !paddler.weight) return;
+
+      // Front: indices 0–9
       if (i < 10) frontWeight += paddler.weight;
       else backWeight += paddler.weight;
+
+      // Left seat = even index; right seat = odd index
       if (i % 2 === 0) leftWeight += paddler.weight;
       else rightWeight += paddler.weight;
+
+      // Pacer: rows 1–3 (indices 0–5)
+      if (i >= 0 && i <= 5) pacerWeight += paddler.weight;
+
+      // Rocket: rows 7–10 (indices 12–19)
+      if (i >= 14 && i <= 19) rocketWeight += paddler.weight;
     });
+
+    const extraSideWeight = (parseInt(extraFrontWeight, 10) + parseInt(extraBackWeight, 10) + (stern ? stern.weight : 0)) / 2;
 
     frontWeight += parseInt(extraFrontWeight, 10);
     backWeight += parseInt(extraBackWeight, 10) + (stern ? stern.weight : 0);
+    leftWeight += extraSideWeight;
+    rightWeight += extraSideWeight;
+    pacerWeight += parseInt(extraFrontWeight, 10);
+    rocketWeight += parseInt(extraBackWeight, 10) + (stern ? stern.weight : 0);
 
-    return { frontWeight, backWeight, leftWeight, rightWeight };
+    return { frontWeight, backWeight, leftWeight, rightWeight, pacerWeight, rocketWeight };
   };
 
   // Renders a single sortable seat cell
@@ -159,15 +207,14 @@ const DragonBoatSeatingChart = ({ seatingChart, updateSeatingChart, stern, extra
     );
   };
 
-  const { frontWeight, backWeight, leftWeight, rightWeight } = calculateWeightStats();
-
-
+  const { frontWeight, backWeight, leftWeight, rightWeight, pacerWeight, rocketWeight } = calculateWeightStats();
 
   return (
     <>
       <div className="weights">
-        {renderImbalance('Front', 'Back', frontWeight, backWeight, 10)}
-        {renderImbalance('Left', 'Right', leftWeight, rightWeight, 10)}
+        {renderImbalance('Front', 'Back', frontWeight, backWeight, 20)}
+        {renderImbalance('Left', 'Right', leftWeight, rightWeight, 20)}
+        {renderImbalance('Pacers', 'Rockets', pacerWeight, rocketWeight, 10)}
       </div>
 
       <DndContext

@@ -190,7 +190,7 @@ function App() {
         </div>
 
         {/* Button to create seating chart */}
-        <div className="flex items-start gap-8 mt-8">
+        <div className="flex items-start gap-8 mt-6">
           <button
             className="bg-gray-700 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded"
             onClick={createSeatingChart}
@@ -206,7 +206,7 @@ function App() {
       {seatingChart.length > 0 && (
         <div ref={seatingChartRef} className="seating-display">
           <h2 className="font-bold text-lg text-gray-900 mb-4">Boat Seating</h2>
-          <p className="mb-3"> Press down, then drag & drop to change positions. Note that right side can be slightly heavier due to steering mechanism on left.</p>
+          <p className="mb-3"> Press down, then drag & drop to change positions. Right side can be slightly heavier due to steering mechanism on left.</p>
           <DragonBoatSeatingChart
             seatingChart={seatingChart}
             updateSeatingChart={updateSeatingChart}
