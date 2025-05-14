@@ -14,14 +14,10 @@ import {
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 
-const DragonBoatSeatingChart = ({ seatingChart, updateSeatingChart, extraFrontWeight = 0, extraBackWeight = 0 }) => {
-  //  const [seats, setSeats] = useState([]);       // Seating chart within component
+const DragonBoatSeatingChart = ({ seatingChart, updateSeatingChart, stern, extraFrontWeight = 0, extraBackWeight = 0 }) => {
   const [activeId, setActiveId] = useState(null); // Currently dragged paddler
   const [overId, setOverId] = useState(null);     // ID of seat currently hovered over
   const [maxWidth, setMaxWidth] = useState(0);    // Used to standardize width of all seat containers
-
-  // console.log("seatingChart", seatingChart);
-  // console.log("seats", seats);
 
   // DnD sensor configuration
   const sensors = useSensors(
@@ -35,14 +31,6 @@ const DragonBoatSeatingChart = ({ seatingChart, updateSeatingChart, extraFrontWe
 
   // Refs to track DOM widths of each seat
   const seatRefs = useRef([]);
-
-  // Fill the seat state with 20 elements (empty if not passed)
-  /*
-  useEffect(() => {
-    const filledSeats = Array.from({ length: 20 }, (_, i) => seatingChart[i] || null);
-    setSeats(filledSeats);
-  }, [seatingChart]);
-  */
 
   // Track the widest seat container for layout consistency
   useEffect(() => {
@@ -82,7 +70,7 @@ const DragonBoatSeatingChart = ({ seatingChart, updateSeatingChart, extraFrontWe
     });
   };
 
-  // TEMPORARY: Display weight imbalance between seat sides (can be removed)
+  // Display weight imbalance between seat sides.
   const renderImbalance = (label_a, label_b, a, b, tolerance) => {
     const diff = Math.abs(a - b);
     const balanced = diff <= tolerance;
@@ -94,7 +82,7 @@ const DragonBoatSeatingChart = ({ seatingChart, updateSeatingChart, extraFrontWe
     );
   };
 
-  // TEMPORARY: Calculate front/back and left/right weight (can be removed)
+  // Calculate front/back and left/right weights.
   const calculateWeightStats = () => {
     let frontWeight = 0,
       backWeight = 0,
@@ -110,7 +98,7 @@ const DragonBoatSeatingChart = ({ seatingChart, updateSeatingChart, extraFrontWe
     });
 
     frontWeight += parseInt(extraFrontWeight, 10);
-    backWeight += parseInt(extraBackWeight, 10);
+    backWeight += parseInt(extraBackWeight, 10) + (stern ? stern.weight : 0);
 
     return { frontWeight, backWeight, leftWeight, rightWeight };
   };
@@ -216,8 +204,26 @@ const DragonBoatSeatingChart = ({ seatingChart, updateSeatingChart, extraFrontWe
               );
             })}
           </div>
+          {/* Stern info row */}
+          {stern && (
+            <div className="grid">
+              <div className="flex items-center gap-8">
+                <div className="w-12 text-gray-600 font-semibold">
+                  Stern
+                </div>
+                <div
+                  style={{ maxWidth: maxWidth }}
+                  className={`px-3 py-2 rounded-xl flex flex-col justify-center items-center shadow border-2 text-center bg-blue-100`}>
+                  <span>
+                    <strong>{stern.name}</strong>: {stern.weight} lbs
+                  </span>
+                </div>
+              </div>
+            </div>
+          )}
+
         </SortableContext>
-      </DndContext>
+      </DndContext >
     </>
   );
 };

@@ -6,12 +6,14 @@ import './App.css';
 function App() {
   // Set of all paddlers from CSV
   const [allPaddlers, setAllPaddlers] = useState([]);
+  const [allSterns, setAllSterns] = useState([]);
   // Paddlers selected by user (up to 20)
   const [selectedPaddlers, setSelectedPaddlers] = useState([]);
   // Initial seating chart, after loading from csv and accounting for empty seats
   const [seatingChart, setSeatingChart] = useState([]);
   // Stores weight distribution stats
-  const [weightStats, setWeightStats] = useState({ frontWeight: 0, backWeight: 0, leftWeight: 0, rightWeight: 0 });
+  // Stern;
+  const [stern, setStern] = useState(null);
   // Error for selecting too many paddlers
   const [selectionError, setSelectionError] = useState("");
   const [extraFrontWeight, setExtraFrontWeight] = useState(0);
@@ -30,13 +32,23 @@ function App() {
             const parsed = results.data.map(p => ({
               name: p.name,
               weight: parseInt(p.weight, 10),
-              side: p.side.toLowerCase()
+              side: p.side.toLowerCase(),
+              role: p.role.toLowerCase() || '',
             }));
-            setAllPaddlers(parsed);
+            setAllPaddlers(parsed.filter(p => p.side !== 'none'));
+            setAllSterns(parsed.filter(p => p.role === 'stern'));
           }
         });
       });
+
+
   }, []);
+
+  useEffect(() => {
+    if (stern) {
+      setSelectedPaddlers(prev => prev.filter(p => p.name !== stern.name));
+    }
+  }, [stern]);
 
   // Toggle paddler selection for inclusion in boat
   const togglePaddler = (paddler) => {
@@ -92,15 +104,10 @@ function App() {
       right: rightSide[i]
     }));
 
-    // Calculate weight stats
-    const frontWeight = rows.slice(0, 5).reduce((sum, row) => sum + row.left.weight + row.right.weight, 0) + parseInt(extraFrontWeight || 0, 10);
-    const backWeight = rows.slice(5).reduce((sum, row) => sum + row.left.weight + row.right.weight, 0) + parseInt(extraBackWeight || 0, 10);
-    const leftWeight = rows.reduce((sum, row) => sum + row.left.weight, 0);
-    const rightWeight = rows.reduce((sum, row) => sum + row.right.weight, 0);
+    const seating = rows.flatMap(row => [row.left, row.right]);
 
     // Save results
-    setSeatingChart(rows.flatMap(row => [row.left, row.right]));
-    setWeightStats({ frontWeight, backWeight, leftWeight, rightWeight });
+    setSeatingChart(seating);
     setTimeout(() => {
       seatingChartRef.current?.scrollIntoView({ behavior: 'smooth' });
     }, 100); // slight delay to ensure DOM has updated
@@ -125,7 +132,7 @@ function App() {
         <div className="flex flex-wrap gap-2 mb-4">
           {allPaddlers.map((p) => {
             const isSelected = selectedPaddlers.some(sp => sp.name === p.name);
-            const isDisabled = !isSelected && selectedPaddlers.length >= 20;
+            const isDisabled = (!isSelected && selectedPaddlers.length >= 20) || (stern && stern.name === p.name);
             return (
               <div
                 key={p.name}
@@ -138,6 +145,24 @@ function App() {
               </div>
             );
           })}
+        </div>
+
+        {/* Stern selection dropdown */}
+        <div className="mb-4">
+          <label className="block text-sm font-medium text-gray-700 mb-1">Select stern</label>
+          <select
+            className="border border-gray-300 rounded px-2 py-1"
+            value={stern ? stern.name : ''}
+            onChange={(e) => {
+              const selected = allSterns.find(p => p.name === e.target.value);
+              setStern(selected || null);
+            }}
+          >
+            <option value="">- Select -</option>
+            {allSterns.map(p => (
+              <option key={p.name} value={p.name}>{p.name}</option>
+            ))}
+          </select>
         </div>
 
         {/* Inputs for additional front and back weight */}
@@ -183,9 +208,9 @@ function App() {
           <h2 className="font-bold text-lg text-gray-900 mb-4">Boat Seating</h2>
           <p className="mb-3"> Press down, then drag & drop to change positions. Note that right side can be slightly heavier due to steering mechanism on left.</p>
           <DragonBoatSeatingChart
-            // seatingChart={seatingChart.flatMap(row => [row.left, row.right])}
             seatingChart={seatingChart}
             updateSeatingChart={updateSeatingChart}
+            stern={stern}
             extraFrontWeight={extraFrontWeight}
             extraBackWeight={extraBackWeight}
           />
