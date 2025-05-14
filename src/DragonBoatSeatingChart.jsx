@@ -23,7 +23,7 @@ const DragonBoatSeatingChart = ({ seatingChart, updateSeatingChart, stern, extra
   const sensors = useSensors(
     useSensor(PointerSensor, {
       activationConstraint: {
-        delay: 250,
+        delay: 0,
         tolerance: 5,
       },
     })
@@ -80,9 +80,9 @@ const DragonBoatSeatingChart = ({ seatingChart, updateSeatingChart, stern, extra
       <>
         {label_a}:{' '}
         {a > b ? (
-          <strong>{a} lbs</strong>
+          <strong>{a}</strong>
         ) : (
-          `${a} lbs`
+          `${a}`
         )}
       </>
     );
@@ -91,9 +91,9 @@ const DragonBoatSeatingChart = ({ seatingChart, updateSeatingChart, stern, extra
       <>
         {label_b}:{' '}
         {b > a ? (
-          <strong>{b} lbs</strong>
+          <strong>{b}</strong>
         ) : (
-          `${b} lbs`
+          `${b}`
         )}
       </>
     );
@@ -106,7 +106,7 @@ const DragonBoatSeatingChart = ({ seatingChart, updateSeatingChart, stern, extra
         </span>{' '}
         {bContent}{' '}
         <span style={{ color: balanced ? 'green' : 'red' }}>
-          {balanced ? '(Balanced)' : `(Off by ${diff} lbs)`}
+          (Off by {diff})
         </span>
       </p>
     );
@@ -190,7 +190,7 @@ const DragonBoatSeatingChart = ({ seatingChart, updateSeatingChart, stern, extra
         style={{ ...style, minWidth: maxWidth }}
         {...attributes}
         {...listeners}
-        className={`draggable px-3 py-2 rounded-xl flex flex-col justify-center items-center shadow border-2 hover:border-blue-400 transition-colors duration-150
+        className={`draggable touch-none px-2 py-1 rounded-xl flex flex-col justify-center items-center shadow border-2 hover:border-blue-400 transition-colors duration-150
           ${isOver ? 'border-dashed border-blue-400' : 'border-transparent'}
           ${paddler && isPaddlerOnWrongSide ? 'bg-red-300' : paddler ? 'bg-blue-100' : 'bg-white'}
           ${paddler && paddler.weight ? 'bg-blue-100' : 'bg-white'}
@@ -198,7 +198,7 @@ const DragonBoatSeatingChart = ({ seatingChart, updateSeatingChart, stern, extra
       >
         {paddler ? (
           <span>
-            <strong>{paddler.name}</strong>: {paddler.weight} lbs
+            <strong>{paddler.name}</strong>: {paddler.weight}
           </span>
         ) : (
           <span className="text-gray-400">Empty</span>
@@ -212,9 +212,9 @@ const DragonBoatSeatingChart = ({ seatingChart, updateSeatingChart, stern, extra
   return (
     <>
       <div className="weights">
-        {renderImbalance('Front', 'Back', frontWeight, backWeight, 20)}
-        {renderImbalance('Left', 'Right', leftWeight, rightWeight, 20)}
-        {renderImbalance('Pacers', 'Rockets', pacerWeight, rocketWeight, 10)}
+        {renderImbalance('Front', 'Back', frontWeight, backWeight, 15)}
+        {renderImbalance('Left', 'Right', leftWeight, rightWeight, 15)}
+        {renderImbalance('Pacers', 'Rockets', pacerWeight, rocketWeight, 15)}
       </div>
 
       <DndContext
@@ -225,7 +225,7 @@ const DragonBoatSeatingChart = ({ seatingChart, updateSeatingChart, stern, extra
         onDragEnd={handleDragEnd}
       >
         <SortableContext items={seatingChart.map((_, i) => i.toString())} strategy={rectSortingStrategy}>
-          <div className="boat-seating grid grid-rows-10 gap-3 py-4">
+          <div className="grid grid-rows-10 gap-3 py-4">
             {Array.from({ length: 10 }).map((_, rowIndex) => {
               const leftIndex = rowIndex * 2;
               const rightIndex = leftIndex + 1;
@@ -260,9 +260,9 @@ const DragonBoatSeatingChart = ({ seatingChart, updateSeatingChart, stern, extra
                 </div>
                 <div
                   style={{ maxWidth: maxWidth }}
-                  className={`px-3 py-2 rounded-xl flex flex-col justify-center items-center shadow border-2 text-center bg-blue-100`}>
+                  className={`px-2 py-1 rounded-xl flex flex-col justify-center items-center shadow border-2 text-center bg-blue-100`}>
                   <span>
-                    <strong>{stern.name}</strong>: {stern.weight} lbs
+                    <strong>{stern.name}</strong>: {stern.weight}
                   </span>
                 </div>
               </div>

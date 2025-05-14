@@ -42,10 +42,6 @@ label {
   @apply bg-white p-3 mt-3;
 }
 
-.boat-seating {
-  max-width: 400px;
-}
-
 .weights p {
   @apply text-sm mt-2;
 }

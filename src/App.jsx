@@ -192,12 +192,19 @@ function App() {
         {/* Button to create seating chart */}
         <div className="flex items-start gap-8 mt-6">
           <button
-            className="bg-gray-700 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded"
-            onClick={createSeatingChart}
+            className={`font-bold py-2 px-4 rounded transition 
+    ${selectedPaddlers.length === 0
+                ? 'bg-gray-400 text-white cursor-not-allowed'
+                : 'bg-gray-700 hover:bg-gray-600 text-white'}`}
+            onClick={(e) => {
+              e.preventDefault();
+              createSeatingChart();
+            }}
             disabled={selectedPaddlers.length === 0}
           >
             Create Chart
           </button>
+
         </div>
       </div>
 
