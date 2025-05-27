@@ -40,77 +40,50 @@ function App() {
           }
         });
       });
-
-
   }, []);
 
+  // Initialize seating chart with 20 empty seats
+  useEffect(() => {
+    const initialEmpties = Array.from({ length: 20 }, () => ({
+      name: 'Empty',
+      weight: 0,
+      side: 'either',
+    }));
+    setSeatingChart(initialEmpties);
+  }, []);
+
+  // If a stern is selected, ensure they are removed from seatingChart
   useEffect(() => {
     if (stern) {
-      setSelectedPaddlers(prev => prev.filter(p => p.name !== stern.name));
+      setSeatingChart(prev => prev.map(seat => seat.name === stern.name ? { name: 'Empty', weight: 0, side: 'either' } : seat));
     }
   }, [stern]);
 
-  // Toggle paddler selection for inclusion in boat
-  const togglePaddler = (paddler) => {
-    const isSelected = selectedPaddlers.some(sp => sp.name === paddler.name);
-    if (isSelected) {
-      setSelectedPaddlers(selectedPaddlers.filter(p => p.name !== paddler.name));
+  // Handle selecting a paddler
+  const handlePaddlerClick = (paddler) => {
+    const indexInChart = seatingChart.findIndex(seat => seat.name === paddler.name);
+
+    // If paddler is already in seating chart, remove them
+    if (indexInChart !== -1) {
+      const newChart = [...seatingChart];
+      newChart[indexInChart] = { name: 'Empty', weight: 0, side: 'either' };
+      setSeatingChart(newChart);
       setSelectionError("");
-    } else if (selectedPaddlers.length < 20) {
-      setSelectedPaddlers([...selectedPaddlers, paddler]);
-      setSelectionError("");
-    } else {
-      setSelectionError("You can only select up to 20 paddlers.");
-    }
-  };
-
-  // Check if paddler can sit on a particular side
-  const canSit = (paddler, side) => paddler.side === 'either' || paddler.side === side;
-
-  // Create initial semi-balanced seating chart
-  const createSeatingChart = () => {
-    let paddlers = [...selectedPaddlers];
-
-    // Fill remaining seats with empty paddlers
-    const emptiesNeeded = 20 - paddlers.length;
-    const empties = Array.from({ length: emptiesNeeded }, () => ({ name: 'Empty', weight: 0, side: 'either' }));
-    paddlers = [...paddlers, ...empties];
-
-    // Sort paddlers by weight (descending)
-    paddlers.sort((a, b) => b.weight - a.weight);
-
-    const leftSide = [];
-    const rightSide = [];
-
-    // Greedy placement of paddlers to balance sides
-    for (const paddler of paddlers) {
-      const leftWeight = leftSide.reduce((sum, p) => sum + p.weight, 0);
-      const rightWeight = rightSide.reduce((sum, p) => sum + p.weight, 0);
-
-      if (canSit(paddler, 'left') && (leftWeight <= rightWeight || !canSit(paddler, 'right'))) {
-        leftSide.push(paddler);
-      } else {
-        rightSide.push(paddler);
-      }
+      return;
     }
 
-    // Fill remaining seats on either side
-    while (leftSide.length < 10) leftSide.push({ name: 'Empty', weight: 0, side: 'either' });
-    while (rightSide.length < 10) rightSide.push({ name: 'Empty', weight: 0, side: 'either' });
+    // Otherwise, try to add paddler to the first empty seat
+    const emptyIndex = seatingChart.findIndex(seat => seat.name === 'Empty');
+    if (emptyIndex === -1) {
+      setSelectionError("All seats are filled. Remove a paddler before adding a new one.");
+      return;
+    }
 
-    // Construct seating chart rows
-    const rows = Array.from({ length: 10 }, (_, i) => ({
-      left: leftSide[i],
-      right: rightSide[i]
-    }));
-
-    const seating = rows.flatMap(row => [row.left, row.right]);
-
-    // Save results
-    setSeatingChart(seating);
-    setTimeout(() => {
-      seatingChartRef.current?.scrollIntoView({ behavior: 'smooth' });
-    }, 100); // slight delay to ensure DOM has updated
+    // Assign paddler to the empty seat
+    const newChart = [...seatingChart];
+    newChart[emptyIndex] = paddler;
+    setSeatingChart(newChart);
+    setSelectionError("");
   };
 
   // Updates the seating chart from drag & drop
@@ -120,7 +93,6 @@ function App() {
 
   return (
     <div className="App">
-
       <h1 className="font-bold text-xl text-gray-900 mb-2 p-3">Nichi Seating Chart</h1>
       <div className="paddler-selection">
         <p className="mb-4 font-semibold">Select up to 20 paddlers.</p>
@@ -131,14 +103,16 @@ function App() {
         {/* Render paddler names as selectable containers */}
         <div className="flex flex-wrap gap-2 mb-4">
           {allPaddlers.map((p) => {
-            const isSelected = selectedPaddlers.some(sp => sp.name === p.name);
-            const isDisabled = (!isSelected && selectedPaddlers.length >= 20) || (stern && stern.name === p.name);
+            const isInChart = seatingChart.some(seat => seat.name === p.name);
+            const noEmptySeats = !seatingChart.some(seat => seat.name === 'Empty');
+            const isDisabled = (!isInChart && (stern && stern.name === p.name)) || (!isInChart && noEmptySeats);
+
             return (
               <div
                 key={p.name}
-                onClick={() => !isDisabled && togglePaddler(p)}
+                onClick={() => !isDisabled && handlePaddlerClick(p)}
                 className={`cursor-pointer px-3 py-2 rounded-lg border transition-colors duration-200 
-                  ${isSelected ? 'bg-purple-500 text-white border-purple-600 hover:bg-purple-600 hover:border-purple-700' : 'bg-white border-gray-300 hover:bg-purple-50 hover:border-purple-200'}
+                   ${isInChart ? 'bg-purple-500 text-white border-purple-600 hover:bg-purple-600 hover:border-purple-700' : 'bg-white border-gray-300 hover:bg-purple-50 hover:border-purple-200'}
                   ${isDisabled ? 'opacity-50 cursor-not-allowed' : ''}`}
               >
                 {p.name}
@@ -189,23 +163,6 @@ function App() {
           </div>
         </div>
         <p>Steering mechanism + paddle, estimated at 15lbs, has already been accounted for.</p>
-        {/* Button to create seating chart */}
-        <div className="flex items-start gap-8 mt-6">
-          <button
-            className={`font-semibold py-2 px-4 rounded transition 
-    ${selectedPaddlers.length === 0
-                ? 'bg-gray-400 text-white cursor-not-allowed'
-                : 'bg-gray-700 hover:bg-gray-600 text-white'}`}
-            onClick={(e) => {
-              e.preventDefault();
-              createSeatingChart();
-            }}
-            disabled={selectedPaddlers.length === 0}
-          >
-            Create Chart
-          </button>
-
-        </div>
       </div>
 
       {/* Show seating chart once generated */}
