@@ -18,6 +18,8 @@ const DragonBoatSeatingChart = ({ seatingChart, updateSeatingChart, stern, extra
   const [activeId, setActiveId] = useState(null); // Currently dragged paddler
   const [overId, setOverId] = useState(null);     // ID of seat currently hovered over
   const [maxWidth, setMaxWidth] = useState(0);    // Used to standardize width of all seat containers
+  const [showWeights, setShowWeights] = useState(true);
+  const steeringWeight = 15;
 
   // DnD sensor configuration
   const sensors = useSensors(
@@ -142,11 +144,11 @@ const DragonBoatSeatingChart = ({ seatingChart, updateSeatingChart, stern, extra
     const extraSideWeight = (parseInt(extraFrontWeight, 10) + parseInt(extraBackWeight, 10) + (stern ? stern.weight : 0)) / 2;
 
     frontWeight += parseInt(extraFrontWeight, 10);
-    backWeight += parseInt(extraBackWeight, 10) + (stern ? stern.weight : 0);
-    leftWeight += extraSideWeight;
+    backWeight += parseInt(extraBackWeight, 10) + (stern ? stern.weight : 0) + steeringWeight;
+    leftWeight += extraSideWeight + steeringWeight;
     rightWeight += extraSideWeight;
     pacerWeight += parseInt(extraFrontWeight, 10);
-    rocketWeight += parseInt(extraBackWeight, 10) + (stern ? stern.weight : 0);
+    rocketWeight += parseInt(extraBackWeight, 10) + (stern ? stern.weight : 0) + steeringWeight;
 
     return { frontWeight, backWeight, leftWeight, rightWeight, pacerWeight, rocketWeight };
   };
@@ -198,7 +200,7 @@ const DragonBoatSeatingChart = ({ seatingChart, updateSeatingChart, stern, extra
       >
         {paddler ? (
           <span>
-            <strong>{paddler.name}</strong>: {paddler.weight}
+            <strong>{paddler.name}</strong>{showWeights && `: ${paddler.weight}`}
           </span>
         ) : (
           <span className="text-gray-400">Empty</span>
@@ -211,9 +213,16 @@ const DragonBoatSeatingChart = ({ seatingChart, updateSeatingChart, stern, extra
 
   return (
     <>
+      <button
+        className="mb-2 px-2 py-1 bg-purple-500 text-white border-purple-600 hover:bg-purple-600 hover:border-purple-700 rounded"
+        onClick={() => setShowWeights((prev) => !prev)}
+      >
+        {showWeights ? 'Hide Weights' : 'Show Weights'}
+      </button>
+
       <div className="weights">
-        {renderImbalance('Front', 'Back', frontWeight, backWeight, 15)}
         {renderImbalance('Left', 'Right', leftWeight, rightWeight, 15)}
+        {renderImbalance('Front 5', 'Back 5', frontWeight, backWeight, 15)}
         {renderImbalance('Pacers', 'Rockets', pacerWeight, rocketWeight, 15)}
       </div>
 
@@ -262,7 +271,7 @@ const DragonBoatSeatingChart = ({ seatingChart, updateSeatingChart, stern, extra
                   style={{ maxWidth: maxWidth }}
                   className={`px-2 py-1 rounded-xl flex flex-col justify-center items-center shadow border-2 text-center bg-blue-100`}>
                   <span>
-                    <strong>{stern.name}</strong>: {stern.weight}
+                    <strong>{stern.name}</strong>{showWeights && `: ${stern.weight}`}
                   </span>
                 </div>
               </div>

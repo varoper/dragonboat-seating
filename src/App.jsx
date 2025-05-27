@@ -188,11 +188,11 @@ function App() {
             />
           </div>
         </div>
-
+        <p>Steering mechanism + paddle, estimated at 15lbs, has already been accounted for.</p>
         {/* Button to create seating chart */}
         <div className="flex items-start gap-8 mt-6">
           <button
-            className={`font-bold py-2 px-4 rounded transition 
+            className={`font-semibold py-2 px-4 rounded transition 
     ${selectedPaddlers.length === 0
                 ? 'bg-gray-400 text-white cursor-not-allowed'
                 : 'bg-gray-700 hover:bg-gray-600 text-white'}`}
