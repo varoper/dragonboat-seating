@@ -14,7 +14,7 @@ import {
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 
-const DragonBoatSeatingChart = ({ seatingChart, updateSeatingChart, stern, extraFrontWeight = 0, extraBackWeight = 0 }) => {
+const DragonBoatSeatingChart = ({ seatingChart, updateSeatingChart, stern, drummer, extraFrontWeight = 0, extraBackWeight = 0 }) => {
   const [activeId, setActiveId] = useState(null); // Currently dragged paddler
   const [overId, setOverId] = useState(null);     // ID of seat currently hovered over
   const [maxWidth, setMaxWidth] = useState(0);    // Used to standardize width of all seat containers
@@ -141,13 +141,13 @@ const DragonBoatSeatingChart = ({ seatingChart, updateSeatingChart, stern, extra
       if (i >= 14 && i <= 19) rocketWeight += paddler.weight;
     });
 
-    const extraSideWeight = (parseInt(extraFrontWeight, 10) + parseInt(extraBackWeight, 10) + (stern ? stern.weight : 0)) / 2;
+    const extraSideWeight = (parseInt(extraFrontWeight, 10) + parseInt(extraBackWeight, 10) + (drummer ? drummer.weight : 0) + (stern ? stern.weight : 0)) / 2;
 
-    frontWeight += parseInt(extraFrontWeight, 10);
+    frontWeight += parseInt(extraFrontWeight, 10) + (drummer ? drummer.weight : 0);
     backWeight += parseInt(extraBackWeight, 10) + (stern ? stern.weight : 0) + steeringWeight;
     leftWeight += extraSideWeight + steeringWeight;
     rightWeight += extraSideWeight;
-    pacerWeight += parseInt(extraFrontWeight, 10);
+    pacerWeight += parseInt(extraFrontWeight, 10) + (drummer ? drummer.weight : 0);
     rocketWeight += parseInt(extraBackWeight, 10) + (stern ? stern.weight : 0) + steeringWeight;
 
     return { frontWeight, backWeight, leftWeight, rightWeight, pacerWeight, rocketWeight };
@@ -234,7 +234,25 @@ const DragonBoatSeatingChart = ({ seatingChart, updateSeatingChart, stern, extra
         onDragEnd={handleDragEnd}
       >
         <SortableContext items={seatingChart.map((_, i) => i.toString())} strategy={rectSortingStrategy}>
-          <div className="grid grid-rows-10 gap-3 py-4">
+
+          {/* Drummer info row */}
+          {drummer && (
+            <div className="grid">
+              <div className="flex items-center gap-8">
+                <div className="w-12 text-gray-600 font-semibold">
+                  Drummer
+                </div>
+                <div
+                  className={`px-2 py-1 my-2 rounded-xl flex flex-col justify-center items-center shadow border-2 text-center bg-blue-100`}>
+                  <span>
+                    <strong>{drummer.name}</strong>{showWeights && `: ${drummer.weight}`}
+                  </span>
+                </div>
+              </div>
+            </div>
+          )}
+
+          <div className="grid grid-rows-10 gap-3 py-1">
             {Array.from({ length: 10 }).map((_, rowIndex) => {
               const leftIndex = rowIndex * 2;
               const rightIndex = leftIndex + 1;
@@ -268,8 +286,7 @@ const DragonBoatSeatingChart = ({ seatingChart, updateSeatingChart, stern, extra
                   Stern
                 </div>
                 <div
-                  style={{ maxWidth: maxWidth }}
-                  className={`px-2 py-1 rounded-xl flex flex-col justify-center items-center shadow border-2 text-center bg-blue-100`}>
+                  className={`px-2 py-1 my-2 rounded-xl flex flex-col justify-center items-center shadow border-2 text-center bg-blue-100`}>
                   <span>
                     <strong>{stern.name}</strong>{showWeights && `: ${stern.weight}`}
                   </span>

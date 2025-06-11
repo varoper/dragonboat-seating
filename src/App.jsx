@@ -7,6 +7,7 @@ function App() {
   // Set of all paddlers from CSV
   const [allPaddlers, setAllPaddlers] = useState([]);
   const [allSterns, setAllSterns] = useState([]);
+  const [allDrummers, setAllDrummers] = useState([]);
   // Paddlers selected by user (up to 20)
   const [selectedPaddlers, setSelectedPaddlers] = useState([]);
   // Initial seating chart, after loading from csv and accounting for empty seats
@@ -14,8 +15,15 @@ function App() {
   // Stores weight distribution stats
   // Stern;
   const [stern, setStern] = useState(null);
+  // Drummer;
+  const [drummer, setDrummer] = useState(null);
   // Error for selecting too many paddlers
   const [selectionError, setSelectionError] = useState("");
+  // Adding new paddler
+  const [showAddForm, setShowAddForm] = useState(false);
+  const [newPaddlerName, setNewPaddlerName] = useState("");
+  const [newPaddlerWeight, setNewPaddlerWeight] = useState("");
+  // Extra weights
   const [extraFrontWeight, setExtraFrontWeight] = useState(0);
   const [extraBackWeight, setExtraBackWeight] = useState(0);
   const seatingChartRef = useRef(null);
@@ -37,6 +45,7 @@ function App() {
             }));
             setAllPaddlers(parsed.filter(p => p.side !== 'none'));
             setAllSterns(parsed.filter(p => p.role === 'stern'));
+            setAllDrummers(parsed.filter(p => p.role === 'drummer'));
           }
         });
       });
@@ -58,6 +67,13 @@ function App() {
       setSeatingChart(prev => prev.map(seat => seat.name === stern.name ? { name: 'Empty', weight: 0, side: 'either' } : seat));
     }
   }, [stern]);
+
+  // If a drummer is selected, ensure they are removed from seatingChart
+  useEffect(() => {
+    if (drummer) {
+      setSeatingChart(prev => prev.map(seat => seat.name === drummer.name ? { name: 'Empty', weight: 0, side: 'either' } : seat));
+    }
+  }, [drummer]);
 
   // Handle selecting a paddler
   const handlePaddlerClick = (paddler) => {
@@ -91,13 +107,30 @@ function App() {
     setSeatingChart(seats);
   };
 
+  // Handle adding new paddler to allPaddlers
+  const handleAddNewPaddler = () => {
+    if (!newPaddlerName || isNaN(parseInt(newPaddlerWeight))) return;
+
+    const newPaddler = {
+      name: newPaddlerName,
+      weight: parseInt(newPaddlerWeight),
+      side: 'either',
+      role: ''
+    };
+
+    setAllPaddlers(prev => [...prev, newPaddler]);
+    setNewPaddlerName("");
+    setNewPaddlerWeight("");
+    setShowAddForm(false);
+  };
+
   return (
     <div className="App">
       <h1 className="font-bold text-xl text-gray-900 mb-2 p-3">Nichi Seating Chart</h1>
       <div className="paddler-selection">
         <p className="mb-4 font-semibold">Select up to 20 paddlers.</p>
 
-        {/* Display error message if too many paddlers selected */}
+        {/* Display error message if too many paddlers are selected */}
         {selectionError && <p style={{ color: 'red' }}>{selectionError}</p>}
 
         {/* Render paddler names as selectable containers */}
@@ -105,7 +138,7 @@ function App() {
           {allPaddlers.map((p) => {
             const isInChart = seatingChart.some(seat => seat.name === p.name);
             const noEmptySeats = !seatingChart.some(seat => seat.name === 'Empty');
-            const isDisabled = (!isInChart && (stern && stern.name === p.name)) || (!isInChart && noEmptySeats);
+            const isDisabled = (!isInChart && (stern && stern.name === p.name)) || (!isInChart && (drummer && drummer.name === p.name)) || (!isInChart && noEmptySeats);
 
             return (
               <div
@@ -121,23 +154,80 @@ function App() {
           })}
         </div>
 
-        {/* Stern selection dropdown */}
-        <div className="mb-4">
-          <label className="block text-sm font-medium text-gray-700 mb-1">Select stern</label>
-          <select
-            className="border border-gray-300 rounded px-2 py-1"
-            value={stern ? stern.name : ''}
-            onChange={(e) => {
-              const selected = allSterns.find(p => p.name === e.target.value);
-              setStern(selected || null);
-            }}
-          >
-            <option value="">- Select -</option>
-            {allSterns.map(p => (
-              <option key={p.name} value={p.name}>{p.name}</option>
-            ))}
-          </select>
+        {/* Stern & drummer selection dropdowns */}
+        <div className="flex gap-4 mb-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Select drummer</label>
+            <select
+              className="border border-gray-300 rounded px-2 py-1"
+              value={drummer ? drummer.name : ''}
+              onChange={(e) => {
+                const selected = allDrummers.find(p => p.name === e.target.value);
+                setDrummer(selected || null);
+              }}
+            >
+              <option value="">- Select -</option>
+              {allDrummers.map(p => (
+                <option key={p.name} value={p.name}>{p.name}</option>
+              ))}
+            </select>
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Select stern</label>
+            <select
+              className="border border-gray-300 rounded px-2 py-1"
+              value={stern ? stern.name : ''}
+              onChange={(e) => {
+                const selected = allSterns.find(p => p.name === e.target.value);
+                setStern(selected || null);
+              }}
+            >
+              <option value="">- Select -</option>
+              {allSterns.map(p => (
+                <option key={p.name} value={p.name}>{p.name}</option>
+              ))}
+            </select>
+          </div>
         </div>
+
+        {/* Add additional paddlers */}
+        <div className="mb-4">
+          <button
+            className="px-2 py-1 bg-purple-500 text-white border-purple-600 hover:bg-purple-600 hover:border-purple-700 rounded"
+            onClick={() => setShowAddForm(prev => !prev)}
+          >
+            {showAddForm ? '- Hide add paddler' : '+ Show add paddler'}
+          </button>
+        </div>
+
+        {showAddForm && (
+          <div className="my-2 p-2 bg-gray-100 border rounded border-gray-200 flex gap-2 items-end max-w-fit">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Name</label>
+              <input
+                type="text"
+                value={newPaddlerName}
+                onChange={(e) => setNewPaddlerName(e.target.value)}
+                className="border border-gray-300 rounded px-2 py-1 w-28"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Weight</label>
+              <input
+                type="number"
+                value={newPaddlerWeight}
+                onChange={(e) => setNewPaddlerWeight(e.target.value)}
+                className="border border-gray-300 rounded px-2 py-1 w-16"
+              />
+            </div>
+            <button
+              className="px-2 py-1 bg-purple-500 text-white border-purple-600 hover:bg-purple-600 hover:border-purple-700 rounded"
+              onClick={handleAddNewPaddler}
+            >
+              Add
+            </button>
+          </div>
+        )}
 
         {/* Inputs for additional front and back weight */}
         <div className="flex gap-4 mb-4">
@@ -175,6 +265,7 @@ function App() {
             seatingChart={seatingChart}
             updateSeatingChart={updateSeatingChart}
             stern={stern}
+            drummer={drummer}
             extraFrontWeight={extraFrontWeight}
             extraBackWeight={extraBackWeight}
           />
