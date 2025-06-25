@@ -8,8 +8,6 @@ function App() {
   const [allPaddlers, setAllPaddlers] = useState([]);
   const [allSterns, setAllSterns] = useState([]);
   const [allDrummers, setAllDrummers] = useState([]);
-  // Paddlers selected by user (up to 20)
-  const [selectedPaddlers, setSelectedPaddlers] = useState([]);
   // Initial seating chart, after loading from csv and accounting for empty seats
   const [seatingChart, setSeatingChart] = useState([]);
   // Stores weight distribution stats
@@ -53,12 +51,7 @@ function App() {
 
   // Initialize seating chart with 20 empty seats
   useEffect(() => {
-    const initialEmpties = Array.from({ length: 20 }, () => ({
-      name: 'Empty',
-      weight: 0,
-      side: 'either',
-    }));
-    setSeatingChart(initialEmpties);
+    initializeEmpties();
   }, []);
 
   // If a stern is selected, ensure they are removed from seatingChart
@@ -74,6 +67,120 @@ function App() {
       setSeatingChart(prev => prev.map(seat => seat.name === drummer.name ? { name: 'Empty', weight: 0, side: 'either' } : seat));
     }
   }, [drummer]);
+
+  // Initializes empty seating chart.
+  const initializeEmpties = () => {
+    const initialEmpties = Array.from({ length: 20 }, () => ({
+      name: 'Empty',
+      weight: 0,
+      side: 'either',
+    }));
+    setSeatingChart(initialEmpties);
+  }
+
+  const loadSeatingChartFromCSV = async (fileName) => {
+    try {
+      const response = await fetch(`/charts/${fileName}`);
+      const csvText = await response.text();
+
+      // Parse CSV into JSON
+      const { data, errors } = Papa.parse(csvText.trim(), {
+        header: true,
+        skipEmptyLines: true,
+      });
+
+      if (errors.length > 0) {
+        console.error('CSV parsing errors:', errors);
+        return;
+      }
+
+      initializeEmpties(); // Returns an array with 20 empty paddlers + drummer/stern slots
+      const newChart = [...seatingChart];
+
+      data.forEach(({ name, seat }) => {
+        let paddler =
+          allPaddlers.find((p) => p.name === name) ||
+          allSterns.find((p) => p.name === name) ||
+          allDrummers.find((p) => p.name === name);
+
+        if (!paddler) {
+          console.warn(`Paddler not found: ${name}`);
+          return;
+        }
+
+        let seatIndex = null;
+
+        if (seat === 'drummer') {
+          setDrummer(paddler);
+        } else if (seat === 'stern') {
+          setStern(paddler);
+        } else {
+          const match = seat.match(/^(\d{1,2})([LR])$/i);
+          if (match) {
+            const row = parseInt(match[1], 10);
+            const side = match[2].toUpperCase();
+            if (row >= 1 && row <= 10 && (side === 'L' || side === 'R')) {
+              seatIndex = (row - 1) * 2 + (side === 'L' ? 0 : 1);
+            }
+          }
+        }
+
+        console.log("paddler:", paddler);
+        console.log("seatIndex", seatIndex);
+        console.log("Seat", seat);
+
+        if (seatIndex !== null && seatIndex >= 0 && seatIndex < newChart.length) {
+          newChart[seatIndex] = paddler;
+        } else {
+          console.warn(`Invalid seat for ${name}: ${seat}`);
+        }
+      });
+
+      console.log(newChart);
+      setSeatingChart(newChart);
+    } catch (err) {
+      console.error('Failed to load CSV seating chart:', err);
+    }
+  };
+
+  const exportSeatingChartToCSV = () => {
+    const csvRows = [['name', 'seat']];
+
+    // Add drummer
+    if (drummer && drummer.name !== 'Empty') {
+      csvRows.push([drummer.name, 'drummer']);
+    }
+
+    // Add seating chart (20 seats)
+    seatingChart.forEach((paddler, index) => {
+      if (paddler && paddler.name !== 'Empty') {
+        const row = Math.floor(index / 2) + 1;
+        const side = index % 2 === 0 ? 'L' : 'R';
+        csvRows.push([paddler.name, `${row}${side}`]);
+      }
+    });
+
+    // Add stern
+    if (stern && stern.name !== 'Empty') {
+      csvRows.push([stern.name, 'stern']);
+    }
+
+    // Convert to CSV string
+    const csvString = csvRows.map(row => row.join(',')).join('\n');
+
+    // Generate random filename
+    const randomString = Math.random().toString(36).substring(2, 10);
+    const filename = `chart_${randomString}.csv`;
+
+    // Trigger download
+    const blob = new Blob([csvString], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
 
   // Handle selecting a paddler
   const handlePaddlerClick = (paddler) => {
@@ -154,6 +261,16 @@ function App() {
           })}
         </div>
 
+        {/* Load from seating chart */}
+        <div className="mb-4">
+          <button
+            className="px-2 py-1 bg-purple-500 text-white border-purple-600 hover:bg-purple-600 hover:border-purple-700 rounded"
+            onClick={() => loadSeatingChartFromCSV('current.csv')}
+          >
+            {'Load from saved chart'}
+          </button>
+        </div>
+
         {/* Stern & drummer selection dropdowns */}
         <div className="flex gap-4 mb-4">
           <div>
@@ -196,7 +313,7 @@ function App() {
             className="px-2 py-1 bg-purple-500 text-white border-purple-600 hover:bg-purple-600 hover:border-purple-700 rounded"
             onClick={() => setShowAddForm(prev => !prev)}
           >
-            {showAddForm ? '- Hide add paddler' : '+ Show add paddler'}
+            {showAddForm ? '- Hide add paddler' : '+ Add paddler'}
           </button>
         </div>
 
@@ -271,6 +388,13 @@ function App() {
           />
         </div>
       )}
+      <p className="mb-3 ml-3"><button
+        className="px-2 py-1 bg-purple-500 text-white border-purple-600 hover:bg-purple-600 hover:border-purple-700 rounded"
+        onClick={exportSeatingChartToCSV}
+      >
+        Export Seating Chart
+      </button></p>
+
     </div>
   );
 }
