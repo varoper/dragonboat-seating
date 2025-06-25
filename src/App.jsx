@@ -5,7 +5,7 @@ import Papa from 'papaparse';
 import './App.css';
 
 const SEATING_COOKIE_KEY = 'seatingChart';
-const PADDLERS_COOKIE_KEY = 'allPaddlers';
+const EXTRA_PADDLERS_COOKIE_KEY = 'extraPaddlers';
 
 function App() {
   // Set of all paddlers from CSV
@@ -45,9 +45,21 @@ function App() {
               side: p.side.toLowerCase(),
               role: p.role.toLowerCase() || '',
             }));
-            setAllPaddlers(parsed.filter(p => p.side !== 'none'));
+            // setAllPaddlers(parsed.filter(p => p.side !== 'none'));
+            let fullPaddlers = parsed.filter(p => p.side !== 'none');
             setAllSterns(parsed.filter(p => p.role === 'stern'));
             setAllDrummers(parsed.filter(p => p.role === 'drummer'));
+
+            const extra = Cookies.get(EXTRA_PADDLERS_COOKIE_KEY);
+            if (extra) {
+              try {
+                const extraParsed = JSON.parse(extra);
+                fullPaddlers = [...fullPaddlers, ...extraParsed];
+              } catch (e) {
+                console.error('Invalid extra paddlers cookie:', e);
+              }
+            }
+            setAllPaddlers(fullPaddlers);
           }
         });
       });
@@ -100,6 +112,7 @@ function App() {
 
   const clearCookies = () => {
     Cookies.remove(SEATING_COOKIE_KEY);
+    Cookies.remove(EXTRA_PADDLERS_COOKIE_KEY);
     initializeEmpties();
   };
 
@@ -245,7 +258,26 @@ function App() {
       role: ''
     };
 
-    storeAllPaddlers(prev => [...prev, newPaddler]);
+    // setAllPaddlers(prev => [...prev, newPaddler]);
+    setAllPaddlers(prev => {
+      const updated = [...prev, newPaddler];
+
+      // --- Update extraPaddlers cookie ---
+      let currentExtras = [];
+      const existing = Cookies.get(EXTRA_PADDLERS_COOKIE_KEY);
+      if (existing) {
+        try {
+          currentExtras = JSON.parse(existing);
+        } catch (e) {
+          console.error('Failed to parse existing extra paddlers:', e);
+        }
+      }
+
+      const updatedExtras = [...currentExtras, newPaddler];
+      Cookies.set(EXTRA_PADDLERS_COOKIE_KEY, JSON.stringify(updatedExtras), { expires: 365 });
+
+      return updated;
+    });
     setNewPaddlerName("");
     setNewPaddlerWeight("");
     setShowAddForm(false);
