@@ -1,7 +1,11 @@
 import React, { useState, useEffect, useRef } from 'react';
 import DragonBoatSeatingChart from './DragonBoatSeatingChart';
+import Cookies from 'js-cookie';
 import Papa from 'papaparse';
 import './App.css';
+
+const SEATING_COOKIE_KEY = 'seatingChart';
+const PADDLERS_COOKIE_KEY = 'allPaddlers';
 
 function App() {
   // Set of all paddlers from CSV
@@ -49,22 +53,38 @@ function App() {
       });
   }, []);
 
-  // Initialize seating chart with 20 empty seats
   useEffect(() => {
-    initializeEmpties();
+    const savedChart = Cookies.get(SEATING_COOKIE_KEY);
+    if (savedChart) {
+      try {
+        const parsed = JSON.parse(savedChart);
+        setSeatingChart(parsed);
+      } catch (e) {
+        console.error('Invalid cookie data for seating chart:', e);
+        initializeEmpties(); // fallback
+      }
+    } else {
+      initializeEmpties();
+    }
   }, []);
+
+  // Sets seatingChart state & stores as cookie
+  const storeSeatingChart = (newChart) => {
+    setSeatingChart(newChart);
+    Cookies.set(SEATING_COOKIE_KEY, JSON.stringify(newChart), { expires: 365 });
+  };
 
   // If a stern is selected, ensure they are removed from seatingChart
   useEffect(() => {
     if (stern) {
-      setSeatingChart(prev => prev.map(seat => seat.name === stern.name ? { name: 'Empty', weight: 0, side: 'either' } : seat));
+      storeSeatingChart(prev => prev.map(seat => seat.name === stern.name ? { name: 'Empty', weight: 0, side: 'either' } : seat));
     }
   }, [stern]);
 
   // If a drummer is selected, ensure they are removed from seatingChart
   useEffect(() => {
     if (drummer) {
-      setSeatingChart(prev => prev.map(seat => seat.name === drummer.name ? { name: 'Empty', weight: 0, side: 'either' } : seat));
+      storeSeatingChart(prev => prev.map(seat => seat.name === drummer.name ? { name: 'Empty', weight: 0, side: 'either' } : seat));
     }
   }, [drummer]);
 
@@ -75,8 +95,13 @@ function App() {
       weight: 0,
       side: 'either',
     }));
-    setSeatingChart(initialEmpties);
+    storeSeatingChart(initialEmpties);
   }
+
+  const clearCookies = () => {
+    Cookies.remove(SEATING_COOKIE_KEY);
+    initializeEmpties();
+  };
 
   const loadSeatingChartFromCSV = async (fileName) => {
     try {
@@ -125,10 +150,6 @@ function App() {
           }
         }
 
-        console.log("paddler:", paddler);
-        console.log("seatIndex", seatIndex);
-        console.log("Seat", seat);
-
         if (seatIndex !== null && seatIndex >= 0 && seatIndex < newChart.length) {
           newChart[seatIndex] = paddler;
         } else {
@@ -136,8 +157,7 @@ function App() {
         }
       });
 
-      console.log(newChart);
-      setSeatingChart(newChart);
+      storeSeatingChart(newChart);
     } catch (err) {
       console.error('Failed to load CSV seating chart:', err);
     }
@@ -190,7 +210,7 @@ function App() {
     if (indexInChart !== -1) {
       const newChart = [...seatingChart];
       newChart[indexInChart] = { name: 'Empty', weight: 0, side: 'either' };
-      setSeatingChart(newChart);
+      storeSeatingChart(newChart);
       setSelectionError("");
       return;
     }
@@ -205,13 +225,13 @@ function App() {
     // Assign paddler to the empty seat
     const newChart = [...seatingChart];
     newChart[emptyIndex] = paddler;
-    setSeatingChart(newChart);
+    storeSeatingChart(newChart);
     setSelectionError("");
   };
 
   // Updates the seating chart from drag & drop
   const updateSeatingChart = (seats) => {
-    setSeatingChart(seats);
+    storeSeatingChart(seats);
   };
 
   // Handle adding new paddler to allPaddlers
@@ -225,7 +245,7 @@ function App() {
       role: ''
     };
 
-    setAllPaddlers(prev => [...prev, newPaddler]);
+    storeAllPaddlers(prev => [...prev, newPaddler]);
     setNewPaddlerName("");
     setNewPaddlerWeight("");
     setShowAddForm(false);
@@ -268,6 +288,12 @@ function App() {
             onClick={() => loadSeatingChartFromCSV('current.csv')}
           >
             {'Load from saved chart'}
+          </button>
+          <button
+            className="px-2 py-1 ml-3 bg-purple-500 text-white border-purple-600 hover:bg-purple-600 hover:border-purple-700 rounded"
+            onClick={clearCookies}
+          >
+            {'Clear chart'}
           </button>
         </div>
 
