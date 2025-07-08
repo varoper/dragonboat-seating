@@ -46,41 +46,6 @@ label {
   @apply text-sm mt-2;
 }
 
-.draggable {
-  touch-action: none;
-}
-
-.seating-chart {
-  max-width: 800px;
-  margin: auto;
-  padding: 20px;
-  font-family: sans-serif;
-}
-
-.rows {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-.row {
-  display: flex;
-  justify-content: space-between;
-  border: 1px solid #ddd;
-  padding: 10px;
-  border-radius: 8px;
-  background: #f9f9f9;
-}
-
-.paddler {
-  width: 48%;
-}
-
-.paddler strong {
-  display: block;
-  margin-bottom: 4px;
-}
-
 .grid-rows-10 {
   grid-template-rows: repeat(10, minmax(0, 1fr));
 }
