@@ -31,6 +31,8 @@ function App() {
   const [extraFrontWeight, setExtraFrontWeight] = useState(0);
   const [extraBackWeight, setExtraBackWeight] = useState(0);
   const seatingChartRef = useRef(null);
+  const [availableCharts, setAvailableCharts] = useState([]);
+  const [selectedChart, setSelectedChart] = useState('');
 
   // Load paddler data from CSV on first render
   useEffect(() => {
@@ -67,6 +69,14 @@ function App() {
       });
   }, []);
 
+  // Load stored charts
+  useEffect(() => {
+    fetch('http://localhost:5174/api/charts')
+      .then(res => res.json())
+      .then(files => setAvailableCharts(files))
+      .catch(err => console.error('Failed to fetch chart list:', err));
+  }, []);
+
   useEffect(() => {
     const savedChart = Cookies.get(SEATING_COOKIE_KEY);
     const savedDrummer = Cookies.get(DRUMMER_COOKIE_KEY);
@@ -92,16 +102,14 @@ function App() {
 
     if (savedChart) {
       try {
-        console.log('there is a saved chart!:', JSON.parse(savedChart));
         const parsedChart = JSON.parse(savedChart);
         setSeatingChart(parsedChart);
       } catch (e) {
         console.error('Invalid cookie data for seating chart:', e);
-        initializeEmpties(); // fallback
+        storeSeatingChart(emptyChart); // fallback
       }
     } else {
-      initializeEmpties();
-      console.log('initializing empties');
+      storeSeatingChart(emptyChart);
     }
 
   }, []);
@@ -144,24 +152,22 @@ function App() {
     }
   }, [drummer]);
 
-  // Initializes empty seating chart.
-  const initializeEmpties = () => {
-    const initialEmpties = Array.from({ length: 20 }, () => ({
-      name: 'Empty',
-      weight: 0,
-      side: 'either',
-    }));
-    storeSeatingChart(initialEmpties);
-  }
+  // An empty seating chart to reference
+  const emptyChart = Array.from({ length: 20 }, () => ({
+    name: 'Empty',
+    weight: 0,
+    side: 'either',
+  }));
 
-  const clearCookies = () => {
+  const clearChart = () => {
     Cookies.remove(SEATING_COOKIE_KEY);
     Cookies.remove(EXTRA_PADDLERS_COOKIE_KEY);
     Cookies.remove(DRUMMER_COOKIE_KEY);
     Cookies.remove(STERN_COOKIE_KEY);
-    initializeEmpties();
+    storeSeatingChart(emptyChart);
     setDrummer(null);
     setStern(null);
+    setSelectedChart('');
   };
 
   const loadSeatingChartFromCSV = async (fileName) => {
@@ -180,8 +186,7 @@ function App() {
         return;
       }
 
-      initializeEmpties(); // Returns an array with 20 empty paddlers + drummer/stern slots
-      const newChart = [...seatingChart];
+      const newChart = [...emptyChart];
 
       data.forEach(({ name, seat }) => {
         let paddler =
@@ -208,13 +213,12 @@ function App() {
             if (row >= 1 && row <= 10 && (side === 'L' || side === 'R')) {
               seatIndex = (row - 1) * 2 + (side === 'L' ? 0 : 1);
             }
+            if (seatIndex !== null && seatIndex >= 0 && seatIndex < newChart.length) {
+              newChart[seatIndex] = paddler;
+            } else {
+              console.warn(`Invalid seat for ${name}: ${seat}`);
+            }
           }
-        }
-
-        if (seatIndex !== null && seatIndex >= 0 && seatIndex < newChart.length) {
-          newChart[seatIndex] = paddler;
-        } else {
-          console.warn(`Invalid seat for ${name}: ${seat}`);
         }
       });
 
@@ -363,15 +367,31 @@ function App() {
 
         {/* Load from seating chart */}
         <div className="mb-4">
-          <button
-            className="px-2 py-1 bg-purple-500 text-white border-purple-600 hover:bg-purple-600 hover:border-purple-700 rounded"
-            onClick={() => loadSeatingChartFromCSV('current.csv')}
+          <label className="block text-sm font-medium text-gray-700 mb-1">Load saved chart</label>
+          <select
+            className="border border-gray-300 rounded px-2 py-1"
+            value={selectedChart}
+            onChange={(e) => {
+              const file = e.target.value;
+              if (file) {
+                clearChart(); // clear state and cookies
+                setSelectedChart(file); // set selected chart AFTER clearing
+                setTimeout(() => {
+                  loadSeatingChartFromCSV(file); // delay to allow state to reset
+                }, 0);
+              } else {
+                setSelectedChart('');
+              }
+            }}
           >
-            {'Load from saved chart'}
-          </button>
+            <option value="">- Select chart -</option>
+            {availableCharts.map(file => (
+              <option key={file} value={file}>{file}</option>
+            ))}
+          </select>
           <button
             className="px-2 py-1 ml-3 bg-purple-500 text-white border-purple-600 hover:bg-purple-600 hover:border-purple-700 rounded"
-            onClick={clearCookies}
+            onClick={clearChart}
           >
             {'Clear chart'}
           </button>
