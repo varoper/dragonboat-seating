@@ -6,6 +6,8 @@ import './App.css';
 
 const SEATING_COOKIE_KEY = 'seatingChart';
 const EXTRA_PADDLERS_COOKIE_KEY = 'extraPaddlers';
+const DRUMMER_COOKIE_KEY = 'drummer';
+const STERN_COOKIE_KEY = 'stern';
 
 function App() {
   // Set of all paddlers from CSV
@@ -67,17 +69,41 @@ function App() {
 
   useEffect(() => {
     const savedChart = Cookies.get(SEATING_COOKIE_KEY);
+    const savedDrummer = Cookies.get(DRUMMER_COOKIE_KEY);
+    const savedStern = Cookies.get(STERN_COOKIE_KEY);
+
+    if (savedDrummer) {
+      try {
+        const parsedDrummer = JSON.parse(savedDrummer);
+        setDrummer(parsedDrummer);
+      } catch (e) {
+        console.error('Invalid cookie data for drummer:', e);
+      }
+    }
+
+    if (savedStern) {
+      try {
+        const parsedStern = JSON.parse(savedStern);
+        setStern(parsedStern);
+      } catch (e) {
+        console.error('Invalid cookie data for stern:', e);
+      }
+    }
+
     if (savedChart) {
       try {
-        const parsed = JSON.parse(savedChart);
-        setSeatingChart(parsed);
+        console.log('there is a saved chart!:', JSON.parse(savedChart));
+        const parsedChart = JSON.parse(savedChart);
+        setSeatingChart(parsedChart);
       } catch (e) {
         console.error('Invalid cookie data for seating chart:', e);
         initializeEmpties(); // fallback
       }
     } else {
       initializeEmpties();
+      console.log('initializing empties');
     }
+
   }, []);
 
   // Sets seatingChart state & stores as cookie
@@ -86,17 +112,35 @@ function App() {
     Cookies.set(SEATING_COOKIE_KEY, JSON.stringify(newChart), { expires: 365 });
   };
 
+  // Sets Stern state & stores as cookie
+  const storeStern = (stern) => {
+    setStern(stern);
+    Cookies.set(STERN_COOKIE_KEY, JSON.stringify(stern), { expires: 365 });
+  };
+
+  // Sets Drummer state & stores as cookie
+  const storeDrummer = (drummer) => {
+    setDrummer(drummer);
+    Cookies.set(DRUMMER_COOKIE_KEY, JSON.stringify(drummer), { expires: 365 });
+  };
+
   // If a stern is selected, ensure they are removed from seatingChart
   useEffect(() => {
     if (stern) {
-      storeSeatingChart(prev => prev.map(seat => seat.name === stern.name ? { name: 'Empty', weight: 0, side: 'either' } : seat));
+      const cleanedChart = seatingChart.map(seat =>
+        seat.name === stern.name ? { name: 'Empty', weight: 0, side: 'either' } : seat
+      );
+      storeSeatingChart(cleanedChart);
     }
   }, [stern]);
 
   // If a drummer is selected, ensure they are removed from seatingChart
   useEffect(() => {
     if (drummer) {
-      storeSeatingChart(prev => prev.map(seat => seat.name === drummer.name ? { name: 'Empty', weight: 0, side: 'either' } : seat));
+      const cleanedChart = seatingChart.map(seat =>
+        seat.name === drummer.name ? { name: 'Empty', weight: 0, side: 'either' } : seat
+      );
+      storeSeatingChart(cleanedChart);
     }
   }, [drummer]);
 
@@ -113,7 +157,11 @@ function App() {
   const clearCookies = () => {
     Cookies.remove(SEATING_COOKIE_KEY);
     Cookies.remove(EXTRA_PADDLERS_COOKIE_KEY);
+    Cookies.remove(DRUMMER_COOKIE_KEY);
+    Cookies.remove(STERN_COOKIE_KEY);
     initializeEmpties();
+    setDrummer(null);
+    setStern(null);
   };
 
   const loadSeatingChartFromCSV = async (fileName) => {
@@ -149,9 +197,9 @@ function App() {
         let seatIndex = null;
 
         if (seat === 'drummer') {
-          setDrummer(paddler);
+          storeDrummer(paddler);
         } else if (seat === 'stern') {
-          setStern(paddler);
+          storeStern(paddler);
         } else {
           const match = seat.match(/^(\d{1,2})([LR])$/i);
           if (match) {
@@ -338,7 +386,7 @@ function App() {
               value={drummer ? drummer.name : ''}
               onChange={(e) => {
                 const selected = allDrummers.find(p => p.name === e.target.value);
-                setDrummer(selected || null);
+                storeDrummer(selected || null);
               }}
             >
               <option value="">- Select -</option>
@@ -354,7 +402,7 @@ function App() {
               value={stern ? stern.name : ''}
               onChange={(e) => {
                 const selected = allSterns.find(p => p.name === e.target.value);
-                setStern(selected || null);
+                storeStern(selected || null);
               }}
             >
               <option value="">- Select -</option>
