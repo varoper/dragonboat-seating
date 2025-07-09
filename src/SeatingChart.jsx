@@ -213,39 +213,13 @@ function SeatingChart() {
   };
 
   return (
-    // You can now render the UI just like it was inside App.jsx before
-    // using the state/handlers defined above
-    <div>
-      <div className="paddler-selection">
-        <p className="mb-4 font-semibold">Select up to 20 paddlers.</p>
-
-        {/* Display error message if too many paddlers are selected */}
-        {selectionError && <p style={{ color: 'red' }}>{selectionError}</p>}
-
-        {/* Render paddler names as selectable containers */}
-        <div className="flex flex-wrap gap-2 mb-4">
-          {allPaddlers.map((p) => {
-            const isInChart = seatingChart.some(seat => seat.name === p.name);
-            const noEmptySeats = !seatingChart.some(seat => seat.name === 'Empty');
-            const isDisabled = (!isInChart && (stern && stern.name === p.name)) || (!isInChart && (drummer && drummer.name === p.name)) || (!isInChart && noEmptySeats);
-
-            return (
-              <div
-                key={p.name}
-                onClick={() => !isDisabled && handlePaddlerClick(p)}
-                className={`cursor-pointer px-3 py-2 rounded-lg border transition-colors duration-200 
-                   ${isInChart ? 'bg-purple-500 text-white border-purple-600 hover:bg-purple-600 hover:border-purple-700' : 'bg-white border-gray-300 hover:bg-purple-50 hover:border-purple-200'}
-                  ${isDisabled ? 'opacity-50 cursor-not-allowed' : ''}`}
-              >
-                {p.name}
-              </div>
-            );
-          })}
-        </div>
+    <div className="flex flex-col lg:flex-row gap-6">
+      <div className="w-full lg:w-1/2">
+        <h2 className="font-bold text-lg text-gray-900 mb-2">1. Fill out the options below</h2>
 
         {/* Load from seating chart */}
-        <div className="mb-4">
-          <label className="block text-sm font-medium text-gray-700 mb-1">Load saved chart</label>
+        <div className="mb-6">
+          <label className="block text-sm font-medium text-gray-700 mb-2">Load saved chart</label>
           <select
             className="border border-gray-300 rounded px-2 py-1"
             value={selectedChart}
@@ -273,6 +247,73 @@ function SeatingChart() {
           >
             {'Clear chart'}
           </button>
+        </div>
+
+        {/* Paddler selection section*/}
+        <div class="mb-6">
+          <label className="block text-sm font-medium text-gray-700 mb-3">Select up to 20 paddlers</label>
+
+          {/* Display error message if too many paddlers are selected */}
+          {selectionError && <p style={{ color: 'red' }}>{selectionError}</p>}
+
+          {/* Render paddler names as selectable containers */}
+          <div className="flex flex-wrap gap-2 mb-3">
+            {allPaddlers.map((p) => {
+              const isInChart = seatingChart.some(seat => seat.name === p.name);
+              const noEmptySeats = !seatingChart.some(seat => seat.name === 'Empty');
+              const isDisabled = (!isInChart && (stern && stern.name === p.name)) || (!isInChart && (drummer && drummer.name === p.name)) || (!isInChart && noEmptySeats);
+
+              return (
+                <div
+                  key={p.name}
+                  onClick={() => !isDisabled && handlePaddlerClick(p)}
+                  className={`cursor-pointer px-3 py-2 rounded-lg border transition-colors duration-200 
+                   ${isInChart ? 'bg-purple-500 text-white border-purple-600 hover:bg-purple-600 hover:border-purple-700' : 'bg-white border-gray-300 hover:bg-purple-50 hover:border-purple-200'}
+                  ${isDisabled ? 'opacity-50 cursor-not-allowed' : ''}`}
+                >
+                  {p.name}
+                </div>
+              );
+            })}
+          </div>
+
+          {/* Add additional paddlers */}
+          <div className="mb-4">
+            <button
+              className="px-3 py-2 bg-purple-500 rounded-lg text-white border-purple-600 hover:bg-purple-600 hover:border-purple-700 rounded"
+              onClick={() => setShowAddForm(prev => !prev)}
+            >
+              {showAddForm ? '- Hide add paddler' : '+ Add paddler'}
+            </button>
+          </div>
+          {showAddForm && (
+            <div className="my-2 p-2 bg-gray-100 border rounded border-gray-200 flex gap-2 items-end max-w-fit">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Name</label>
+                <input
+                  type="text"
+                  value={newPaddlerName}
+                  onChange={(e) => setNewPaddlerName(e.target.value)}
+                  className="border border-gray-300 rounded px-2 py-1 w-28"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Weight</label>
+                <input
+                  type="number"
+                  value={newPaddlerWeight}
+                  onChange={(e) => setNewPaddlerWeight(e.target.value)}
+                  className="border border-gray-300 rounded px-2 py-1 w-16"
+                />
+              </div>
+              <button
+                className="px-2 py-1 bg-purple-500 text-white border-purple-600 hover:bg-purple-600 hover:border-purple-700 rounded"
+                onClick={handleAddNewPaddler}
+              >
+                Add
+              </button>
+            </div>
+          )}
         </div>
 
         {/* Stern & drummer selection dropdowns */}
@@ -311,45 +352,6 @@ function SeatingChart() {
           </div>
         </div>
 
-        {/* Add additional paddlers */}
-        <div className="mb-4">
-          <button
-            className="px-2 py-1 bg-purple-500 text-white border-purple-600 hover:bg-purple-600 hover:border-purple-700 rounded"
-            onClick={() => setShowAddForm(prev => !prev)}
-          >
-            {showAddForm ? '- Hide add paddler' : '+ Add paddler'}
-          </button>
-        </div>
-
-        {showAddForm && (
-          <div className="my-2 p-2 bg-gray-100 border rounded border-gray-200 flex gap-2 items-end max-w-fit">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Name</label>
-              <input
-                type="text"
-                value={newPaddlerName}
-                onChange={(e) => setNewPaddlerName(e.target.value)}
-                className="border border-gray-300 rounded px-2 py-1 w-28"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Weight</label>
-              <input
-                type="number"
-                value={newPaddlerWeight}
-                onChange={(e) => setNewPaddlerWeight(e.target.value)}
-                className="border border-gray-300 rounded px-2 py-1 w-16"
-              />
-            </div>
-            <button
-              className="px-2 py-1 bg-purple-500 text-white border-purple-600 hover:bg-purple-600 hover:border-purple-700 rounded"
-              onClick={handleAddNewPaddler}
-            >
-              Add
-            </button>
-          </div>
-        )}
-
         {/* Inputs for additional front and back weight */}
         <div className="flex gap-4 mb-4">
           <div>
@@ -377,28 +379,30 @@ function SeatingChart() {
       </div>
 
       {/* Show seating chart once generated */}
+      <div className="w-full lg:w-1/2">
+        {seatingChart.length > 0 && (
+          <div ref={seatingChartRef}>
+            <h2 className="font-bold text-lg text-gray-900 mb-4">2. Balance the boat</h2>
 
-      {seatingChart.length > 0 && (
-        <div ref={seatingChartRef} className="seating-display">
-          <h2 className="font-bold text-lg text-gray-900 mb-4">Boat Seating</h2>
-          <p className="mb-3"> Press down, then drag & drop to change positions. Right side can be slightly heavier due to steering mechanism on left.</p>
-          <DragonBoatSeatingChart
-            seatingChart={seatingChart}
-            updateSeatingChart={updateSeatingChart}
-            stern={stern}
-            drummer={drummer}
-            extraFrontWeight={extraFrontWeight}
-            extraBackWeight={extraBackWeight}
-          />
+            <p className="mb-3"> Press down, then drag & drop to change positions. Right side can be slightly heavier due to steering mechanism on left.</p>
+            <DragonBoatSeatingChart
+              seatingChart={seatingChart}
+              updateSeatingChart={updateSeatingChart}
+              stern={stern}
+              drummer={drummer}
+              extraFrontWeight={extraFrontWeight}
+              extraBackWeight={extraBackWeight}
+            />
 
-          <p className="my-2"><button
-            className="px-2 py-1 bg-purple-500 text-white border-purple-600 hover:bg-purple-600 hover:border-purple-700 rounded"
-            onClick={exportSeatingChartToCSV}
-          >
-            Export Seating Chart
-          </button></p>
-        </div>
-      )}
+            <p className="my-2"><button
+              className="px-2 py-1 bg-purple-500 text-white border-purple-600 hover:bg-purple-600 hover:border-purple-700 rounded"
+              onClick={exportSeatingChartToCSV}
+            >
+              Export Seating Chart
+            </button></p>
+          </div>
+        )}
+      </div>
     </div>
   );
 }

@@ -22,7 +22,7 @@ function App() {
 
   return (
     <div className="App">
-      <h1 className="font-bold text-xl text-gray-900 mb-2 p-3">Nichi Dragonboat Seating</h1>
+      <h1 className="font-bold text-2xl text-gray-900 mb-2 p-3">Nichi Dragonboat Seating</h1>
       <div className="px-3">
         <div className="inline-flex rounded-t-md overflow-hidden -mb-0.5">
           <a
@@ -60,16 +60,18 @@ function App() {
         </div>
       </div>
 
-      <div className="border-t-2 border-gray-300 bg-white">
-        {currentTab === 'chart' && (
-          <SeatingChart />
-        )}
-        {
-          currentTab === 'instructions' && (
-            <Instructions />
-          )
-        }
-      </div >
+      <div className="border-t-2 border-gray-300 bg-white py-6 px-3">
+        <div className="max-w-6xl">
+          {currentTab === 'chart' && (
+            <SeatingChart />
+          )}
+          {
+            currentTab === 'instructions' && (
+              <Instructions />
+            )
+          }
+        </div>
+      </div>
     </div>
   );
 }
