@@ -4,10 +4,11 @@ const path = require('path');
 const cors = require('cors');
 
 const app = express();
-const PORT = 5174; // dev server port separate from Vite
+const PORT = process.env.PORT || 5174;
 
-app.use(cors()); // allow local Vite frontend to access
+app.use(cors());
 
+// API route for chart files
 app.get('/api/charts', (req, res) => {
     const chartsDir = path.join(__dirname, '../public/charts');
 
@@ -22,6 +23,16 @@ app.get('/api/charts', (req, res) => {
     });
 });
 
+// Serve static files in production
+if (process.env.NODE_ENV === 'production') {
+    const distPath = path.join(__dirname, '../dist');
+    app.use(express.static(distPath));
+
+    app.get('*', (req, res) => {
+        res.sendFile(path.join(distPath, 'nichi.html')); // Adjust if renamed differently
+    });
+}
+
 app.listen(PORT, () => {
-    console.log(`API server running on http://localhost:${PORT}`);
+    console.log(`Server running on http://localhost:${PORT}`);
 });

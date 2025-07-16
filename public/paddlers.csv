@@ -1,6 +1,6 @@
 name,weight,side,role
 Alan,208,either,
-Angela,165,either,
+Angela,165,left,
 Bailee,155,either,
 Becca,180,either,
 Brandon,185,either,
@@ -13,7 +13,6 @@ Deirdre,100,either,drummer
 Denise,130,either,
 Donna,194,either,
 Eric,150,either,stern
-Gustavo,200,either,
 Jackie,140,right,
 Jamie,125,either,
 Jennifer,175,either,
@@ -21,7 +20,7 @@ Jessica,161,either,
 Josh,147,either,
 Juan,225,either,
 Karl,175,either,
-Kyden,145,either,
+Kyden,145,left,
 Luis,145,left,
 Michelle,128,either,
 Nina,125,either,
@@ -32,4 +31,5 @@ Toru,170,left,
 Virginia,140,either,drummer
 Javi,170,none,stern
 Sean M,210,none,stern
-Glenn,190,none,stern
+Glenn,180,none,stern
+Adrianne,160,none,stern
