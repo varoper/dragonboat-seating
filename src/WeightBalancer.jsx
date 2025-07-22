@@ -1,4 +1,4 @@
-// DragonBoatSeatingChart.js
+// WeightBalancer.js
 import React, { useState, useEffect, useRef } from 'react';
 import {
   DndContext,
@@ -14,7 +14,7 @@ import {
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 
-const DragonBoatSeatingChart = ({ seatingChart, updateSeatingChart, stern, drummer, extraFrontWeight = 0, extraBackWeight = 0 }) => {
+const WeightBalancer = ({ seatingChart, updateSeatingChart, stern, drummer, extraFrontWeight = 0, extraBackWeight = 0 }) => {
   const [activeId, setActiveId] = useState(null); // Currently dragged paddler
   const [overId, setOverId] = useState(null);     // ID of seat currently hovered over
   const [maxWidth, setMaxWidth] = useState(0);    // Used to standardize width of all seat containers
@@ -192,18 +192,18 @@ const DragonBoatSeatingChart = ({ seatingChart, updateSeatingChart, stern, drumm
         style={{ ...style, minWidth: maxWidth }}
         {...attributes}
         {...listeners}
-        className={`draggable touch-none px-2 py-1 rounded-xl flex flex-col justify-center items-center shadow border-2 hover:border-blue-400 transition-colors duration-150
+        className={`draggable touch-none flex flex-col justify-center items-center shadow px-2 py-1 rounded-xl border-2  transition-colors duration-150
           ${isOver ? 'border-dashed border-blue-400' : 'border-transparent'}
           ${paddler && isPaddlerOnWrongSide ? 'bg-red-300' : paddler ? 'bg-blue-100' : 'bg-white'}
           ${paddler && paddler.weight ? 'bg-blue-100' : 'bg-white'}
           ${isActive ? 'ring-4 ring-blue-400 scale-105 transition-transform duration-200' : ''}`}
       >
-        {paddler ? (
+        {paddler && paddler.name !== 'Empty' ? (
           <span>
-            <strong>{paddler.name}</strong>{showWeights && `: ${paddler.weight}`}
+            <span className="font-medium">{paddler.name}</span>{showWeights && `: ${paddler.weight}`}
           </span>
         ) : (
-          <span className="text-gray-400">Empty</span>
+          <span className="opacity-50">Empty</span>
         )}
       </div>
     );
@@ -214,7 +214,6 @@ const DragonBoatSeatingChart = ({ seatingChart, updateSeatingChart, stern, drumm
   return (
     <>
       <button
-        className="mb-2 px-2 py-1 bg-purple-500 text-white border-purple-600 hover:bg-purple-600 hover:border-purple-700 rounded"
         onClick={() => setShowWeights((prev) => !prev)}
       >
         {showWeights ? 'Hide Weights' : 'Show Weights'}
@@ -239,13 +238,13 @@ const DragonBoatSeatingChart = ({ seatingChart, updateSeatingChart, stern, drumm
           {drummer && (
             <div className="grid">
               <div className="flex items-center gap-8">
-                <div className="w-12 text-gray-600 font-semibold">
+                <div className="w-12 text-gray-500 font-medium">
                   Drummer
                 </div>
                 <div
                   className={`px-2 py-1 my-2 rounded-xl flex flex-col justify-center items-center shadow border-2 text-center bg-blue-100`}>
                   <span>
-                    <strong>{drummer.name}</strong>{showWeights && `: ${drummer.weight}`}
+                    <span className="font-medium">{drummer.name}</span>{showWeights && `: ${drummer.weight}`}
                   </span>
                 </div>
               </div>
@@ -259,7 +258,7 @@ const DragonBoatSeatingChart = ({ seatingChart, updateSeatingChart, stern, drumm
 
               return (
                 <div key={rowIndex} className="border-b-6 flex items-center gap-3">
-                  <div className="w-3 text-gray-600 font-semibold">
+                  <div className="w-3 text-gray-500 font-medium">
                     {rowIndex + 1}
                   </div>
                   <SortableSeat
@@ -282,13 +281,13 @@ const DragonBoatSeatingChart = ({ seatingChart, updateSeatingChart, stern, drumm
           {stern && (
             <div className="grid">
               <div className="flex items-center gap-8">
-                <div className="w-12 text-gray-600 font-semibold">
+                <div className="w-12 text-gray-500 font-medium">
                   Stern
                 </div>
                 <div
                   className={`px-2 py-1 my-2 rounded-xl flex flex-col justify-center items-center shadow border-2 text-center bg-blue-100`}>
                   <span>
-                    <strong>{stern.name}</strong>{showWeights && `: ${stern.weight}`}
+                    <span className="font-medium">{stern.name}</span>{showWeights && `: ${stern.weight}`}
                   </span>
                 </div>
               </div>
@@ -301,4 +300,4 @@ const DragonBoatSeatingChart = ({ seatingChart, updateSeatingChart, stern, drumm
   );
 };
 
-export default DragonBoatSeatingChart;
+export default WeightBalancer;

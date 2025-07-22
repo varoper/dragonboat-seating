@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import DragonBoatSeatingChart from './DragonBoatSeatingChart';
+import WeightBalancer from './WeightBalancer';
 import Cookies from 'js-cookie';
 import Papa from 'papaparse';
 
@@ -215,43 +215,46 @@ function SeatingChart() {
   return (
     <div className="flex flex-col lg:flex-row gap-6">
       <div className="w-full lg:w-1/2">
-        <h2 className="font-bold text-lg text-gray-900 mb-2">1. Fill out the options below</h2>
+        <section>
+          <h2>1. Load your roster</h2>
 
-        {/* Load from seating chart */}
-        <div className="mb-6">
-          <label className="block text-sm font-medium text-gray-700 mb-2">Load saved chart</label>
-          <select
-            className="border border-gray-300 rounded px-2 py-1"
-            value={selectedChart}
-            onChange={(e) => {
-              const file = e.target.value;
-              if (file) {
-                clearChart(); // clear state and cookies
-                setSelectedChart(file); // set selected chart AFTER clearing
-                setTimeout(() => {
-                  loadSeatingChartFromCSV(file); // delay to allow state to reset
-                }, 0);
-              } else {
-                setSelectedChart('');
-              }
-            }}
-          >
-            <option value="">- Select chart -</option>
-            {availableCharts.map(file => (
-              <option key={file} value={file}>{file}</option>
-            ))}
-          </select>
-          <button
-            className="px-2 py-1 ml-3 bg-purple-500 text-white border-purple-600 hover:bg-purple-600 hover:border-purple-700 rounded"
-            onClick={clearChart}
-          >
-            {'Clear chart'}
-          </button>
-        </div>
+          {/* Load from seating chart */}
+          <div className="mb-6">
+            <label>Select a saved roster</label>
+            <select
+              value={selectedChart}
+              onChange={(e) => {
+                const file = e.target.value;
+                if (file) {
+                  clearChart(); // clear state and cookies
+                  setSelectedChart(file); // set selected chart AFTER clearing
+                  setTimeout(() => {
+                    loadSeatingChartFromCSV(file); // delay to allow state to reset
+                  }, 0);
+                } else {
+                  setSelectedChart('');
+                }
+              }}
+            >
+              <option value="">- Select chart -</option>
+              {availableCharts.map(file => (
+                <option key={file} value={file}>{file}</option>
+              ))}
+            </select>
+            <button
+              className="ml-3"
+              onClick={clearChart}
+            >
+              {'Clear chart'}
+            </button>
+            <p>Once a roster is loaded, it will be stored until you select a new chart, press "Clear chart", or clear your browser cookies.</p>
+          </div>
+        </section>
 
         {/* Paddler selection section*/}
-        <div class="mb-6">
-          <label className="block text-sm font-medium text-gray-700 mb-3">Select up to 20 paddlers</label>
+        <section>
+          <h2>2. Build out your crew</h2>
+          <label>Select up to 20 paddlers</label>
 
           {/* Display error message if too many paddlers are selected */}
           {selectionError && <p style={{ color: 'red' }}>{selectionError}</p>}
@@ -267,9 +270,9 @@ function SeatingChart() {
                 <div
                   key={p.name}
                   onClick={() => !isDisabled && handlePaddlerClick(p)}
-                  className={`cursor-pointer px-3 py-2 rounded-lg border transition-colors duration-200 
-                   ${isInChart ? 'bg-purple-500 text-white border-purple-600 hover:bg-purple-600 hover:border-purple-700' : 'bg-white border-gray-300 hover:bg-purple-50 hover:border-purple-200'}
-                  ${isDisabled ? 'opacity-50 cursor-not-allowed' : ''}`}
+                  className={`paddler px-3 py-2 cursor-pointer border transition-colors duration-200 rounded-xl 
+                   ${isInChart ? 'bg-blue-100 font-medium hover:bg-blue-200' : 'bg-white border-gray-300 hover:bg-blue-50'}
+                  ${isDisabled ? 'opacity-50 cursor-default hover:bg-white' : ''}`}
                 >
                   {p.name}
                 </div>
@@ -280,7 +283,6 @@ function SeatingChart() {
           {/* Add additional paddlers */}
           <div className="mb-4">
             <button
-              className="px-3 py-2 bg-purple-500 rounded-lg text-white border-purple-600 hover:bg-purple-600 hover:border-purple-700 rounded"
               onClick={() => setShowAddForm(prev => !prev)}
             >
               {showAddForm ? '- Hide add paddler' : '+ Add paddler'}
@@ -289,121 +291,128 @@ function SeatingChart() {
           {showAddForm && (
             <div className="my-2 p-2 bg-gray-100 border rounded border-gray-200 flex gap-2 items-end max-w-fit">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Name</label>
+                <label for="new_paddler_name">Name</label>
                 <input
                   type="text"
+                  id="new_paddler_name"
                   value={newPaddlerName}
                   onChange={(e) => setNewPaddlerName(e.target.value)}
-                  className="border border-gray-300 rounded px-2 py-1 w-28"
+                  className="w-28"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Weight</label>
+                <label for="new_paddler_weight">Weight</label>
                 <input
                   type="number"
+                  id="new_paddler_weight"
                   value={newPaddlerWeight}
                   onChange={(e) => setNewPaddlerWeight(e.target.value)}
-                  className="border border-gray-300 rounded px-2 py-1 w-16"
+                  className="w-16"
                 />
               </div>
               <button
-                className="px-2 py-1 bg-purple-500 text-white border-purple-600 hover:bg-purple-600 hover:border-purple-700 rounded"
                 onClick={handleAddNewPaddler}
               >
                 Add
               </button>
             </div>
           )}
-        </div>
 
-        {/* Stern & drummer selection dropdowns */}
-        <div className="flex gap-4 mb-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Select drummer</label>
-            <select
-              className="border border-gray-300 rounded px-2 py-1"
-              value={drummer ? drummer.name : ''}
-              onChange={(e) => {
-                const selected = allDrummers.find(p => p.name === e.target.value);
-                storeDrummer(selected || null);
-              }}
-            >
-              <option value="">- Select -</option>
-              {allDrummers.map(p => (
-                <option key={p.name} value={p.name}>{p.name}</option>
-              ))}
-            </select>
+          {/* Stern & drummer selection dropdowns */}
+          <div className="flex gap-4 mb-4">
+            <div>
+              <label>Select drummer</label>
+              <select
+                value={drummer ? drummer.name : ''}
+                onChange={(e) => {
+                  const selected = allDrummers.find(p => p.name === e.target.value);
+                  storeDrummer(selected || null);
+                }}
+              >
+                <option value="">- Select -</option>
+                {allDrummers.map(p => (
+                  <option key={p.name} value={p.name}>{p.name}</option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <label>Select stern</label>
+              <select
+                value={stern ? stern.name : ''}
+                onChange={(e) => {
+                  const selected = allSterns.find(p => p.name === e.target.value);
+                  storeStern(selected || null);
+                }}
+              >
+                <option value="">- Select -</option>
+                {allSterns.map(p => (
+                  <option key={p.name} value={p.name}>{p.name}</option>
+                ))}
+              </select>
+            </div>
           </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Select stern</label>
-            <select
-              className="border border-gray-300 rounded px-2 py-1"
-              value={stern ? stern.name : ''}
-              onChange={(e) => {
-                const selected = allSterns.find(p => p.name === e.target.value);
-                storeStern(selected || null);
-              }}
-            >
-              <option value="">- Select -</option>
-              {allSterns.map(p => (
-                <option key={p.name} value={p.name}>{p.name}</option>
-              ))}
-            </select>
-          </div>
-        </div>
+        </section>
 
         {/* Inputs for additional front and back weight */}
-        <div className="flex gap-4 mb-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Extra front weight</label>
-            <input
-              type="number"
-              className="border border-gray-300 rounded px-2 py-1 w-24"
-              value={extraFrontWeight}
-              onChange={(e) => setExtraFrontWeight(e.target.value)}
-              placeholder="0"
-            />
+        <section>
+          <h2>3. Adjust boat weight</h2>
+          <div className="flex gap-4 mb-4">
+            <div>
+              <label for="extra_front_weight">Extra front weight</label>
+              <input
+                type="number"
+                id="extra_front_weight"
+                className="w-24"
+                value={extraFrontWeight}
+                onChange={(e) => setExtraFrontWeight(e.target.value)}
+                placeholder="0"
+              />
+            </div>
+            <div>
+              <label for="extra_back_weight">Extra back weight</label>
+              <input
+                type="number"
+                id="extra_back_weight"
+                className="w-24"
+                value={extraBackWeight}
+                onChange={(e) => setExtraBackWeight(e.target.value)}
+                placeholder="0"
+              />
+            </div>
           </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Extra back weight</label>
-            <input
-              type="number"
-              className="border border-gray-300 rounded px-2 py-1 w-24"
-              value={extraBackWeight}
-              onChange={(e) => setExtraBackWeight(e.target.value)}
-              placeholder="0"
-            />
-          </div>
-        </div>
-        <p>Steering mechanism + paddle, estimated at 15lbs, has already been accounted for.</p>
+          <p>Steering mechanism + paddle, estimated at 15lbs, has already been accounted for.</p>
+        </section>
       </div>
 
       {/* Show seating chart once generated */}
       <div className="w-full lg:w-1/2">
-        {seatingChart.length > 0 && (
-          <div ref={seatingChartRef}>
-            <h2 className="font-bold text-lg text-gray-900 mb-4">2. Balance the boat</h2>
+        <section>
+          {seatingChart.length > 0 && (
+            <div ref={seatingChartRef}>
+              <h2>4. Balance the boat</h2>
 
-            <p className="mb-3"> Press down, then drag & drop to change positions. Right side can be slightly heavier due to steering mechanism on left.</p>
-            <DragonBoatSeatingChart
-              seatingChart={seatingChart}
-              updateSeatingChart={updateSeatingChart}
-              stern={stern}
-              drummer={drummer}
-              extraFrontWeight={extraFrontWeight}
-              extraBackWeight={extraBackWeight}
-            />
+              <p className="mb-3"> Press down, then drag & drop to change positions. Easier for the steer if boat is more left-heavy.</p>
+              <WeightBalancer
+                seatingChart={seatingChart}
+                updateSeatingChart={updateSeatingChart}
+                stern={stern}
+                drummer={drummer}
+                extraFrontWeight={extraFrontWeight}
+                extraBackWeight={extraBackWeight}
+              />
 
-            <p className="my-2"><button
-              className="px-2 py-1 bg-purple-500 text-white border-purple-600 hover:bg-purple-600 hover:border-purple-700 rounded"
-              onClick={exportSeatingChartToCSV}
-            >
-              Export Seating Chart
-            </button></p>
-          </div>
-        )}
+              <p>
+                <button
+                  onClick={exportSeatingChartToCSV}
+                >
+                  Export Seating Chart
+                </button>
+              </p>
+            </div>
+          )}
+        </section>
       </div>
-    </div>
+    </div >
   );
 }
 

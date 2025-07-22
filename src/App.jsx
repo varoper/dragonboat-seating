@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import SeatingChart from './SeatingChart';
 import Instructions from './Instructions';
-import './App.css';
 
 const SEATING_COOKIE_KEY = 'seatingChart';
 const EXTRA_PADDLERS_COOKIE_KEY = 'extraPaddlers';
@@ -22,7 +21,7 @@ function App() {
 
   return (
     <div className="App">
-      <h1 className="font-bold text-2xl text-gray-900 mb-2 p-3">Nichi Dragonboat Seating</h1>
+      <h1>Nichi Dragonboat Seating Chart</h1>
       <div className="px-3">
         <div className="inline-flex rounded-t-md overflow-hidden -mb-0.5">
           <a
@@ -39,7 +38,7 @@ function App() {
               window.history.pushState({}, '', url);
             }}
           >
-            Seating Chart
+            Chart Builder
           </a>
           <a
             href="?tab=instructions"
