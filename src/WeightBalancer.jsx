@@ -192,11 +192,11 @@ const WeightBalancer = ({ seatingChart, updateSeatingChart, stern, drummer, extr
         style={{ ...style, minWidth: maxWidth }}
         {...attributes}
         {...listeners}
-        className={`draggable touch-none flex flex-col justify-center items-center shadow px-2 py-1 rounded-xl border-2  transition-colors duration-150
-          ${isOver ? 'border-dashed border-blue-400' : 'border-transparent'}
-          ${paddler && isPaddlerOnWrongSide ? 'bg-red-300' : paddler ? 'bg-blue-100' : 'bg-white'}
-          ${paddler && paddler.weight ? 'bg-blue-100' : 'bg-white'}
-          ${isActive ? 'ring-4 ring-blue-400 scale-105 transition-transform duration-200' : ''}`}
+        className={`draggable touch-none flex flex-col justify-center items-center paddler
+          ${isOver ? 'border-dashed border-sky-400' : 'border-slate-300'}
+          ${paddler && isPaddlerOnWrongSide ? 'bg-red-300' : 'bg-sky-100'}
+          ${paddler && paddler.name === 'Empty' ? 'bg-white b' : ''}
+          ${isActive ? 'ring-4 ring-sky-400 scale-105 transition-transform duration-200' : ''}`}
       >
         {paddler && paddler.name !== 'Empty' ? (
           <span>
@@ -213,13 +213,7 @@ const WeightBalancer = ({ seatingChart, updateSeatingChart, stern, drummer, extr
 
   return (
     <>
-      <button
-        onClick={() => setShowWeights((prev) => !prev)}
-      >
-        {showWeights ? 'Hide Weights' : 'Show Weights'}
-      </button>
-
-      <div className="weights">
+      <div>
         {renderImbalance('Left', 'Right', leftWeight, rightWeight, 15)}
         {renderImbalance('Front 5', 'Back 5', frontWeight, backWeight, 15)}
         {renderImbalance('Pacers', 'Rockets', pacerWeight, rocketWeight, 15)}
@@ -238,11 +232,11 @@ const WeightBalancer = ({ seatingChart, updateSeatingChart, stern, drummer, extr
           {drummer && (
             <div className="grid">
               <div className="flex items-center gap-8">
-                <div className="w-12 text-gray-500 font-medium">
+                <div className="w-12 boat-label">
                   Drummer
                 </div>
                 <div
-                  className={`px-2 py-1 my-2 rounded-xl flex flex-col justify-center items-center shadow border-2 text-center bg-blue-100`}>
+                  className={`paddler px-2 py-1 my-1 rounded-xl flex flex-col justify-center items-center  text-center bg-sky-100`}>
                   <span>
                     <span className="font-medium">{drummer.name}</span>{showWeights && `: ${drummer.weight}`}
                   </span>
@@ -251,14 +245,14 @@ const WeightBalancer = ({ seatingChart, updateSeatingChart, stern, drummer, extr
             </div>
           )}
 
-          <div className="grid grid-rows-10 gap-3 py-1">
+          <div className="grid grid-rows-10 gap-2 py-1">
             {Array.from({ length: 10 }).map((_, rowIndex) => {
               const leftIndex = rowIndex * 2;
               const rightIndex = leftIndex + 1;
 
               return (
-                <div key={rowIndex} className="border-b-6 flex items-center gap-3">
-                  <div className="w-3 text-gray-500 font-medium">
+                <div key={rowIndex} className="border-b-6 flex items-center gap-2">
+                  <div className="w-3 boat-label">
                     {rowIndex + 1}
                   </div>
                   <SortableSeat
@@ -279,13 +273,13 @@ const WeightBalancer = ({ seatingChart, updateSeatingChart, stern, drummer, extr
           </div>
           {/* Stern info row */}
           {stern && (
-            <div className="grid">
+            <div className="grid mb-3">
               <div className="flex items-center gap-8">
-                <div className="w-12 text-gray-500 font-medium">
+                <div className="w-12 boat-label">
                   Stern
                 </div>
                 <div
-                  className={`px-2 py-1 my-2 rounded-xl flex flex-col justify-center items-center shadow border-2 text-center bg-blue-100`}>
+                  className={`paddler my-1 rounded-xl flex flex-col justify-center items-center text-center bg-sky-100`}>
                   <span>
                     <span className="font-medium">{stern.name}</span>{showWeights && `: ${stern.weight}`}
                   </span>
@@ -296,6 +290,13 @@ const WeightBalancer = ({ seatingChart, updateSeatingChart, stern, drummer, extr
 
         </SortableContext>
       </DndContext >
+      <p className="mb-3">
+        <button
+          onClick={() => setShowWeights((prev) => !prev)}
+        >
+          {showWeights ? 'Hide Weights' : 'Show Weights'}
+        </button>
+      </p>
     </>
   );
 };

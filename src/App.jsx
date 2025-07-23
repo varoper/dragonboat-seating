@@ -21,14 +21,14 @@ function App() {
 
   return (
     <div className="App">
-      <h1>Nichi Dragonboat Seating Chart</h1>
-      <div className="px-3">
+      <div className="px-3 md:px-6 lg:px-12 pt-3 border-b-2 border-slate-300 bg-gradient-to-b from-sky-50 to-blue-100">
+        <h1>Nichi Dragonboat Seating Chart</h1>
         <div className="inline-flex rounded-t-md overflow-hidden -mb-0.5">
           <a
             href="?tab=chart"
-            className={`px-4 py-2 mr-2 text-md font-medium border border-gray-300 border-b-0 rounded-t-md transition-colors duration-150 ${currentTab === 'chart'
+            className={`px-4 py-2 mr-2 text-md font-medium border border-slate-300 border-b-0 rounded-t-md transition-colors duration-150 ${currentTab === 'chart'
               ? 'bg-white text-purple-600 font-semibold'
-              : 'bg-gray-100 text-gray-600 hover:text-purple-600'
+              : 'bg-sky-50 border-b-2 text-slate-600 hover:text-purple-600'
               }`}
             onClick={(e) => {
               e.preventDefault();
@@ -42,9 +42,9 @@ function App() {
           </a>
           <a
             href="?tab=instructions"
-            className={`px-4 py-2 text-md font-medium border border-gray-300 border-b-0 rounded-t-md transition-colors duration-150 ${currentTab === 'instructions'
+            className={`px-4 py-2 text-md font-medium border border-slate-300 border-b-0 rounded-t-md transition-colors duration-150 ${currentTab === 'instructions'
               ? 'bg-white text-purple-600 font-semibold'
-              : 'bg-gray-100 text-gray-600 hover:text-purple-600'
+              : 'bg-sky-50 border-b-2 text-slate-600 hover:text-purple-600'
               }`}
             onClick={(e) => {
               e.preventDefault();
@@ -59,7 +59,7 @@ function App() {
         </div>
       </div>
 
-      <div className="border-t-2 border-gray-300 bg-white py-6 px-3">
+      <div className="bg-white py-6 px-3 md:px-6 lg:px-12">
         <div className="max-w-6xl">
           {currentTab === 'chart' && (
             <SeatingChart />

@@ -6,10 +6,10 @@ module.exports = {
   ],
   theme: {
     fontSize: {
-      base: '0.9rem',
-      sm: '0.9rem',
-      md: '1rem',
-      lg: '1.15rem',
+      base: '1rem',
+      sm: '0.85rem',
+      md: '.95rem',
+      lg: '1.10rem',
       xl: '1.25rem',
       '2xl': '1.5rem',
       '3xl': '1.9rem',
