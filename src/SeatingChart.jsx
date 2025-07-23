@@ -291,7 +291,7 @@ function SeatingChart() {
                 {showAddForm ? '- Hide add paddler' : '+ Add paddler'}
               </button>
               {showAddForm && (
-                <div className="mt-2 p-2 bg-gradient-to-b from-white to-fuchsia-50 rounded flex gap-2 items-end max-w-fit">
+                <div className="mt-2 p-2 bg-gradient-to-b from-white to-purple-50 rounded flex gap-2 items-end max-w-fit">
                   <div>
                     <label for="new_paddler_name">Name</label>
                     <input
@@ -397,7 +397,7 @@ function SeatingChart() {
             <div ref={seatingChartRef}>
               <h2>4. Balance the boat</h2>
 
-              <p className="mb-3"> Press down, then drag & drop to change positions. Easier for the steer if boat is more left-heavy.</p>
+              <p className="mb-3"> Press down, then drag & drop to change positions.</p>
               <WeightBalancer
                 seatingChart={seatingChart}
                 updateSeatingChart={updateSeatingChart}

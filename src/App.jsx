@@ -26,8 +26,8 @@ function App() {
         <div className="inline-flex rounded-t-md overflow-hidden -mb-0.5">
           <a
             href="?tab=chart"
-            className={`px-4 py-2 mr-2 text-md font-medium border border-slate-300 border-b-0 rounded-t-md transition-colors duration-150 ${currentTab === 'chart'
-              ? 'bg-white text-purple-600 font-semibold'
+            className={`px-2 sm:px-4 py-2 mr-2 text-md font-medium border border-slate-300 border-b-0 rounded-t-md transition-colors duration-150 ${currentTab === 'chart'
+              ? 'bg-white text-purple-600'
               : 'bg-sky-50 border-b-2 text-slate-600 hover:text-purple-600'
               }`}
             onClick={(e) => {
@@ -42,8 +42,8 @@ function App() {
           </a>
           <a
             href="?tab=instructions"
-            className={`px-4 py-2 text-md font-medium border border-slate-300 border-b-0 rounded-t-md transition-colors duration-150 ${currentTab === 'instructions'
-              ? 'bg-white text-purple-600 font-semibold'
+            className={`px-2 sm:px-4 py-2 text-md font-medium border border-slate-300 border-b-0 rounded-t-md transition-colors duration-150 ${currentTab === 'instructions'
+              ? 'bg-white text-purple-600'
               : 'bg-sky-50 border-b-2 text-slate-600 hover:text-purple-600'
               }`}
             onClick={(e) => {
