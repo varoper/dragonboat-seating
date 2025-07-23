@@ -10,8 +10,6 @@
     "@testing-library/jest-dom": "^6.6.3",
     "@testing-library/react": "^16.3.0",
     "@testing-library/user-event": "^13.5.0",
-    "cors": "^2.8.5",
-    "express": "^5.1.0",
     "js-cookie": "^3.0.5",
     "papaparse": "^5.5.2",
     "react": "^18.0.0",
@@ -22,18 +20,16 @@
   "devDependencies": {
     "@vitejs/plugin-react": "^4.4.1",
     "autoprefixer": "^10.4.21",
-    "concurrently": "^9.2.0",
     "postcss": "^8.5.3",
     "tailwindcss": "^3.4.1",
     "vite": "^6.3.5"
   },
   "scripts": {
-    "dev": "concurrently \"vite\" \"node server/index.js\"",
-    "build": "vite build && npm run postbuild",
+    "dev": "vite",
+    "build": "npm run rosters && vite build && npm run postbuild",
     "postbuild": "rename dist\\index.html nichi.html",
-    "serve": "NODE_ENV=production node server/index.js",
-    "start": "npm run serve",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "rosters": "node generateChartIndex.js"
   },
   "eslintConfig": {
     "extends": [

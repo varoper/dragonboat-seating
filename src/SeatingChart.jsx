@@ -65,7 +65,7 @@ function SeatingChart() {
   }, []);
 
   useEffect(() => {
-    fetch('http://localhost:5174/api/charts')
+    fetch('/charts/index.json')
       .then(res => res.json())
       .then(files => setAvailableCharts(files))
       .catch(err => console.error('Failed to fetch chart list:', err));
@@ -260,7 +260,7 @@ function SeatingChart() {
             <label>Select up to 20 paddlers</label>
 
             {/* Display error message if too many paddlers are selected */}
-            {selectionError && <p style={{ color: 'red' }}>{selectionError}</p>}
+            {selectionError && <p className="text-rose-700">{selectionError}</p>}
 
             {/* Render paddler names as selectable containers */}
             <div className="flex flex-wrap gap-2 mb-5">
@@ -274,7 +274,7 @@ function SeatingChart() {
                     key={p.name}
                     onClick={() => !isDisabled && handlePaddlerClick(p)}
                     className={`paddler
-                   ${isInChart ? 'bg-sky-100' : 'bg-white'}
+                   ${isInChart ? 'bg-sky-200' : 'bg-white'}
                   ${isDisabled ? 'opacity-50 cursor-default hover:bg-white hover:border-slate-300' : 'cursor-pointer'}`}
                   >
                     {p.name}
@@ -359,26 +359,26 @@ function SeatingChart() {
 
         {/* Inputs for additional front and back weight */}
         <section>
-          <h2>3. Adjust boat weight</h2>
+          <h2>3. Add extra boat weight</h2>
           <fieldset>
             <div className="flex gap-4">
               <div>
-                <label for="extra_front_weight">Extra front weight</label>
+                <label for="extra_front_weight">Front weight</label>
                 <input
                   type="number"
                   id="extra_front_weight"
-                  className="w-24"
+                  className="w-16"
                   value={extraFrontWeight}
                   onChange={(e) => setExtraFrontWeight(e.target.value)}
                   placeholder="0"
                 />
               </div>
               <div>
-                <label for="extra_back_weight">Extra back weight</label>
+                <label for="extra_back_weight">Back weight</label>
                 <input
                   type="number"
                   id="extra_back_weight"
-                  className="w-24"
+                  className="w-16"
                   value={extraBackWeight}
                   onChange={(e) => setExtraBackWeight(e.target.value)}
                   placeholder="0"
@@ -407,13 +407,12 @@ function SeatingChart() {
                 extraBackWeight={extraBackWeight}
               />
 
-              <p>
-                <button
-                  onClick={exportSeatingChartToCSV}
-                >
-                  Export Seating Chart
-                </button>
-              </p>
+              <button
+                onClick={exportSeatingChartToCSV}
+              >
+                Export Seating Chart
+              </button>
+
             </div>
           )}
         </section>

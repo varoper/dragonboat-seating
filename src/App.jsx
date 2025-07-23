@@ -21,7 +21,7 @@ function App() {
 
   return (
     <div className="App">
-      <div className="px-3 md:px-6 lg:px-12 pt-3 border-b-2 border-slate-300 bg-gradient-to-b from-sky-50 to-blue-100">
+      <div className="px-3 md:px-6 lg:px-12 pt-3 border-b-2 border-slate-300 bg-gradient-to-b from-sky-50 to-sky-200">
         <h1>Nichi Dragonboat Seating Chart</h1>
         <div className="inline-flex rounded-t-md overflow-hidden -mb-0.5">
           <a

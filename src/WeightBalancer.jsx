@@ -103,11 +103,11 @@ const WeightBalancer = ({ seatingChart, updateSeatingChart, stern, drummer, extr
     return (
       <p>
         {aContent}{' '}
-        <span style={{ color: balanced ? 'green' : 'red' }}>
+        <span className={`${balanced ? 'text-emerald-760' : 'text-rose-600'}`}>
           {compare}
         </span>{' '}
         {bContent}{' '}
-        <span style={{ color: balanced ? 'green' : 'red' }}>
+        <span className={`${balanced ? 'text-emerald-600' : 'text-rose-600'}`}>
           (Off by {diff})
         </span>
       </p>
@@ -194,8 +194,8 @@ const WeightBalancer = ({ seatingChart, updateSeatingChart, stern, drummer, extr
         {...listeners}
         className={`draggable touch-none flex flex-col justify-center items-center paddler
           ${isOver ? 'border-dashed border-sky-400' : 'border-slate-300'}
-          ${paddler && isPaddlerOnWrongSide ? 'bg-red-300' : 'bg-sky-100'}
-          ${paddler && paddler.name === 'Empty' ? 'bg-white b' : ''}
+          ${paddler && isPaddlerOnWrongSide ? 'bg-rose-300' : 'bg-sky-200'}
+          ${paddler && paddler.name === 'Empty' ? 'bg-white' : ''}
           ${isActive ? 'ring-4 ring-sky-400 scale-105 transition-transform duration-200' : ''}`}
       >
         {paddler && paddler.name !== 'Empty' ? (
@@ -236,7 +236,7 @@ const WeightBalancer = ({ seatingChart, updateSeatingChart, stern, drummer, extr
                   Drummer
                 </div>
                 <div
-                  className={`paddler px-2 py-1 my-1 rounded-xl flex flex-col justify-center items-center  text-center bg-sky-100`}>
+                  className={`paddler px-2 py-1 my-1 rounded-xl flex flex-col justify-center items-center  text-center bg-sky-200 hover:border-slate-300`}>
                   <span>
                     <span className="font-medium">{drummer.name}</span>{showWeights && `: ${drummer.weight}`}
                   </span>
@@ -279,7 +279,7 @@ const WeightBalancer = ({ seatingChart, updateSeatingChart, stern, drummer, extr
                   Stern
                 </div>
                 <div
-                  className={`paddler my-1 rounded-xl flex flex-col justify-center items-center text-center bg-sky-100`}>
+                  className={`paddler my-1 rounded-xl flex flex-col justify-center items-center text-center bg-sky-200 hover:border-slate-300`}>
                   <span>
                     <span className="font-medium">{stern.name}</span>{showWeights && `: ${stern.weight}`}
                   </span>
@@ -290,13 +290,14 @@ const WeightBalancer = ({ seatingChart, updateSeatingChart, stern, drummer, extr
 
         </SortableContext>
       </DndContext >
-      <p className="mb-3">
-        <button
-          onClick={() => setShowWeights((prev) => !prev)}
-        >
-          {showWeights ? 'Hide Weights' : 'Show Weights'}
-        </button>
-      </p>
+
+      <button
+        className="mr-3"
+        onClick={() => setShowWeights((prev) => !prev)}
+      >
+        {showWeights ? 'Hide Weights' : 'Show Weights'}
+      </button>
+
     </>
   );
 };

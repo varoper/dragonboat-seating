@@ -11,7 +11,7 @@ body {
 }
 
 body {
-  @apply bg-blue-100 text-slate-800 font-sans;
+  @apply bg-sky-200 text-slate-800 font-sans;
 }
 
 h1 {
@@ -19,7 +19,7 @@ h1 {
 }
 
 h2 {
-  @apply font-bold text-lg text-slate-900 mb-4;
+  @apply font-bold text-lg text-slate-600 mb-4;
 }
 
 p {
@@ -59,7 +59,7 @@ fieldset {
 }
 
 .paddler {
-  @apply px-3 py-2 rounded-xl border border-slate-300 hover:border-sky-500 transition-all duration-150;
+  @apply px-3 py-1 rounded-xl border border-slate-300 hover:border-sky-500 transition-all duration-150;
 }
 
 .grid-rows-10 {

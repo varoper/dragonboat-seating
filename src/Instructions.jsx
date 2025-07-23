@@ -4,7 +4,7 @@ import React from 'react';
 function Instructions() {
   return (
     <div>
-      <h2 className="font-bold text-lg text-slate-900 mb-4">How to Use the Seating Chart</h2>
+      <h2>How to Use the Seating Chart</h2>
       <ul className="list-disc list-inside space-y-2 text-slate-700">
         <li>Import paddlers from the CSV automatically on load.</li>
         <li>Select up to 20 paddlers to place in the boat.</li>
