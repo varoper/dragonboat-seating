@@ -22,8 +22,16 @@ h2 {
   @apply font-bold text-lg text-slate-700 mb-4;
 }
 
+h3 {
+  @apply font-medium text-lg text-slate-700 mb-3;
+}
+
 p {
   @apply text-md pb-3;
+}
+
+a {
+  @apply no-underline hover:underline text-purple-600 active:text-sky-500 outline-none focus:border-dashed focus:border-b focus:border-sky-500;
 }
 
 label {
@@ -64,6 +72,14 @@ option:hover {
 
 section {
   @apply mb-4;
+}
+
+pre {
+  @apply p-3 my-3 bg-slate-100;
+}
+
+strong {
+  @apply font-bold;
 }
 
 fieldset {

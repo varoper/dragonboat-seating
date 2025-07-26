@@ -4,16 +4,31 @@ import React from 'react';
 function Instructions() {
   return (
     <div>
-      <h2>How to Use the Seating Chart</h2>
-      <ul className="list-disc list-inside space-y-2 text-slate-700">
-        <li>Import paddlers from the CSV automatically on load.</li>
-        <li>Select up to 20 paddlers to place in the boat.</li>
-        <li>Choose a stern and drummer from the dropdowns.</li>
-        <li>Drag and drop paddlers to rearrange seating.</li>
-        <li>Use the dropdown to load a saved seating chart from a CSV file.</li>
-        <li>Click "Clear Chart" to reset all selections.</li>
-        <li>Use the "Export Seating Chart" button to download the current layout.</li>
-      </ul>
+      <h2>
+        The Roster
+      </h2>
+      <p>Your roster be in .csv format and include the following columns:</p>
+      <h3>name</h3>
+      <p>Required. Each name should be unique. You can use a last initial if you have two paddlers with the same name. </p>
+      <h3>weight</h3>
+      <p>Required. This is used for the boat balancing math.</p>
+      <h3>side</h3>
+      <p>Required. This is the side the paddler is able to paddle on. Use one of the following: 'left', 'right', 'either', 'none'</p>
+      <h3>role</h3>
+      <p>Optional. Leave empty if the person only paddles. You can add 'drummer' or 'stern'. These are used in balancing the front and back of the boat.</p>
+      <p>Here is a sample roster:</p>
+      <pre>
+        name,weight,side,role<br />
+        Bubba,145,either,<br />
+        Sally,260,left,<br />
+        Jimbo,190,none,stern<br />
+        Rafael,245,either,<br />
+        Enrique,170,either,<br />
+        Marcie,120,either,drummer<br />
+        Fannie,160,either,<br />
+      </pre>
+
+      <p>You can <a href="#">download a sample roster (TODO ADD THIS)</a> and edit it with your own team's info.</p>
       <h2>
         Balancing strategies
       </h2>

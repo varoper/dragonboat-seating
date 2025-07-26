@@ -38,7 +38,8 @@ function SeatingChart() {
     side: 'either',
   }));
 
-  const isChartEmpty = seatingChart.every(seat => seat.name === 'Empty') && !drummer && !stern
+  const isChartEmpty = (seatingChart) => seatingChart.every(seat => seat.name === 'Empty') && !drummer && !stern;
+  const isBoatFull = (seatingChart) => seatingChart.every(seat => seat.name !== 'Empty');
 
   useEffect(() => {
     fetch('/paddlers.csv')
@@ -175,8 +176,9 @@ function SeatingChart() {
       updated[index] = { name: 'Empty', weight: 0, side: 'either' };
       return storeSeatingChart(updated);
     }
+    if (isBoatFull(seatingChart)) { return setSelectionError('All seats filled.'); }
+
     const emptyIndex = seatingChart.findIndex(seat => seat.name === 'Empty');
-    if (emptyIndex === -1) return setSelectionError('All seats filled.');
     const updated = [...seatingChart];
     updated[emptyIndex] = p;
     storeSeatingChart(updated);
@@ -253,13 +255,6 @@ function SeatingChart() {
                   <option key={file} value={file}>{file}</option>
                 ))}
               </select>
-              <button
-                className={`ml-3 ${isChartEmpty ? 'button-inactive' : ''}`}
-                onClick={isChartEmpty ? undefined : clearChart}
-                disabled={isChartEmpty}
-              >
-                {'Clear chart'}
-              </button>
             </fieldset>
             <p>Once a roster is loaded, it will be stored until you select a new chart, press "Clear chart", or clear your browser cookies.</p>
           </div>
@@ -427,13 +422,23 @@ function SeatingChart() {
                 extraBackWeight={extraBackWeight}
               />
 
-              {!showExportInput ? (
-                <p>
+              <p>
+                <button
+                  className={`mr-3 ${isChartEmpty(seatingChart) ? 'button-inactive' : ''}`}
+                  onClick={isChartEmpty(seatingChart) ? undefined : clearChart}
+                  disabled={isChartEmpty(seatingChart)}
+                >
+                  {'Clear chart'}
+                </button>
+
+                {!showExportInput && (
                   <button onClick={() => setShowExportInput(true)}>
-                    Export Seating Chart
+                    Export chart
                   </button>
-                </p>
-              ) : (
+                )}
+              </p>
+
+              {showExportInput && (
                 <div className="mt-4 space-y-2 toggle-form">
                   <div>
                     <label htmlFor="csv_filename">Choose file name</label>
