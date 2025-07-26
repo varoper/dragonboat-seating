@@ -194,6 +194,7 @@ function SeatingChart() {
       Cookies.set(EXTRA_PADDLERS_COOKIE_KEY, JSON.stringify([...currentExtras, newPaddler]), { expires: 365 });
       return updated;
     });
+    handlePaddlerClick(newPaddler);
     setNewPaddlerName("");
     setNewPaddlerWeight("");
     setShowAddForm(false);
