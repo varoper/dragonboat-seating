@@ -38,6 +38,8 @@ function SeatingChart() {
     side: 'either',
   }));
 
+  const isChartEmpty = seatingChart.every(seat => seat.name === 'Empty') && !drummer && !stern
+
   useEffect(() => {
     fetch('/paddlers.csv')
       .then(response => response.text())
@@ -252,8 +254,9 @@ function SeatingChart() {
                 ))}
               </select>
               <button
-                className="ml-3"
-                onClick={clearChart}
+                className={`ml-3 ${isChartEmpty ? 'button-inactive' : ''}`}
+                onClick={isChartEmpty ? undefined : clearChart}
+                disabled={isChartEmpty}
               >
                 {'Clear chart'}
               </button>

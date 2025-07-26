@@ -55,7 +55,7 @@ button {
 }
 
 .button-inactive {
-  @apply bg-slate-200 hover:bg-slate-200 cursor-default;
+  @apply bg-slate-300 hover:bg-slate-300 cursor-default;
 }
 
 option:hover {
