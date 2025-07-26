@@ -24,6 +24,13 @@ function SeatingChart() {
   const seatingChartRef = useRef(null);
   const [availableCharts, setAvailableCharts] = useState([]);
   const [selectedChart, setSelectedChart] = useState('');
+  const [showExportInput, setShowExportInput] = useState(false);
+  const [customFileName, setCustomFileName] = useState(() => {
+    const today = new Date();
+    // MM-DD-YY
+    const formatted = `${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}-${String(today.getFullYear()).slice(2)}`;
+    return `${formatted}.csv`;
+  });
 
   const emptyChart = Array.from({ length: 20 }, () => ({
     name: 'Empty',
@@ -192,7 +199,7 @@ function SeatingChart() {
     setShowAddForm(false);
   };
 
-  const exportSeatingChartToCSV = () => {
+  const exportSeatingChartToCSV = (fileName) => {
     const csvRows = [['name', 'seat']];
     if (drummer?.name !== 'Empty') csvRows.push([drummer.name, 'drummer']);
     seatingChart.forEach((p, i) => {
@@ -203,20 +210,21 @@ function SeatingChart() {
       }
     });
     if (stern?.name !== 'Empty') csvRows.push([stern.name, 'stern']);
+
     const blob = new Blob([csvRows.map(r => r.join(',')).join('\n')], { type: 'text/csv;charset=utf-8;' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `chart_${Math.random().toString(36).substring(2, 10)}.csv`;
+    a.download = fileName || `seating-chart.csv`;
     a.click();
     URL.revokeObjectURL(url);
   };
 
   return (
-    <div className="flex flex-col lg:flex-row gap-6">
+    <div className="flex flex-col lg:flex-row lg:gap-6">
       <div className="w-full lg:w-1/2">
         <section>
-          <h2>1. Load your roster</h2>
+          <h2>1. Load the roster</h2>
 
           {/* Load from seating chart */}
           <div className="mb-6">
@@ -255,7 +263,7 @@ function SeatingChart() {
 
         {/* Paddler selection section*/}
         <section>
-          <h2>2. Build out your crew</h2>
+          <h2>2. Build out the crew</h2>
           <fieldset>
             <label>Select up to 20 paddlers</label>
 
@@ -263,7 +271,7 @@ function SeatingChart() {
             {selectionError && <p className="text-rose-700">{selectionError}</p>}
 
             {/* Render paddler names as selectable containers */}
-            <div className="flex flex-wrap gap-2 mb-5">
+            <div className="flex flex-wrap gap-2 pt-1 mb-5">
               {allPaddlers.map((p) => {
                 const isInChart = seatingChart.some(seat => seat.name === p.name);
                 const noEmptySeats = !seatingChart.some(seat => seat.name === 'Empty');
@@ -285,40 +293,48 @@ function SeatingChart() {
 
             {/* Add additional paddlers */}
             <div className="mb-6">
-              <button
-                onClick={() => setShowAddForm(prev => !prev)}
-              >
-                {showAddForm ? '- Hide add paddler' : '+ Add paddler'}
-              </button>
-              {showAddForm && (
-                <div className="mt-2 p-2 bg-gradient-to-b from-white to-purple-50 rounded flex gap-2 items-end max-w-fit">
-                  <div>
-                    <label for="new_paddler_name">Name</label>
-                    <input
-                      type="text"
-                      id="new_paddler_name"
-                      value={newPaddlerName}
-                      onChange={(e) => setNewPaddlerName(e.target.value)}
-                      className="w-28"
-                    />
+              {!showAddForm ? (
+                <button
+                  onClick={() => setShowAddForm(true)}
+                >
+                  {showAddForm ? '- Hide add paddler' : '+ Add paddler'}
+                </button>
+              ) :
+                (
+                  <div className="toggle-form">
+                    <div>
+                      <label for="new_paddler_name">Name</label>
+                      <input
+                        type="text"
+                        id="new_paddler_name"
+                        value={newPaddlerName}
+                        onChange={(e) => setNewPaddlerName(e.target.value)}
+                        className="w-28"
+                      />
+                    </div>
+                    <div>
+                      <label for="new_paddler_weight">Weight</label>
+                      <input
+                        type="number"
+                        id="new_paddler_weight"
+                        value={newPaddlerWeight}
+                        onChange={(e) => setNewPaddlerWeight(e.target.value)}
+                        className="w-16"
+                      />
+                    </div>
+                    <button
+                      onClick={handleAddNewPaddler}
+                    >
+                      Add
+                    </button>
+                    <button
+                      onClick={() => setShowAddForm(false)}
+                      className="button-alt"
+                    >
+                      Cancel
+                    </button>
                   </div>
-                  <div>
-                    <label for="new_paddler_weight">Weight</label>
-                    <input
-                      type="number"
-                      id="new_paddler_weight"
-                      value={newPaddlerWeight}
-                      onChange={(e) => setNewPaddlerWeight(e.target.value)}
-                      className="w-16"
-                    />
-                  </div>
-                  <button
-                    onClick={handleAddNewPaddler}
-                  >
-                    Add
-                  </button>
-                </div>
-              )}
+                )}
             </div>
 
             {/* Stern & drummer selection dropdowns */}
@@ -397,7 +413,7 @@ function SeatingChart() {
             <div ref={seatingChartRef}>
               <h2>4. Balance the boat</h2>
 
-              <p className="mb-3"> Press down, then drag & drop to change positions.</p>
+              <p> Press down, then drag & drop to change positions.</p>
               <WeightBalancer
                 seatingChart={seatingChart}
                 updateSeatingChart={updateSeatingChart}
@@ -407,11 +423,40 @@ function SeatingChart() {
                 extraBackWeight={extraBackWeight}
               />
 
-              <button
-                onClick={exportSeatingChartToCSV}
-              >
-                Export Seating Chart
-              </button>
+              {!showExportInput ? (
+                <p>
+                  <button onClick={() => setShowExportInput(true)}>
+                    Export Seating Chart
+                  </button>
+                </p>
+              ) : (
+                <div className="mt-4 space-y-2 toggle-form">
+                  <div>
+                    <label htmlFor="csv_filename">Choose file name</label>
+                    <input
+                      id="csv_filename"
+                      type="text"
+                      className="w-36"
+                      value={customFileName}
+                      onChange={(e) => setCustomFileName(e.target.value)}
+                    />
+                  </div>
+                  <div className="flex gap-2 mt-2">
+                    <button
+                      onClick={() => exportSeatingChartToCSV(customFileName)}
+                    >
+                      Download
+                    </button>
+                    <button
+                      onClick={() => setShowExportInput(false)}
+                      className="button-alt"
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                </div>
+              )}
+
 
             </div>
           )}

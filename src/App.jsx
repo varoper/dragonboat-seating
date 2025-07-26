@@ -22,7 +22,7 @@ function App() {
   return (
     <div className="App">
       <div className="px-3 md:px-6 lg:px-12 pt-3 border-b-2 border-slate-300 bg-gradient-to-b from-sky-50 to-sky-200">
-        <h1>Nichi Dragonboat Seating Chart</h1>
+        <h1>DragonBoat<span className="text-purple-600">Balancer</span></h1>
         <div className="inline-flex rounded-t-md overflow-hidden -mb-0.5">
           <a
             href="?tab=chart"
@@ -38,11 +38,11 @@ function App() {
               window.history.pushState({}, '', url);
             }}
           >
-            Chart Builder
+            Balancer
           </a>
           <a
             href="?tab=instructions"
-            className={`px-2 sm:px-4 py-2 text-md font-medium border border-slate-300 border-b-0 rounded-t-md transition-colors duration-150 ${currentTab === 'instructions'
+            className={`px-2 sm:px-4 py-2 mr-2 text-md font-medium border border-slate-300 border-b-0 rounded-t-md transition-colors duration-150 ${currentTab === 'instructions'
               ? 'bg-white text-purple-600'
               : 'bg-sky-50 border-b-2 text-slate-600 hover:text-purple-600'
               }`}
@@ -56,10 +56,26 @@ function App() {
           >
             Instructions
           </a>
+          <a
+            href="?tab=instructions"
+            className={`px-2 sm:px-4 py-2 mr-2 text-md font-medium border border-slate-300 border-b-0 rounded-t-md transition-colors duration-150 ${currentTab === 'faq'
+              ? 'bg-white text-purple-600'
+              : 'bg-sky-50 border-b-2 text-slate-600 hover:text-purple-600'
+              }`}
+            onClick={(e) => {
+              e.preventDefault();
+              setCurrentTab('faq');
+              const url = new URL(window.location);
+              url.searchParams.set('tab', 'faq');
+              window.history.pushState({}, '', url);
+            }}
+          >
+            FAQs
+          </a>
         </div>
       </div>
 
-      <div className="bg-white py-6 px-3 md:px-6 lg:px-12">
+      <div className="bg-white py-6 px-3 md:px-6 lg:px-12 border-b-2 border-slate-300">
         <div className="max-w-6xl">
           {currentTab === 'chart' && (
             <SeatingChart />
@@ -70,6 +86,9 @@ function App() {
             )
           }
         </div>
+      </div>
+      <div className="py-6 px-3 md:px-6 lg:px-12">
+        <p className="text-sm align-right">Created by VA Roper to make coaching just a little bit easier.</p>
       </div>
     </div>
   );

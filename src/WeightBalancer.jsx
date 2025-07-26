@@ -101,16 +101,12 @@ const WeightBalancer = ({ seatingChart, updateSeatingChart, stern, drummer, extr
     );
 
     return (
-      <p>
-        {aContent}{' '}
-        <span className={`${balanced ? 'text-emerald-760' : 'text-rose-600'}`}>
-          {compare}
-        </span>{' '}
-        {bContent}{' '}
+      <div className="mb-1">
+        {aContent} {compare} {bContent}{' '}
         <span className={`${balanced ? 'text-emerald-600' : 'text-rose-600'}`}>
           (Off by {diff})
         </span>
-      </p>
+      </div>
     );
   };
 
@@ -213,7 +209,7 @@ const WeightBalancer = ({ seatingChart, updateSeatingChart, stern, drummer, extr
 
   return (
     <>
-      <div>
+      <div className="p-2 my-2 inline-block border border-slate-200 bg-gradient-to-b from-white to-purple-50">
         {renderImbalance('Left', 'Right', leftWeight, rightWeight, 15)}
         {renderImbalance('Front 5', 'Back 5', frontWeight, backWeight, 15)}
         {renderImbalance('Pacers', 'Rockets', pacerWeight, rocketWeight, 15)}
@@ -227,8 +223,8 @@ const WeightBalancer = ({ seatingChart, updateSeatingChart, stern, drummer, extr
         onDragEnd={handleDragEnd}
       >
         <SortableContext items={seatingChart.map((_, i) => i.toString())} strategy={rectSortingStrategy}>
-
-          <div className="rounded-3xl p-2 bg-purple-50 inline-block">
+          <br />
+          <div className="inline-block">
             {/* Drummer info row */}
             {drummer && (
               <div className="grid">
@@ -245,7 +241,6 @@ const WeightBalancer = ({ seatingChart, updateSeatingChart, stern, drummer, extr
                 </div>
               </div>
             )}
-
             <div className="grid grid-rows-10 gap-2 py-1">
               {Array.from({ length: 10 }).map((_, rowIndex) => {
                 const leftIndex = rowIndex * 2;
@@ -292,14 +287,14 @@ const WeightBalancer = ({ seatingChart, updateSeatingChart, stern, drummer, extr
 
         </SortableContext>
       </DndContext >
-      <br />
-      <button
-        className="mr-3 mt-3"
-        onClick={() => setShowWeights((prev) => !prev)}
-      >
-        {showWeights ? 'Hide Weights' : 'Show Weights'}
-      </button>
-
+      <p>
+        <button
+          className="mr-3 mt-3"
+          onClick={() => setShowWeights((prev) => !prev)}
+        >
+          {showWeights ? 'Hide Weights' : 'Show Weights'}
+        </button>
+      </p>
     </>
   );
 };
