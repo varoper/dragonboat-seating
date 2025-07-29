@@ -206,7 +206,7 @@ function SeatingChart() {
 
   const exportSeatingChartToCSV = (fileName) => {
     const csvRows = [['name', 'seat']];
-    if (drummer?.name !== 'Empty') csvRows.push([drummer.name, 'drummer']);
+    if (drummer && drummer?.name !== 'Empty') csvRows.push([drummer.name, 'drummer']);
     seatingChart.forEach((p, i) => {
       if (p.name !== 'Empty') {
         const row = Math.floor(i / 2) + 1;
@@ -214,7 +214,7 @@ function SeatingChart() {
         csvRows.push([p.name, `${row}${side}`]);
       }
     });
-    if (stern?.name !== 'Empty') csvRows.push([stern.name, 'stern']);
+    if (stern && stern?.name !== 'Empty') csvRows.push([stern.name, 'stern']);
 
     const blob = new Blob([csvRows.map(r => r.join(',')).join('\n')], { type: 'text/csv;charset=utf-8;' });
     const url = URL.createObjectURL(blob);
@@ -229,12 +229,12 @@ function SeatingChart() {
     <div className="flex flex-col lg:flex-row lg:gap-6">
       <div className="w-full lg:w-1/2">
         <section>
-          <h2>1. Load the roster</h2>
+          <h2>1. Load an existing chart</h2>
 
           {/* Load from seating chart */}
           <div className="mb-6">
             <fieldset>
-              <label>Select a saved roster</label>
+              <label>Select a saved chart</label>
               <select
                 value={selectedChart}
                 onChange={(e) => {
@@ -256,7 +256,7 @@ function SeatingChart() {
                 ))}
               </select>
             </fieldset>
-            <p>Once a roster is loaded, it will be stored until you select a new chart, press "Clear chart", or clear your browser cookies.</p>
+            <p>Once a chart is loaded, it will be stored until you select a new chart, press "Clear chart", or clear your browser cookies.</p>
           </div>
         </section>
 
@@ -378,7 +378,7 @@ function SeatingChart() {
           <fieldset>
             <div className="flex gap-4">
               <div>
-                <label for="extra_front_weight">Front weight</label>
+                <label for="extra_front_weight">Front</label>
                 <input
                   type="number"
                   id="extra_front_weight"
@@ -389,13 +389,24 @@ function SeatingChart() {
                 />
               </div>
               <div>
-                <label for="extra_back_weight">Back weight</label>
+                <label for="extra_back_weight">Back</label>
                 <input
                   type="number"
                   id="extra_back_weight"
                   className="w-16"
                   value={extraBackWeight}
                   onChange={(e) => setExtraBackWeight(e.target.value)}
+                  placeholder="0"
+                />
+              </div>
+              <div>
+                <label for="steering_weight">Steering mechanism</label>
+                <input
+                  type="number"
+                  id="steering_weight"
+                  className="w-16"
+                  value={extraFrontWeight}
+                  onChange={(e) => setExtraFrontWeight(e.target.value)}
                   placeholder="0"
                 />
               </div>
