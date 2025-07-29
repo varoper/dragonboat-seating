@@ -14,12 +14,11 @@ import {
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 
-const WeightBalancer = ({ seatingChart, updateSeatingChart, stern, drummer, extraFrontWeight = 0, extraBackWeight = 0 }) => {
+const WeightBalancer = ({ seatingChart, updateSeatingChart, stern, drummer, extraFrontWeight = 0, extraBackWeight = 0, steeringWeight = 0 }) => {
   const [activeId, setActiveId] = useState(null); // Currently dragged paddler
   const [overId, setOverId] = useState(null);     // ID of seat currently hovered over
   const [maxWidth, setMaxWidth] = useState(0);    // Used to standardize width of all seat containers
   const [showWeights, setShowWeights] = useState(true);
-  const steeringWeight = 15;
 
   // DnD sensor configuration
   const sensors = useSensors(
@@ -140,11 +139,11 @@ const WeightBalancer = ({ seatingChart, updateSeatingChart, stern, drummer, extr
     const extraSideWeight = (parseInt(extraFrontWeight, 10) + parseInt(extraBackWeight, 10) + (drummer ? drummer.weight : 0) + (stern ? stern.weight : 0)) / 2;
 
     frontWeight += parseInt(extraFrontWeight, 10) + (drummer ? drummer.weight : 0);
-    backWeight += parseInt(extraBackWeight, 10) + (stern ? stern.weight : 0) + steeringWeight;
-    leftWeight += extraSideWeight + steeringWeight;
+    backWeight += parseInt(extraBackWeight, 10) + (stern ? stern.weight : 0) + parseInt(steeringWeight, 10);
+    leftWeight += extraSideWeight + parseInt(steeringWeight, 10);
     rightWeight += extraSideWeight;
     pacerWeight += parseInt(extraFrontWeight, 10) + (drummer ? drummer.weight : 0);
-    rocketWeight += parseInt(extraBackWeight, 10) + (stern ? stern.weight : 0) + steeringWeight;
+    rocketWeight += parseInt(extraBackWeight, 10) + (stern ? stern.weight : 0) + parseInt(steeringWeight, 10);
 
     return { frontWeight, backWeight, leftWeight, rightWeight, pacerWeight, rocketWeight };
   };

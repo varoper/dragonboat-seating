@@ -21,6 +21,7 @@ function SeatingChart() {
   const [newPaddlerWeight, setNewPaddlerWeight] = useState("");
   const [extraFrontWeight, setExtraFrontWeight] = useState(0);
   const [extraBackWeight, setExtraBackWeight] = useState(0);
+  const [steeringWeight, setSteeringWeight] = useState(15);
   const seatingChartRef = useRef(null);
   const [availableCharts, setAvailableCharts] = useState([]);
   const [selectedChart, setSelectedChart] = useState('');
@@ -256,7 +257,6 @@ function SeatingChart() {
                 ))}
               </select>
             </fieldset>
-            <p>Once a chart is loaded, it will be stored until you select a new chart, press "Clear chart", or clear your browser cookies.</p>
           </div>
         </section>
 
@@ -405,14 +405,13 @@ function SeatingChart() {
                   type="number"
                   id="steering_weight"
                   className="w-16"
-                  value={extraFrontWeight}
-                  onChange={(e) => setExtraFrontWeight(e.target.value)}
+                  value={steeringWeight}
+                  onChange={(e) => setSteeringWeight(e.target.value)}
                   placeholder="0"
                 />
               </div>
             </div>
           </fieldset>
-          <p>Steering mechanism + paddle, estimated at 15lbs, has already been accounted for.</p>
         </section>
       </div>
 
@@ -431,6 +430,7 @@ function SeatingChart() {
                 drummer={drummer}
                 extraFrontWeight={extraFrontWeight}
                 extraBackWeight={extraBackWeight}
+                steeringWeight={steeringWeight}
               />
 
               <p>
@@ -480,6 +480,7 @@ function SeatingChart() {
 
             </div>
           )}
+          <p>Any changes you make to your seating chart will be stored in your browser's cookies, so you can have your most recent chart changes available.</p>
         </section>
       </div>
     </div >
