@@ -32,6 +32,8 @@ function SeatingChart() {
     const formatted = `${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}-${String(today.getFullYear()).slice(2)}`;
     return `${formatted}.csv`;
   });
+  const [csvLoadError, setCsvLoadError] = useState(false);
+  const [showUploadForm, setShowUploadForm] = useState(false);
 
   const emptyChart = Array.from({ length: 20 }, () => ({
     name: 'Empty',
@@ -43,8 +45,13 @@ function SeatingChart() {
   const isBoatFull = (seatingChart) => seatingChart.every(seat => seat.name !== 'Empty');
 
   useEffect(() => {
-    fetch('/paddlers.csv')
-      .then(response => response.text())
+    fetch('/rosters/paddlers.csv')
+      .then(response => {
+        if (!response.ok) {
+          throw new Error('CSV file not found');
+        }
+        return response.text();
+      })
       .then(csv => {
         Papa.parse(csv, {
           header: true,
@@ -113,6 +120,48 @@ function SeatingChart() {
       storeSeatingChart(cleaned);
     }
   }, [drummer]);
+
+  /* Handles direct CSV  upload */
+  const handleCsvUpload = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const csv = event.target.result;
+      Papa.parse(csv, {
+        header: true,
+        skipEmptyLines: true,
+        complete: (results) => {
+          const parsed = results.data.map(p => ({
+            name: p.name,
+            weight: parseInt(p.weight, 10),
+            side: p.side?.toLowerCase?.() || 'either',
+            role: p.role?.toLowerCase?.() || '',
+          }));
+
+          let fullPaddlers = parsed.filter(p => p.side !== 'none');
+          setAllSterns(parsed.filter(p => p.role === 'stern'));
+          setAllDrummers(parsed.filter(p => p.role === 'drummer'));
+
+          const extra = Cookies.get(EXTRA_PADDLERS_COOKIE_KEY);
+          if (extra) {
+            try {
+              const extraParsed = JSON.parse(extra);
+              fullPaddlers = [...fullPaddlers, ...extraParsed];
+            } catch (e) {
+              console.error('Invalid extra paddlers cookie:', e);
+            }
+          }
+
+          setAllPaddlers(fullPaddlers);
+          setCsvLoadError(false);
+        }
+      });
+    };
+
+    reader.readAsText(file);
+  };
 
   const storeSeatingChart = (chart) => {
     setSeatingChart(chart);
@@ -230,6 +279,36 @@ function SeatingChart() {
     <div className="flex flex-col lg:flex-row lg:gap-6">
       <div className="w-full lg:w-1/2">
         <section>
+
+
+          {!showUploadForm ? (
+            <button onClick={() => setShowUploadForm(true)}>
+              Upload CSV
+            </button>
+          ) : (
+            <div className="space-y-2">
+              <input
+                className="file:button-alt"
+                type="file"
+                accept=".csv"
+                onChange={handleCsvUpload}
+              />
+              <button className="button-alt ml-3" onClick={() => setShowUploadForm(false)}>
+                Cancel
+              </button>
+              <p className="text-sm text-slate-600">
+                Expected columns: <code>name</code>, <code>weight</code>, <code>side</code>, <code>role</code>
+              </p>
+
+              <p className="text-sm">
+                <a href="/example-paddlers.csv" download>
+                  Download CSV template
+                </a>. Read the instructions!
+              </p>
+            </div>
+          )}
+
+
           <h2>1. Load an existing chart</h2>
 
           {/* Load from seating chart */}
@@ -413,10 +492,10 @@ function SeatingChart() {
             </div>
           </fieldset>
         </section>
-      </div>
+      </div >
 
       {/* Show seating chart once generated */}
-      <div className="w-full lg:w-1/2">
+      < div className="w-full lg:w-1/2" >
         <section>
           {seatingChart.length > 0 && (
             <div ref={seatingChartRef}>
@@ -482,7 +561,7 @@ function SeatingChart() {
           )}
           <p>Any changes you make to your seating chart will be stored in your browser's cookies, so you can have your most recent chart changes available.</p>
         </section>
-      </div>
+      </div >
     </div >
   );
 }

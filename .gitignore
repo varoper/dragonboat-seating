@@ -12,6 +12,13 @@
 /build
 /dist
 
+# Ignore all .csv files in /charts/ and /rosters/
+charts/*.csv
+rosters/*.csv
+
+# But don't ignore index.json
+!charts/index.json
+
 # misc
 .DS_Store
 .env.local
