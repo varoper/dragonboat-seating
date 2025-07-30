@@ -1,3 +1,14 @@
+# DragonBoatBalancer
+
+
+## Setting your roster
+
+Add your roster to /rosters/, following the format described in example-rosters.csv
+
+## Saving seating charts
+
+Seating charts can be exported and placed in /charts/. Run `npm run build` to add the new chart to the JSON file in that same directory.
+
 # Getting Started with Create React App
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).

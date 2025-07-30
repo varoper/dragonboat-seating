@@ -54,16 +54,17 @@ input {
   @apply border border-slate-300 focus:border-purple-500 outline-none rounded px-2 py-1;
 }
 
-button {
-  @apply px-2 py-1 bg-purple-500 font-medium text-white border-purple-600 hover:bg-purple-600 hover:border-purple-700 rounded transition-all;
+button,
+input[type="file"]::file-selector-button {
+  @apply px-2 py-1 bg-purple-500 font-medium text-white border border-purple-600 hover:bg-purple-600 hover:border-purple-700 rounded transition-all;
 }
 
 .button-alt {
-  @apply bg-slate-500 hover:bg-slate-600;
+  @apply bg-slate-500 border-slate-500 hover:bg-slate-600;
 }
 
 .button-inactive {
-  @apply bg-slate-300 hover:bg-slate-300 cursor-default;
+  @apply bg-slate-300 border-slate-300 hover:bg-slate-300 cursor-default;
 }
 
 option:hover {
