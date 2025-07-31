@@ -62,13 +62,11 @@ const WeightBalancer = ({ seatingChart, updateSeatingChart, stern, drummer, extr
     const newIndex = parseInt(over.id, 10);
 
     // Create updated seat array with swapped paddlers
-    updateSeatingChart((prev) => {
-      const updated = [...prev];
-      const temp = updated[oldIndex];
-      updated[oldIndex] = updated[newIndex];
-      updated[newIndex] = temp;
-      return updated;
-    });
+    const updatedChart = [...seatingChart];
+    const temp = updatedChart[oldIndex];
+    updatedChart[oldIndex] = updatedChart[newIndex];
+    updatedChart[newIndex] = temp;
+    updateSeatingChart(updatedChart);
   };
 
   // Display weight imbalance between seat sides.
