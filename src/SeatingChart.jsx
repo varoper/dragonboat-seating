@@ -44,6 +44,7 @@ function SeatingChart() {
   const isChartEmpty = (seatingChart) => seatingChart.every(seat => seat.name === 'Empty') && !drummer && !stern;
   const isBoatFull = (seatingChart) => seatingChart.every(seat => seat.name !== 'Empty');
 
+  // Fetching the stored roster
   useEffect(() => {
     fetch('/rosters/paddlers.csv')
       .then(response => {
@@ -82,6 +83,7 @@ function SeatingChart() {
       });
   }, []);
 
+  // Loading in saved seating charts
   useEffect(() => {
     fetch('/charts/index.json')
       .then(res => res.json())
@@ -89,6 +91,7 @@ function SeatingChart() {
       .catch(err => console.error('Failed to fetch chart list:', err));
   }, []);
 
+  // Grabbing any stored cookies
   useEffect(() => {
     const savedChart = Cookies.get(SEATING_COOKIE_KEY);
     const savedDrummer = Cookies.get(DRUMMER_COOKIE_KEY);
@@ -107,6 +110,7 @@ function SeatingChart() {
     }
   }, []);
 
+  // Make sure selected stern is not in seating chart
   useEffect(() => {
     if (stern) {
       const cleaned = seatingChart.map(seat => seat.name === stern.name ? { name: 'Empty', weight: 0, side: 'either' } : seat);
@@ -114,6 +118,7 @@ function SeatingChart() {
     }
   }, [stern]);
 
+  // Make sure drummer is not in seating chart
   useEffect(() => {
     if (drummer) {
       const cleaned = seatingChart.map(seat => seat.name === drummer.name ? { name: 'Empty', weight: 0, side: 'either' } : seat);
@@ -121,7 +126,7 @@ function SeatingChart() {
     }
   }, [drummer]);
 
-  /* Handles direct CSV  upload */
+  // Upload the stored roster
   const handleCsvUpload = (e) => {
     const file = e.target.files[0];
     if (!file) return;
@@ -159,7 +164,6 @@ function SeatingChart() {
         }
       });
     };
-
     reader.readAsText(file);
   };
 
