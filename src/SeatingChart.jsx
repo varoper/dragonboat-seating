@@ -1,13 +1,13 @@
 import React, { useState, useEffect, useRef } from 'react';
+import StorageManager from './components/StorageManager';
 import WeightBalancer from './WeightBalancer';
-import Cookies from 'js-cookie';
 import Papa from 'papaparse';
 
 function SeatingChart() {
-  const SEATING_COOKIE_KEY = 'seatingChart';
-  const EXTRA_PADDLERS_COOKIE_KEY = 'extraPaddlers';
-  const DRUMMER_COOKIE_KEY = 'drummer';
-  const STERN_COOKIE_KEY = 'stern';
+  const SEATING_STORAGE_KEY = 'seatingChart';
+  const EXTRA_PADDLERS_STORAGE_KEY = 'extraPaddlers';
+  const DRUMMER_STORAGE_KEY = 'drummer';
+  const STERN_STORAGE_KEY = 'stern';
 
   const [allPaddlers, setAllPaddlers] = useState([]);
   const [allSterns, setAllSterns] = useState([]);
@@ -68,14 +68,9 @@ function SeatingChart() {
             setAllSterns(parsed.filter(p => p.role === 'stern'));
             setAllDrummers(parsed.filter(p => p.role === 'drummer'));
 
-            const extra = Cookies.get(EXTRA_PADDLERS_COOKIE_KEY);
+            const extra = StorageManager.get(EXTRA_PADDLERS_STORAGE_KEY);
             if (extra) {
-              try {
-                const extraParsed = JSON.parse(extra);
-                fullPaddlers = [...fullPaddlers, ...extraParsed];
-              } catch (e) {
-                console.error('Invalid extra paddlers cookie:', e);
-              }
+              fullPaddlers = [...fullPaddlers, ...JSON.parse(extra)];
             }
             setAllPaddlers(fullPaddlers);
           }
@@ -91,20 +86,20 @@ function SeatingChart() {
       .catch(err => console.error('Failed to fetch chart list:', err));
   }, []);
 
-  // Grabbing any stored cookies
+  // Grabbing any stored values
   useEffect(() => {
-    const savedChart = Cookies.get(SEATING_COOKIE_KEY);
-    const savedDrummer = Cookies.get(DRUMMER_COOKIE_KEY);
-    const savedStern = Cookies.get(STERN_COOKIE_KEY);
+    const savedChart = StorageManager.get(SEATING_STORAGE_KEY);
+    const savedDrummer = StorageManager.get(DRUMMER_STORAGE_KEY);
+    const savedStern = StorageManager.get(STERN_STORAGE_KEY);
 
     if (savedDrummer) {
-      try { setDrummer(JSON.parse(savedDrummer)); } catch (e) { console.error(e); }
+      setDrummer(JSON.parse(savedDrummer));
     }
     if (savedStern) {
-      try { setStern(JSON.parse(savedStern)); } catch (e) { console.error(e); }
+      setStern(JSON.parse(savedStern));
     }
     if (savedChart) {
-      try { setSeatingChart(JSON.parse(savedChart)); } catch (e) { console.error(e); setSeatingChart(emptyChart); }
+      setSeatingChart(JSON.parse(savedChart));
     } else {
       setSeatingChart(emptyChart);
     }
@@ -149,16 +144,10 @@ function SeatingChart() {
           setAllSterns(parsed.filter(p => p.role === 'stern'));
           setAllDrummers(parsed.filter(p => p.role === 'drummer'));
 
-          const extra = Cookies.get(EXTRA_PADDLERS_COOKIE_KEY);
+          const extra = StorageManager.get(EXTRA_PADDLERS_STORAGE_KEY);
           if (extra) {
-            try {
-              const extraParsed = JSON.parse(extra);
-              fullPaddlers = [...fullPaddlers, ...extraParsed];
-            } catch (e) {
-              console.error('Invalid extra paddlers cookie:', e);
-            }
+            fullPaddlers = [...fullPaddlers, ...JSON.parse(extra)];
           }
-
           setAllPaddlers(fullPaddlers);
           setCsvLoadError(false);
         }
@@ -169,24 +158,24 @@ function SeatingChart() {
 
   const storeSeatingChart = (chart) => {
     setSeatingChart(chart);
-    Cookies.set(SEATING_COOKIE_KEY, JSON.stringify(chart), { expires: 365 });
+    StorageManager.set(SEATING_STORAGE_KEY, chart);
   };
 
-  const storeStern = (s) => {
-    setStern(s);
-    Cookies.set(STERN_COOKIE_KEY, JSON.stringify(s), { expires: 365 });
+  const storeStern = (stern) => {
+    setStern(stern);
+    StorageManager.set(STERN_STORAGE_KEY, stern);
   };
 
-  const storeDrummer = (d) => {
-    setDrummer(d);
-    Cookies.set(DRUMMER_COOKIE_KEY, JSON.stringify(d), { expires: 365 });
+  const storeDrummer = (drummer) => {
+    setDrummer(drummer);
+    StorageManager.set(DRUMMER_STORAGE_KEY, drummer);
   };
 
   const clearChart = () => {
-    Cookies.remove(SEATING_COOKIE_KEY);
-    Cookies.remove(EXTRA_PADDLERS_COOKIE_KEY);
-    Cookies.remove(DRUMMER_COOKIE_KEY);
-    Cookies.remove(STERN_COOKIE_KEY);
+    localStorage.removeItem(SEATING_STORAGE_KEY);
+    localStorage.removeItem(EXTRA_PADDLERS_STORAGE_KEY);
+    localStorage.removeItem(DRUMMER_STORAGE_KEY);
+    localStorage.removeItem(STERN_STORAGE_KEY);
     setSeatingChart(emptyChart);
     setDrummer(null);
     setStern(null);
@@ -244,12 +233,12 @@ function SeatingChart() {
     const newPaddler = { name: newPaddlerName, weight: parseInt(newPaddlerWeight), side: 'either', role: '' };
     setAllPaddlers(prev => {
       const updated = [...prev, newPaddler];
-      const existing = Cookies.get(EXTRA_PADDLERS_COOKIE_KEY);
+      const existing = StorageManager.get(EXTRA_PADDLERS_STORAGE_KEY);
       let currentExtras = [];
       if (existing) {
-        try { currentExtras = JSON.parse(existing); } catch (e) { console.error('Invalid extra paddlers:', e); }
+        currentExtras = JSON.parse(existing);
       }
-      Cookies.set(EXTRA_PADDLERS_COOKIE_KEY, JSON.stringify([...currentExtras, newPaddler]), { expires: 365 });
+      StorageManager.set(EXTRA_PADDLERS_STORAGE_KEY, [...currentExtras, newPaddler]);
       return updated;
     });
     handlePaddlerClick(newPaddler);
@@ -324,7 +313,7 @@ function SeatingChart() {
                 onChange={(e) => {
                   const file = e.target.value;
                   if (file) {
-                    clearChart(); // clear state and cookies
+                    clearChart(); // clear state and stored values
                     setSelectedChart(file); // set selected chart AFTER clearing
                     setTimeout(() => {
                       loadSeatingChartFromCSV(file); // delay to allow state to reset
@@ -563,7 +552,6 @@ function SeatingChart() {
 
             </div>
           )}
-          <p>Any changes you make to your seating chart will be stored in your browser's cookies, so you can have your most recent chart changes available.</p>
         </section>
       </div >
     </div >
