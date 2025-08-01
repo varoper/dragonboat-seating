@@ -4,16 +4,27 @@ import WeightBalancer from './WeightBalancer';
 import Papa from 'papaparse';
 
 function SeatingChart() {
+  const ROSTER_STORAGE_KEY = 'roster';
   const SEATING_STORAGE_KEY = 'seatingChart';
   const EXTRA_PADDLERS_STORAGE_KEY = 'extraPaddlers';
   const DRUMMER_STORAGE_KEY = 'drummer';
   const STERN_STORAGE_KEY = 'stern';
 
+  // Is there a roster uploaded server-side?
+  const [serverRoster, setServerRoster] = useState(false);
+  // Is there at least one seating chart uploaded server-side?
+  const [serverChart, setServerChart] = useState(false);
+  // Full set of paddlers
   const [allPaddlers, setAllPaddlers] = useState([]);
+  // Full set of sterns
   const [allSterns, setAllSterns] = useState([]);
+  // Full set of drummers
   const [allDrummers, setAllDrummers] = useState([]);
+  // Seating chart (combo of paddlers & empty seats)
   const [seatingChart, setSeatingChart] = useState([]);
+  // Stored stern
   const [stern, setStern] = useState(null);
+  // Stored drummer
   const [drummer, setDrummer] = useState(null);
   const [selectionError, setSelectionError] = useState("");
   const [showAddForm, setShowAddForm] = useState(false);
@@ -32,8 +43,6 @@ function SeatingChart() {
     const formatted = `${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}-${String(today.getFullYear()).slice(2)}`;
     return `${formatted}.csv`;
   });
-  const [csvLoadError, setCsvLoadError] = useState(false);
-  const [showUploadForm, setShowUploadForm] = useState(false);
 
   const emptyChart = Array.from({ length: 20 }, () => ({
     name: 'Empty',
@@ -44,7 +53,7 @@ function SeatingChart() {
   const isChartEmpty = (seatingChart) => seatingChart.every(seat => seat.name === 'Empty') && !drummer && !stern;
   const isBoatFull = (seatingChart) => seatingChart.every(seat => seat.name !== 'Empty');
 
-  // Fetching the stored roster
+  // Fetching the roster on the server
   useEffect(() => {
     fetch('/rosters/paddlers.csv')
       .then(response => {
@@ -54,25 +63,17 @@ function SeatingChart() {
         return response.text();
       })
       .then(csv => {
+        // TODO Add more validation here
+        if (!csv.includes('name,weight,side')) {
+          throw new Error('Unexpected CSV format');
+        }
         Papa.parse(csv, {
           header: true,
           skipEmptyLines: true,
           complete: (results) => {
-            const parsed = results.data.map(p => ({
-              name: p.name,
-              weight: parseInt(p.weight, 10),
-              side: p.side.toLowerCase(),
-              role: p.role.toLowerCase() || '',
-            }));
-            let fullPaddlers = parsed.filter(p => p.side !== 'none');
-            setAllSterns(parsed.filter(p => p.role === 'stern'));
-            setAllDrummers(parsed.filter(p => p.role === 'drummer'));
-
-            const extra = StorageManager.get(EXTRA_PADDLERS_STORAGE_KEY);
-            if (extra) {
-              fullPaddlers = [...fullPaddlers, ...JSON.parse(extra)];
-            }
-            setAllPaddlers(fullPaddlers);
+            handleRosterResults(results);
+            console.log("IS HERE?", results);
+            setServerRoster(true);
           }
         });
       });
@@ -121,8 +122,8 @@ function SeatingChart() {
     }
   }, [drummer]);
 
-  // Upload the stored roster
-  const handleCsvUpload = (e) => {
+  // User upload of roster
+  const handleRosterUpload = (e) => {
     const file = e.target.files[0];
     if (!file) return;
 
@@ -133,28 +134,66 @@ function SeatingChart() {
         header: true,
         skipEmptyLines: true,
         complete: (results) => {
-          const parsed = results.data.map(p => ({
-            name: p.name,
-            weight: parseInt(p.weight, 10),
-            side: p.side?.toLowerCase?.() || 'either',
-            role: p.role?.toLowerCase?.() || '',
-          }));
-
-          let fullPaddlers = parsed.filter(p => p.side !== 'none');
-          setAllSterns(parsed.filter(p => p.role === 'stern'));
-          setAllDrummers(parsed.filter(p => p.role === 'drummer'));
-
-          const extra = StorageManager.get(EXTRA_PADDLERS_STORAGE_KEY);
-          if (extra) {
-            fullPaddlers = [...fullPaddlers, ...JSON.parse(extra)];
-          }
-          setAllPaddlers(fullPaddlers);
-          setCsvLoadError(false);
+          handleRosterResults(results);
         }
       });
     };
     reader.readAsText(file);
   };
+
+  // Put the roster data wherever it needs to go
+  const handleRosterResults = (results) => {
+
+    const { data, meta, errors } = results;
+
+    // Validate headers
+    const expectedHeaders = ['name', 'weight', 'side', 'role'];
+    const actualHeaders = meta.fields;
+    const headerMismatch = !expectedHeaders.every(h => actualHeaders.includes(h));
+
+    if (headerMismatch) {
+      console.error("CSV header mismatch. Expected:", expectedHeaders, "Got:", actualHeaders);
+      throw new Error('Invalid CSV headers');
+    }
+
+    // Validate row data
+    const validSides = ['either', 'left', 'right', 'none'];
+    const validRoles = ['', 'drummer', 'stern'];
+
+    for (const [i, row] of data.entries()) {
+      const rowNum = i + 2; // Header is row 1
+      const { name, weight, side, role } = row;
+
+      if (!name || isNaN(parseInt(weight))) {
+        throw new Error(`Row ${rowNum}: Missing or invalid name/weight`);
+      }
+
+      if (!validSides.includes(side)) {
+        throw new Error(`Row ${rowNum}: Invalid side '${side}'`);
+      }
+
+      if (!validRoles.includes(role?.trim() || '')) {
+        throw new Error(`Row ${rowNum}: Invalid role '${role}'`);
+      }
+    }
+
+    const parsed = results.data.map(p => ({
+      name: p.name,
+      weight: parseInt(p.weight, 10),
+      side: p.side?.toLowerCase?.() || 'either',
+      role: p.role?.toLowerCase?.() || '',
+    }));
+
+    let fullPaddlers = parsed.filter(p => p.side !== 'none');
+    setAllSterns(parsed.filter(p => p.role === 'stern'));
+    setAllDrummers(parsed.filter(p => p.role === 'drummer'));
+
+    const extra = StorageManager.get(EXTRA_PADDLERS_STORAGE_KEY);
+    if (extra) {
+      fullPaddlers = [...fullPaddlers, ...JSON.parse(extra)];
+    }
+    setAllPaddlers(fullPaddlers);
+  }
 
   const storeSeatingChart = (chart) => {
     setSeatingChart(chart);
@@ -171,6 +210,7 @@ function SeatingChart() {
     StorageManager.set(DRUMMER_STORAGE_KEY, drummer);
   };
 
+  // Gets rid of anything stored for a fresh chart
   const clearChart = () => {
     localStorage.removeItem(SEATING_STORAGE_KEY);
     localStorage.removeItem(EXTRA_PADDLERS_STORAGE_KEY);
@@ -182,6 +222,7 @@ function SeatingChart() {
     setSelectedChart('');
   };
 
+  // Import a seating chart stored on the server, if exists
   const loadSeatingChartFromCSV = async (fileName) => {
     try {
       const response = await fetch(`/charts/${fileName}`);
@@ -212,6 +253,7 @@ function SeatingChart() {
 
   const updateSeatingChart = (newChart) => storeSeatingChart(newChart);
 
+  // Handles when user clicks on a paddler's name
   const handlePaddlerClick = (p) => {
     const index = seatingChart.findIndex(seat => seat.name === p.name);
     if (index !== -1) {
@@ -228,6 +270,7 @@ function SeatingChart() {
     setSelectionError('');
   };
 
+  // Handles the addition of a new paddler
   const handleAddNewPaddler = () => {
     if (!newPaddlerName || isNaN(parseInt(newPaddlerWeight))) return;
     const newPaddler = { name: newPaddlerName, weight: parseInt(newPaddlerWeight), side: 'either', role: '' };
@@ -247,6 +290,7 @@ function SeatingChart() {
     setShowAddForm(false);
   };
 
+  // Handles exporting a seating chart as a .csv file
   const exportSeatingChartToCSV = (fileName) => {
     const csvRows = [['name', 'seat']];
     if (drummer && drummer?.name !== 'Empty') csvRows.push([drummer.name, 'drummer']);
@@ -271,43 +315,35 @@ function SeatingChart() {
   return (
     <div className="flex flex-col lg:flex-row lg:gap-6">
       <div className="w-full lg:w-1/2">
-        <section>
 
-
-          {!showUploadForm ? (
-            <button onClick={() => setShowUploadForm(true)}>
-              Upload CSV
-            </button>
-          ) : (
+        {!serverRoster &&
+          <section>
+            <h2>Upload your team's roster</h2>
             <div className="space-y-2">
               <input
                 className="file:button-alt"
                 type="file"
                 accept=".csv"
-                onChange={handleCsvUpload}
+                onChange={handleRosterUpload}
               />
-              <button className="button-alt ml-3" onClick={() => setShowUploadForm(false)}>
-                Cancel
-              </button>
               <p className="text-sm text-slate-600">
                 Expected columns: <code>name</code>, <code>weight</code>, <code>side</code>, <code>role</code>
               </p>
-
               <p className="text-sm">
                 <a href="/example-paddlers.csv" download>
                   Download CSV template
                 </a>. Read the instructions!
               </p>
             </div>
-          )}
+          </section>
+        }
 
-
-          <h2>1. Load an existing chart</h2>
-
-          {/* Load from seating chart */}
+        {/* Load from seating chart */}
+        <section>
+          <h2>Load a stored seating chart</h2>
           <div className="mb-6">
             <fieldset>
-              <label>Select a saved chart</label>
+              <label>Choose a chart</label>
               <select
                 value={selectedChart}
                 onChange={(e) => {
@@ -323,7 +359,7 @@ function SeatingChart() {
                   }
                 }}
               >
-                <option value="">- Select chart -</option>
+                <option value="">-- Select --</option>
                 {availableCharts.map(file => (
                   <option key={file} value={file}>{file}</option>
                 ))}
@@ -334,7 +370,7 @@ function SeatingChart() {
 
         {/* Paddler selection section*/}
         <section>
-          <h2>2. Build out the crew</h2>
+          <h2>Build out the crew</h2>
           <fieldset>
             <label>Select up to 20 paddlers</label>
 
@@ -446,7 +482,7 @@ function SeatingChart() {
 
         {/* Inputs for additional front and back weight */}
         <section>
-          <h2>3. Add extra boat weight</h2>
+          <h2>Add extra boat weight</h2>
           <fieldset>
             <div className="flex gap-4">
               <div>
@@ -492,7 +528,7 @@ function SeatingChart() {
         <section>
           {seatingChart.length > 0 && (
             <div ref={seatingChartRef}>
-              <h2>4. Balance the boat</h2>
+              <h2>Balance the boat</h2>
 
               <p> Press down, then drag & drop to change positions.</p>
               <WeightBalancer
