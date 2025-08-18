@@ -9,6 +9,9 @@ function SeatingChart() {
   const EXTRA_PADDLERS_STORAGE_KEY = 'extraPaddlers';
   const DRUMMER_STORAGE_KEY = 'drummer';
   const STERN_STORAGE_KEY = 'stern';
+  const EXTRA_FRONT_WEIGHT_STORAGE_KEY = 'extraFrontWeight';
+  const EXTRA_BACK_WEIGHT_STORAGE_KEY = 'extraBackWeight';
+  const STEERING_WEIGHT_STORAGE_KEY = 'steeringWeight';
 
   // Is there a roster uploaded server-side?
   const [serverRoster, setServerRoster] = useState(false);
@@ -72,7 +75,6 @@ function SeatingChart() {
           skipEmptyLines: true,
           complete: (results) => {
             handleRosterResults(results);
-            console.log("IS HERE?", results);
             setServerRoster(true);
           }
         });
@@ -92,6 +94,9 @@ function SeatingChart() {
     const savedChart = StorageManager.get(SEATING_STORAGE_KEY);
     const savedDrummer = StorageManager.get(DRUMMER_STORAGE_KEY);
     const savedStern = StorageManager.get(STERN_STORAGE_KEY);
+    const savedExtraFrontWeight = StorageManager.get(EXTRA_FRONT_WEIGHT_STORAGE_KEY);
+    const savedExtraBackWeight = StorageManager.get(EXTRA_BACK_WEIGHT_STORAGE_KEY);
+    const savedSteeringWeight = StorageManager.get(STEERING_WEIGHT_STORAGE_KEY);
 
     if (savedDrummer) {
       setDrummer(JSON.parse(savedDrummer));
@@ -103,6 +108,15 @@ function SeatingChart() {
       setSeatingChart(JSON.parse(savedChart));
     } else {
       setSeatingChart(emptyChart);
+    }
+    if (savedExtraFrontWeight) {
+      setExtraFrontWeight(JSON.parse(savedExtraFrontWeight));
+    }
+    if (savedExtraBackWeight) {
+      setExtraBackWeight(JSON.parse(savedExtraBackWeight));
+    }
+    if (savedSteeringWeight) {
+      setSteeringWeight(JSON.parse(savedSteeringWeight));
     }
   }, []);
 
@@ -208,6 +222,21 @@ function SeatingChart() {
   const storeDrummer = (drummer) => {
     setDrummer(drummer);
     StorageManager.set(DRUMMER_STORAGE_KEY, drummer);
+  };
+
+  const storeExtraFrontWeight = (extraFrontWeight) => {
+    setExtraFrontWeight(extraFrontWeight);
+    StorageManager.set(EXTRA_FRONT_WEIGHT_STORAGE_KEY, extraFrontWeight);
+  };
+
+  const storeExtraBackWeight = (extraBackWeight) => {
+    setExtraBackWeight(extraBackWeight);
+    StorageManager.set(EXTRA_BACK_WEIGHT_STORAGE_KEY, extraBackWeight);
+  };
+
+  const storeSteeringWeight = (steeringWeight) => {
+    setSteeringWeight(steeringWeight);
+    StorageManager.set(STEERING_WEIGHT_STORAGE_KEY, steeringWeight);
   };
 
   // Gets rid of anything stored for a fresh chart
@@ -492,8 +521,7 @@ function SeatingChart() {
                   id="extra_front_weight"
                   className="w-16"
                   value={extraFrontWeight}
-                  onChange={(e) => setExtraFrontWeight(e.target.value)}
-                  placeholder="0"
+                  onChange={(e) => storeExtraFrontWeight(e.target.value)}
                 />
               </div>
               <div>
@@ -503,8 +531,7 @@ function SeatingChart() {
                   id="extra_back_weight"
                   className="w-16"
                   value={extraBackWeight}
-                  onChange={(e) => setExtraBackWeight(e.target.value)}
-                  placeholder="0"
+                  onChange={(e) => storeExtraBackWeight(e.target.value)}
                 />
               </div>
               <div>
@@ -514,8 +541,7 @@ function SeatingChart() {
                   id="steering_weight"
                   className="w-16"
                   value={steeringWeight}
-                  onChange={(e) => setSteeringWeight(e.target.value)}
-                  placeholder="0"
+                  onChange={(e) => storeSteeringWeight(e.target.value)}
                 />
               </div>
             </div>
