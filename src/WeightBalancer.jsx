@@ -19,6 +19,7 @@ const WeightBalancer = ({ seatingChart, updateSeatingChart, stern, drummer, extr
   const [overId, setOverId] = useState(null);     // ID of seat currently hovered over
   const [maxWidth, setMaxWidth] = useState(0);    // Used to standardize width of all seat containers
   const [showWeights, setShowWeights] = useState(true);
+  const [topView, setTopView] = useState(true);   // Track boat orientation
 
   // DnD sensor configuration
   const sensors = useSensors(
@@ -204,6 +205,97 @@ const WeightBalancer = ({ seatingChart, updateSeatingChart, stern, drummer, extr
 
   const { frontWeight, backWeight, leftWeight, rightWeight, pacerWeight, rocketWeight } = calculateWeightStats();
 
+  // Display for drummer.
+  const renderDrummer = (
+    <div className="grid">
+      <div className="flex items-center gap-8">
+        <div className="w-12 boat-label">
+          Drummer
+        </div>
+        <div
+          className={`paddler px-2 py-1 my-1 rounded-xl flex flex-col justify-center items-center  text-center bg-sky-200 hover:border-slate-300`}>
+          <span>
+            <span className="font-medium">{drummer.name}</span>{showWeights && `: ${drummer.weight}`}
+          </span>
+        </div>
+      </div>
+    </div>
+  );
+
+  // Display for stern.
+  const renderStern = (
+    <div className="grid">
+      <div className="flex items-center gap-8">
+        <div className="w-12 boat-label">
+          Stern
+        </div>
+        <div
+          className={`paddler my-1 rounded-xl flex flex-col justify-center items-center text-center bg-sky-200 hover:border-slate-300`}>
+          <span>
+            <span className="font-medium">{stern.name}</span>{showWeights && `: ${stern.weight}`}
+          </span>
+        </div>
+      </div>
+    </div>
+  );
+
+  // Display for rows of seats.
+  const renderSeats = () => {
+    // Array of row indices [0..9]
+    const rowIndices = Array.from({ length: 10 }, (_, i) => i);
+
+    // Reverse if topView is false
+    const orderedRows = topView ? rowIndices : [...rowIndices].reverse();
+
+    return orderedRows.map((rowIndex) => {
+      const leftIndex = rowIndex * 2;
+      const rightIndex = leftIndex + 1;
+
+      // ✅ Just use rowIndex + 1 now
+      const label = rowIndex + 1;
+
+      return (
+        <div key={rowIndex} className="border-b-6 flex items-center gap-2">
+          <div className="w-3 boat-label">{label}</div>
+
+          {topView ? (
+            // Normal orientation: left → right
+            <>
+              <SortableSeat
+                id={leftIndex}
+                paddler={seatingChart[leftIndex]}
+                isActive={activeId === leftIndex.toString()}
+                isOver={overId === leftIndex.toString() && activeId !== overId}
+              />
+              <SortableSeat
+                id={rightIndex}
+                paddler={seatingChart[rightIndex]}
+                isActive={activeId === rightIndex.toString()}
+                isOver={overId === rightIndex.toString() && activeId !== overId}
+              />
+            </>
+          ) : (
+            // Mirrored orientation: right → left
+            <>
+              <SortableSeat
+                id={rightIndex}
+                paddler={seatingChart[rightIndex]}
+                isActive={activeId === rightIndex.toString()}
+                isOver={overId === rightIndex.toString() && activeId !== overId}
+              />
+              <SortableSeat
+                id={leftIndex}
+                paddler={seatingChart[leftIndex]}
+                isActive={activeId === leftIndex.toString()}
+                isOver={overId === leftIndex.toString() && activeId !== overId}
+              />
+            </>
+          )}
+        </div>
+      );
+    });
+  };
+
   return (
     <>
       <div className="p-2 my-2 inline-block border border-slate-200 bg-gradient-to-b from-white to-purple-50">
@@ -222,64 +314,11 @@ const WeightBalancer = ({ seatingChart, updateSeatingChart, stern, drummer, extr
         <SortableContext items={seatingChart.map((_, i) => i.toString())} strategy={rectSortingStrategy}>
           <br />
           <div className="inline-block">
-            {/* Drummer info row */}
-            {drummer && (
-              <div className="grid">
-                <div className="flex items-center gap-8">
-                  <div className="w-12 boat-label">
-                    Drummer
-                  </div>
-                  <div
-                    className={`paddler px-2 py-1 my-1 rounded-xl flex flex-col justify-center items-center  text-center bg-sky-200 hover:border-slate-300`}>
-                    <span>
-                      <span className="font-medium">{drummer.name}</span>{showWeights && `: ${drummer.weight}`}
-                    </span>
-                  </div>
-                </div>
-              </div>
-            )}
+            {topView ? renderDrummer : renderStern}
             <div className="grid grid-rows-10 gap-2 py-1">
-              {Array.from({ length: 10 }).map((_, rowIndex) => {
-                const leftIndex = rowIndex * 2;
-                const rightIndex = leftIndex + 1;
-
-                return (
-                  <div key={rowIndex} className="border-b-6 flex items-center gap-2">
-                    <div className="w-3 boat-label">
-                      {rowIndex + 1}
-                    </div>
-                    <SortableSeat
-                      id={leftIndex}
-                      paddler={seatingChart[leftIndex]}
-                      isActive={activeId === leftIndex.toString()}
-                      isOver={overId === leftIndex.toString() && activeId !== overId}
-                    />
-                    <SortableSeat
-                      id={rightIndex}
-                      paddler={seatingChart[rightIndex]}
-                      isActive={activeId === rightIndex.toString()}
-                      isOver={overId === rightIndex.toString() && activeId !== overId}
-                    />
-                  </div>
-                );
-              })}
+              {renderSeats()}
             </div>
-            {/* Stern info row */}
-            {stern && (
-              <div className="grid">
-                <div className="flex items-center gap-8">
-                  <div className="w-12 boat-label">
-                    Stern
-                  </div>
-                  <div
-                    className={`paddler my-1 rounded-xl flex flex-col justify-center items-center text-center bg-sky-200 hover:border-slate-300`}>
-                    <span>
-                      <span className="font-medium">{stern.name}</span>{showWeights && `: ${stern.weight}`}
-                    </span>
-                  </div>
-                </div>
-              </div>
-            )}
+            {topView ? renderStern : renderDrummer}
           </div>
 
         </SortableContext>
@@ -290,6 +329,9 @@ const WeightBalancer = ({ seatingChart, updateSeatingChart, stern, drummer, extr
           onClick={() => setShowWeights((prev) => !prev)}
         >
           {showWeights ? 'Hide Weights' : 'Show Weights'}
+        </button>
+        <button className="mr-3 mt-3" onClick={() => setTopView((prev) => !prev)}>
+          {topView ? "Top first ↑" : "Bottom first ↓"}
         </button>
       </p>
     </>
