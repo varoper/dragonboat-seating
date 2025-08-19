@@ -16,9 +16,13 @@ function SeatingChart() {
 
   // Items from store
   const seatingChart = useStore((state) => state.seatingChart);
+  const drummer = useStore((state) => state.drummer);
+  const stern = useStore((state) => state.stern);
 
   // Actions from store
   const setSeatingChart = useStore((state) => state.setSeatingChart);
+  const setDrummer = useStore((state) => state.setDrummer);
+  const setStern = useStore((state) => state.setStern);
 
   // Is there a roster uploaded server-side?
   const [serverRoster, setServerRoster] = useState(false);
@@ -30,10 +34,6 @@ function SeatingChart() {
   const [allSterns, setAllSterns] = useState([]);
   // Full set of drummers
   const [allDrummers, setAllDrummers] = useState([]);
-  // Stored stern
-  const [stern, setStern] = useState(null);
-  // Stored drummer
-  const [drummer, setDrummer] = useState(null);
   const [selectionError, setSelectionError] = useState("");
   const [showAddForm, setShowAddForm] = useState(false);
   const [newPaddlerName, setNewPaddlerName] = useState("");
