@@ -109,7 +109,7 @@ function SeatingChart() {
     if (savedStern) {
       setStern(JSON.parse(savedStern));
     }
-    if (savedChart) {
+    if (savedChart && JSON.parse(savedChart).length > 0) {
       setSeatingChart(JSON.parse(savedChart));
     } else {
       setSeatingChart(emptyChart);
