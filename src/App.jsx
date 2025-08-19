@@ -2,11 +2,6 @@ import React, { useState, useEffect, useRef } from 'react';
 import SeatingChart from './SeatingChart';
 import Instructions from './Instructions';
 
-const SEATING_COOKIE_KEY = 'seatingChart';
-const EXTRA_PADDLERS_COOKIE_KEY = 'extraPaddlers';
-const DRUMMER_COOKIE_KEY = 'drummer';
-const STERN_COOKIE_KEY = 'stern';
-
 function App() {
   const [currentTab, setCurrentTab] = useState('chart');
 
