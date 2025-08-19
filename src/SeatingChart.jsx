@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import StorageManager from './components/StorageManager';
 import WeightBalancer from './WeightBalancer';
 import Papa from 'papaparse';
+import useStore from './store/useStore';
 
 function SeatingChart() {
   const ROSTER_STORAGE_KEY = 'roster';
@@ -13,6 +14,12 @@ function SeatingChart() {
   const EXTRA_BACK_WEIGHT_STORAGE_KEY = 'extraBackWeight';
   const STEERING_WEIGHT_STORAGE_KEY = 'steeringWeight';
 
+  // Items from store
+  const seatingChart = useStore((state) => state.seatingChart);
+
+  // Actions from store
+  const setSeatingChart = useStore((state) => state.setSeatingChart);
+
   // Is there a roster uploaded server-side?
   const [serverRoster, setServerRoster] = useState(false);
   // Is there at least one seating chart uploaded server-side?
@@ -23,8 +30,6 @@ function SeatingChart() {
   const [allSterns, setAllSterns] = useState([]);
   // Full set of drummers
   const [allDrummers, setAllDrummers] = useState([]);
-  // Seating chart (combo of paddlers & empty seats)
-  const [seatingChart, setSeatingChart] = useState([]);
   // Stored stern
   const [stern, setStern] = useState(null);
   // Stored drummer
