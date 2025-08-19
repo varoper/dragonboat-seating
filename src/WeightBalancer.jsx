@@ -15,17 +15,21 @@ import {
 import { CSS } from '@dnd-kit/utilities';
 import useStore from './store/useStore';
 
-const WeightBalancer = ({ updateSeatingChart, stern, drummer, extraFrontWeight = 0, extraBackWeight = 0, steeringWeight = 0 }) => {
-  const [activeId, setActiveId] = useState(null); // Currently dragged paddler
-  const [overId, setOverId] = useState(null);     // ID of seat currently hovered over
+const WeightBalancer = ({ updateSeatingChart, extraFrontWeight = 0, extraBackWeight = 0, steeringWeight = 0 }) => {
   const [maxWidth, setMaxWidth] = useState(0);    // Used to standardize width of all seat containers
   const [showWeights, setShowWeights] = useState(true);
 
-  const seatingChart = useStore((state) => state.seatingChart)
+  const seatingChart = useStore((state) => state.seatingChart);
+  const drummer = useStore((state) => state.drummer);
+  const stern = useStore((state) => state.stern);
   const topView = useStore((state) => state.topView);
+  const activeId = useStore((state) => state.activeId);
+  const overId = useStore((state) => state.overId);
 
   // Actions
   const toggleTopView = useStore((state) => state.toggleTopView);
+  const setActiveId = useStore((state) => state.setActiveId);
+  const setOverId = useStore((state) => state.setOverId);
 
   // DnD sensor configuration
   const sensors = useSensors(
