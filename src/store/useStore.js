@@ -8,6 +8,9 @@ const useStore = create((set) => ({
     overId: null,
     drummer: null,
     stern: null,
+    extraFrontWeight: 0,
+    extraBackWeight: 0,
+    steeringWeight: 15,
 
     // Actions
     setSeatingChart: (chart) => set({ seatingChart: chart }),
@@ -16,6 +19,12 @@ const useStore = create((set) => ({
     setOverId: (id) => set({ overId: id }),
     setDrummer: (drummer) => set({ drummer }),
     setStern: (stern) => set({ stern }),
+
+    setExtraFrontWeight: (extraFrontWeight) => set({ extraFrontWeight }),
+    setExtraBackWeight: (extraBackWeight) => set({ extraBackWeight }),
+    setSteeringWeight: (steeringWeight) => set({ steeringWeight }),
+
+
 }));
 
 export default useStore;
