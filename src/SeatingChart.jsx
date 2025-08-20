@@ -21,6 +21,9 @@ function SeatingChart() {
   const allPaddlers = useStore((state) => state.allPaddlers);
   const allSterns = useStore((state) => state.allSterns);
   const allDrummers = useStore((state) => state.allDrummers);
+  const showAddForm = useStore((state) => state.showAddForm);
+  const newPaddlerName = useStore((state) => state.newPaddlerName);
+  const newPaddlerWeight = useStore((state) => state.newPaddlerWeight);
   const extraFrontWeight = useStore((state) => state.extraFrontWeight);
   const extraBackWeight = useStore((state) => state.extraBackWeight);
   const steeringWeight = useStore((state) => state.steeringWeight);
@@ -32,6 +35,9 @@ function SeatingChart() {
   const setAllPaddlers = useStore((state) => state.setAllPaddlers);
   const setAllSterns = useStore((state) => state.setAllSterns);
   const setAllDrummers = useStore((state) => state.setAllDrummers);
+  const toggleShowAddForm = useStore((state) => state.toggleShowAddForm);
+  const setNewPaddlerName = useStore((state) => state.setNewPaddlerName);
+  const setNewPaddlerWeight = useStore((state) => state.setNewPaddlerWeight);
   const setExtraFrontWeight = useStore((state) => state.setExtraFrontWeight);
   const setExtraBackWeight = useStore((state) => state.setExtraBackWeight);
   const setSteeringWeight = useStore((state) => state.setSteeringWeight);
@@ -41,9 +47,6 @@ function SeatingChart() {
   // Is there at least one seating chart uploaded server-side?
   const [serverChart, setServerChart] = useState(false);
   const [selectionError, setSelectionError] = useState("");
-  const [showAddForm, setShowAddForm] = useState(false);
-  const [newPaddlerName, setNewPaddlerName] = useState("");
-  const [newPaddlerWeight, setNewPaddlerWeight] = useState("");
   const seatingChartRef = useRef(null);
   const [availableCharts, setAvailableCharts] = useState([]);
   const [selectedChart, setSelectedChart] = useState('');
@@ -439,7 +442,7 @@ function SeatingChart() {
             <div className="mb-6">
               {!showAddForm ? (
                 <button
-                  onClick={() => setShowAddForm(true)}
+                  onClick={toggleShowAddForm}
                 >
                   {showAddForm ? '- Hide add paddler' : '+ Add paddler'}
                 </button>
@@ -472,7 +475,7 @@ function SeatingChart() {
                       Add
                     </button>
                     <button
-                      onClick={() => setShowAddForm(false)}
+                      onClick={toggleShowAddForm}
                       className="button-alt"
                     >
                       Cancel
