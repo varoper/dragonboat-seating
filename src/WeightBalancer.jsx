@@ -15,7 +15,7 @@ import {
 import { CSS } from '@dnd-kit/utilities';
 import useStore from './store/useStore';
 
-const WeightBalancer = ({ updateSeatingChart, extraFrontWeight = 0, extraBackWeight = 0, steeringWeight = 0 }) => {
+const WeightBalancer = ({ updateSeatingChart }) => {
   const [maxWidth, setMaxWidth] = useState(0);    // Used to standardize width of all seat containers
   const [showWeights, setShowWeights] = useState(true);
 
@@ -25,6 +25,9 @@ const WeightBalancer = ({ updateSeatingChart, extraFrontWeight = 0, extraBackWei
   const topView = useStore((state) => state.topView);
   const activeId = useStore((state) => state.activeId);
   const overId = useStore((state) => state.overId);
+  const extraFrontWeight = useStore((state) => state.extraFrontWeight);
+  const extraBackWeight = useStore((state) => state.extraBackWeight);
+  const steeringWeight = useStore((state) => state.steeringWeight);
 
   // Actions
   const toggleTopView = useStore((state) => state.toggleTopView);

@@ -18,11 +18,17 @@ function SeatingChart() {
   const seatingChart = useStore((state) => state.seatingChart);
   const drummer = useStore((state) => state.drummer);
   const stern = useStore((state) => state.stern);
+  const extraFrontWeight = useStore((state) => state.extraFrontWeight);
+  const extraBackWeight = useStore((state) => state.extraBackWeight);
+  const steeringWeight = useStore((state) => state.steeringWeight);
 
   // Actions from store
   const setSeatingChart = useStore((state) => state.setSeatingChart);
   const setDrummer = useStore((state) => state.setDrummer);
   const setStern = useStore((state) => state.setStern);
+  const setExtraFrontWeight = useStore((state) => state.setExtraFrontWeight);
+  const setExtraBackWeight = useStore((state) => state.setExtraBackWeight);
+  const setSteeringWeight = useStore((state) => state.setSteeringWeight);
 
   // Is there a roster uploaded server-side?
   const [serverRoster, setServerRoster] = useState(false);
@@ -38,9 +44,6 @@ function SeatingChart() {
   const [showAddForm, setShowAddForm] = useState(false);
   const [newPaddlerName, setNewPaddlerName] = useState("");
   const [newPaddlerWeight, setNewPaddlerWeight] = useState("");
-  const [extraFrontWeight, setExtraFrontWeight] = useState(0);
-  const [extraBackWeight, setExtraBackWeight] = useState(0);
-  const [steeringWeight, setSteeringWeight] = useState(15);
   const seatingChartRef = useRef(null);
   const [availableCharts, setAvailableCharts] = useState([]);
   const [selectedChart, setSelectedChart] = useState('');
