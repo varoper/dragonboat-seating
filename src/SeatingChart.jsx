@@ -18,6 +18,9 @@ function SeatingChart() {
   const seatingChart = useStore((state) => state.seatingChart);
   const drummer = useStore((state) => state.drummer);
   const stern = useStore((state) => state.stern);
+  const allPaddlers = useStore((state) => state.allPaddlers);
+  const allSterns = useStore((state) => state.allSterns);
+  const allDrummers = useStore((state) => state.allDrummers);
   const extraFrontWeight = useStore((state) => state.extraFrontWeight);
   const extraBackWeight = useStore((state) => state.extraBackWeight);
   const steeringWeight = useStore((state) => state.steeringWeight);
@@ -26,6 +29,9 @@ function SeatingChart() {
   const setSeatingChart = useStore((state) => state.setSeatingChart);
   const setDrummer = useStore((state) => state.setDrummer);
   const setStern = useStore((state) => state.setStern);
+  const setAllPaddlers = useStore((state) => state.setAllPaddlers);
+  const setAllSterns = useStore((state) => state.setAllSterns);
+  const setAllDrummers = useStore((state) => state.setAllDrummers);
   const setExtraFrontWeight = useStore((state) => state.setExtraFrontWeight);
   const setExtraBackWeight = useStore((state) => state.setExtraBackWeight);
   const setSteeringWeight = useStore((state) => state.setSteeringWeight);
@@ -34,12 +40,6 @@ function SeatingChart() {
   const [serverRoster, setServerRoster] = useState(false);
   // Is there at least one seating chart uploaded server-side?
   const [serverChart, setServerChart] = useState(false);
-  // Full set of paddlers
-  const [allPaddlers, setAllPaddlers] = useState([]);
-  // Full set of sterns
-  const [allSterns, setAllSterns] = useState([]);
-  // Full set of drummers
-  const [allDrummers, setAllDrummers] = useState([]);
   const [selectionError, setSelectionError] = useState("");
   const [showAddForm, setShowAddForm] = useState(false);
   const [newPaddlerName, setNewPaddlerName] = useState("");
