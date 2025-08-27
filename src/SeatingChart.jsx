@@ -1,10 +1,11 @@
 import React, { useState, useEffect, useRef } from 'react';
-import StorageManager from './components/StorageManager';
+import StorageManager from './utils/StorageManager';
 import WeightBalancer from './WeightBalancer';
 import Papa from 'papaparse';
 import useStore from './store/useStore';
+import ExtraBoatWeight from './components/ExtraBoatWeight';
 
-function SeatingChart() {
+const SeatingChart = () => {
   const ROSTER_STORAGE_KEY = 'roster';
   const SEATING_STORAGE_KEY = 'seatingChart';
   const EXTRA_PADDLERS_STORAGE_KEY = 'extraPaddlers';
@@ -24,9 +25,6 @@ function SeatingChart() {
   const showAddForm = useStore((state) => state.showAddForm);
   const newPaddlerName = useStore((state) => state.newPaddlerName);
   const newPaddlerWeight = useStore((state) => state.newPaddlerWeight);
-  const extraFrontWeight = useStore((state) => state.extraFrontWeight);
-  const extraBackWeight = useStore((state) => state.extraBackWeight);
-  const steeringWeight = useStore((state) => state.steeringWeight);
 
   // Actions from store
   const setSeatingChart = useStore((state) => state.setSeatingChart);
@@ -233,21 +231,6 @@ function SeatingChart() {
   const storeDrummer = (drummer) => {
     setDrummer(drummer);
     StorageManager.set(DRUMMER_STORAGE_KEY, drummer);
-  };
-
-  const storeExtraFrontWeight = (extraFrontWeight) => {
-    setExtraFrontWeight(extraFrontWeight);
-    StorageManager.set(EXTRA_FRONT_WEIGHT_STORAGE_KEY, extraFrontWeight);
-  };
-
-  const storeExtraBackWeight = (extraBackWeight) => {
-    setExtraBackWeight(extraBackWeight);
-    StorageManager.set(EXTRA_BACK_WEIGHT_STORAGE_KEY, extraBackWeight);
-  };
-
-  const storeSteeringWeight = (steeringWeight) => {
-    setSteeringWeight(steeringWeight);
-    StorageManager.set(STEERING_WEIGHT_STORAGE_KEY, steeringWeight);
   };
 
   // Gets rid of anything stored for a fresh chart
@@ -520,45 +503,12 @@ function SeatingChart() {
           </fieldset>
         </section>
 
-        {/* Inputs for additional front and back weight */}
-        <section>
-          <h2>Add extra boat weight</h2>
-          <fieldset>
-            <div className="flex gap-4">
-              <div>
-                <label for="extra_front_weight">Front</label>
-                <input
-                  type="number"
-                  id="extra_front_weight"
-                  className="w-16"
-                  value={extraFrontWeight}
-                  onChange={(e) => storeExtraFrontWeight(e.target.value)}
-                />
-              </div>
-              <div>
-                <label for="extra_back_weight">Back</label>
-                <input
-                  type="number"
-                  id="extra_back_weight"
-                  className="w-16"
-                  value={extraBackWeight}
-                  onChange={(e) => storeExtraBackWeight(e.target.value)}
-                />
-              </div>
-              <div>
-                <label for="steering_weight">Steering mechanism</label>
-                <input
-                  type="number"
-                  id="steering_weight"
-                  className="w-16"
-                  value={steeringWeight}
-                  onChange={(e) => storeSteeringWeight(e.target.value)}
-                />
-              </div>
-            </div>
-          </fieldset>
-        </section>
-      </div >
+        {ExtraBoatWeight()}
+        <div>
+          <h2>Notes</h2>
+          <p>Karl prefers right but can paddle left if needed</p>
+        </div>
+      </div>
 
       {/* Show seating chart once generated */}
       < div className="w-full lg:w-1/2" >
@@ -569,13 +519,7 @@ function SeatingChart() {
 
               <p> Press down, then drag & drop to change positions.</p>
               <WeightBalancer
-                seatingChart={seatingChart}
                 updateSeatingChart={updateSeatingChart}
-                stern={stern}
-                drummer={drummer}
-                extraFrontWeight={extraFrontWeight}
-                extraBackWeight={extraBackWeight}
-                steeringWeight={steeringWeight}
               />
 
               <p>
