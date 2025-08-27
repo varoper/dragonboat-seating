@@ -4,17 +4,18 @@ import Papa from 'papaparse';
 import useStore from './store/useStore';
 import BoatChart from './components/BoatChart';
 import ExtraBoatWeight from './components/ExtraBoatWeight';
+import {
+  ROSTER_STORAGE_KEY,
+  SEATING_STORAGE_KEY,
+  EXTRA_PADDLERS_STORAGE_KEY,
+  DRUMMER_STORAGE_KEY,
+  STERN_STORAGE_KEY,
+  EXTRA_FRONT_WEIGHT_STORAGE_KEY,
+  EXTRA_BACK_WEIGHT_STORAGE_KEY,
+  STEERING_WEIGHT_STORAGE_KEY
+} from "./consts/StorageKeys";
 
 const SeatingChart = () => {
-  const ROSTER_STORAGE_KEY = 'roster';
-  const SEATING_STORAGE_KEY = 'seatingChart';
-  const EXTRA_PADDLERS_STORAGE_KEY = 'extraPaddlers';
-  const DRUMMER_STORAGE_KEY = 'drummer';
-  const STERN_STORAGE_KEY = 'stern';
-  const EXTRA_FRONT_WEIGHT_STORAGE_KEY = 'extraFrontWeight';
-  const EXTRA_BACK_WEIGHT_STORAGE_KEY = 'extraBackWeight';
-  const STEERING_WEIGHT_STORAGE_KEY = 'steeringWeight';
-
   // Items from store
   const seatingChart = useStore((state) => state.seatingChart);
   const drummer = useStore((state) => state.drummer);
