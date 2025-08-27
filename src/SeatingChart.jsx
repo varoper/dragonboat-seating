@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import StorageManager from './utils/StorageManager';
-import WeightBalancer from './WeightBalancer';
 import Papa from 'papaparse';
 import useStore from './store/useStore';
+import BoatChart from './components/BoatChart';
 import ExtraBoatWeight from './components/ExtraBoatWeight';
 
 const SeatingChart = () => {
@@ -518,7 +518,7 @@ const SeatingChart = () => {
               <h2>Balance the boat</h2>
 
               <p> Press down, then drag & drop to change positions.</p>
-              <WeightBalancer
+              <BoatChart
                 updateSeatingChart={updateSeatingChart}
               />
 

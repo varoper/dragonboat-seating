@@ -1,4 +1,4 @@
-// WeightBalancer.js
+// BoatChart.js
 import React, { useState, useEffect, useRef } from 'react';
 import {
   DndContext,
@@ -13,9 +13,9 @@ import {
   rectSortingStrategy,
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import useStore from './store/useStore';
+import useStore from '../store/useStore';
 
-const WeightBalancer = ({ updateSeatingChart }) => {
+const BoatChart = ({ updateSeatingChart }) => {
   const [maxWidth, setMaxWidth] = useState(0);    // Used to standardize width of all seat containers
   const [showWeights, setShowWeights] = useState(true);
 
@@ -357,4 +357,4 @@ const WeightBalancer = ({ updateSeatingChart }) => {
   );
 };
 
-export default WeightBalancer;
+export default BoatChart;
