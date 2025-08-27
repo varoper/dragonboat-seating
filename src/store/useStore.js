@@ -16,7 +16,7 @@ const useStore = create((set) => ({
     newPaddlerWeight: '', // String for paddler weight
     extraFrontWeight: 0, // Int for additional weight in front
     extraBackWeight: 0, // Int for additional weight in back
-    steeringWeight: 15, // Int for additional steering weight
+    steeringWeight: 10, // Int for additional steering weight
 
     // Actions
     setSeatingChart: (chart) => set({ seatingChart: chart }),
