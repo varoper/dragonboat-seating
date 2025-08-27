@@ -4,16 +4,7 @@ import Papa from 'papaparse';
 import useStore from './store/useStore';
 import BoatChart from './components/BoatChart';
 import ExtraBoatWeight from './components/ExtraBoatWeight';
-import {
-  ROSTER_STORAGE_KEY,
-  SEATING_STORAGE_KEY,
-  EXTRA_PADDLERS_STORAGE_KEY,
-  DRUMMER_STORAGE_KEY,
-  STERN_STORAGE_KEY,
-  EXTRA_FRONT_WEIGHT_STORAGE_KEY,
-  EXTRA_BACK_WEIGHT_STORAGE_KEY,
-  STEERING_WEIGHT_STORAGE_KEY
-} from "./consts/StorageKeys";
+import STORAGE_KEYS from "./consts/StorageKeys";
 
 const SeatingChart = () => {
   // Items from store
@@ -101,12 +92,12 @@ const SeatingChart = () => {
 
   // Grabbing any stored values
   useEffect(() => {
-    const savedChart = StorageManager.get(SEATING_STORAGE_KEY);
-    const savedDrummer = StorageManager.get(DRUMMER_STORAGE_KEY);
-    const savedStern = StorageManager.get(STERN_STORAGE_KEY);
-    const savedExtraFrontWeight = StorageManager.get(EXTRA_FRONT_WEIGHT_STORAGE_KEY);
-    const savedExtraBackWeight = StorageManager.get(EXTRA_BACK_WEIGHT_STORAGE_KEY);
-    const savedSteeringWeight = StorageManager.get(STEERING_WEIGHT_STORAGE_KEY);
+    const savedChart = StorageManager.get(STORAGE_KEYS.SEATING);
+    const savedDrummer = StorageManager.get(STORAGE_KEYS.DRUMMER);
+    const savedStern = StorageManager.get(STORAGE_KEYS.STERN);
+    const savedExtraFrontWeight = StorageManager.get(STORAGE_KEYS.EXTRA_FRONT_WEIGHT);
+    const savedExtraBackWeight = StorageManager.get(STORAGE_KEYS.EXTRA_BACK_WEIGHT);
+    const savedSteeringWeight = StorageManager.get(STORAGE_KEYS.STEERING_WEIGHT);
 
     if (savedDrummer) {
       setDrummer(JSON.parse(savedDrummer));
@@ -212,7 +203,7 @@ const SeatingChart = () => {
     setAllSterns(parsed.filter(p => p.role === 'stern'));
     setAllDrummers(parsed.filter(p => p.role === 'drummer'));
 
-    const extra = StorageManager.get(EXTRA_PADDLERS_STORAGE_KEY);
+    const extra = StorageManager.get(STORAGE_KEYS.EXTRA_PADDLERS);
     if (extra) {
       fullPaddlers = [...fullPaddlers, ...JSON.parse(extra)];
     }
@@ -221,25 +212,25 @@ const SeatingChart = () => {
 
   const storeSeatingChart = (chart) => {
     setSeatingChart(chart);
-    StorageManager.set(SEATING_STORAGE_KEY, chart);
+    StorageManager.set(STORAGE_KEYS.SEATING, chart);
   };
 
   const storeStern = (stern) => {
     setStern(stern);
-    StorageManager.set(STERN_STORAGE_KEY, stern);
+    StorageManager.set(STORAGE_KEYS.STERN, stern);
   };
 
   const storeDrummer = (drummer) => {
     setDrummer(drummer);
-    StorageManager.set(DRUMMER_STORAGE_KEY, drummer);
+    StorageManager.set(STORAGE_KEYS.DRUMMER, drummer);
   };
 
   // Gets rid of anything stored for a fresh chart
   const clearChart = () => {
-    localStorage.removeItem(SEATING_STORAGE_KEY);
-    localStorage.removeItem(EXTRA_PADDLERS_STORAGE_KEY);
-    localStorage.removeItem(DRUMMER_STORAGE_KEY);
-    localStorage.removeItem(STERN_STORAGE_KEY);
+    localStorage.removeItem(STORAGE_KEYS.SEATING);
+    localStorage.removeItem(STORAGE_KEYS.EXTRA_PADDLERS);
+    localStorage.removeItem(STORAGE_KEYS.DRUMMER);
+    localStorage.removeItem(STORAGE_KEYS.STERN);
     setSeatingChart(emptyChart);
     setDrummer(null);
     setStern(null);
@@ -300,12 +291,12 @@ const SeatingChart = () => {
     const newPaddler = { name: newPaddlerName, weight: parseInt(newPaddlerWeight), side: 'either', role: '' };
     setAllPaddlers(prev => {
       const updated = [...prev, newPaddler];
-      const existing = StorageManager.get(EXTRA_PADDLERS_STORAGE_KEY);
+      const existing = StorageManager.get(STORAGE_KEYS.EXTRA_PADDLERS);
       let currentExtras = [];
       if (existing) {
         currentExtras = JSON.parse(existing);
       }
-      StorageManager.set(EXTRA_PADDLERS_STORAGE_KEY, [...currentExtras, newPaddler]);
+      StorageManager.set(STORAGE_KEYS.EXTRA_PADDLERS, [...currentExtras, newPaddler]);
       return updated;
     });
     handlePaddlerClick(newPaddler);
