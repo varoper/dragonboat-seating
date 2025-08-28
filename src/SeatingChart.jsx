@@ -17,6 +17,10 @@ const SeatingChart = () => {
   const showAddForm = useStore((state) => state.showAddForm);
   const newPaddlerName = useStore((state) => state.newPaddlerName);
   const newPaddlerWeight = useStore((state) => state.newPaddlerWeight);
+  const selectedChart = useStore((state) => state.selectedChart);
+
+  // const [selectedChart, setSelectedChart] = useState('');
+
 
   // Actions from store
   const setSeatingChart = useStore((state) => state.setSeatingChart);
@@ -31,6 +35,7 @@ const SeatingChart = () => {
   const setExtraFrontWeight = useStore((state) => state.setExtraFrontWeight);
   const setExtraBackWeight = useStore((state) => state.setExtraBackWeight);
   const setSteeringWeight = useStore((state) => state.setSteeringWeight);
+  const setSelectedChart = useStore((state) => state.setSelectedChart);
 
   // Is there a roster uploaded server-side?
   const [serverRoster, setServerRoster] = useState(false);
@@ -39,7 +44,6 @@ const SeatingChart = () => {
   const [selectionError, setSelectionError] = useState("");
   const seatingChartRef = useRef(null);
   const [availableCharts, setAvailableCharts] = useState([]);
-  const [selectedChart, setSelectedChart] = useState('');
   const [showExportInput, setShowExportInput] = useState(false);
   const [customFileName, setCustomFileName] = useState(() => {
     const today = new Date();
@@ -227,14 +231,20 @@ const SeatingChart = () => {
 
   // Gets rid of anything stored for a fresh chart
   const clearChart = () => {
-    localStorage.removeItem(STORAGE_KEYS.SEATING);
-    localStorage.removeItem(STORAGE_KEYS.EXTRA_PADDLERS);
-    localStorage.removeItem(STORAGE_KEYS.DRUMMER);
-    localStorage.removeItem(STORAGE_KEYS.STERN);
+    StorageManager.remove(STORAGE_KEYS.SEATING);
+    StorageManager.remove(STORAGE_KEYS.EXTRA_PADDLERS);
+    StorageManager.remove(STORAGE_KEYS.DRUMMER);
+    StorageManager.remove(STORAGE_KEYS.STERN);
+    StorageManager.remove(STORAGE_KEYS.EXTRA_FRONT_WEIGHT);
+    StorageManager.remove(STORAGE_KEYS.EXTRA_BACK_WEIGHT);
+    StorageManager.remove(STORAGE_KEYS.STEERING_WEIGHT);
     setSeatingChart(emptyChart);
     setDrummer(null);
     setStern(null);
     setSelectedChart('');
+    setExtraFrontWeight(0);
+    setExtraBackWeight(0);
+    setSteeringWeight(10);
   };
 
   // Import a seating chart stored on the server, if exists

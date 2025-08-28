@@ -3,10 +3,11 @@ import { create } from 'zustand';
 const useStore = create((set) => ({
     // State
     seatingChart: [], // Holds active seating chart
+    selectedChart: '', // Selected chart file from set of stored seating chart files
     allPaddlers: [], // Set of all available paddlers
     allSterns: [], // Set of all available sterns
     allDrummers: [], // Set of all available drummers
-    topView: true, // Layout direction of rendered seaing chart
+    topView: true, // Layout direction of rendered seating chart
     activeId: null, // ID of selected seat in chart
     overId: null, // ID of seat in "drag" state
     drummer: null, // Selected drummer
@@ -20,6 +21,7 @@ const useStore = create((set) => ({
 
     // Actions
     setSeatingChart: (chart) => set({ seatingChart: chart }),
+    setSelectedChart: (chartFile) => set({ selectedChart: chartFile }),
     setAllPaddlers: (allPaddlers) => set({ allPaddlers }),
     setAllSterns: (allSterns) => set({ allSterns }),
     setAllDrummers: (allDrummers) => set({ allDrummers }),

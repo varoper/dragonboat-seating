@@ -68,7 +68,7 @@ const ExtraBoatWeight = () => {
         </div>
       </fieldset>
     </section>
-  )
-}
+  );
+};
 
 export default ExtraBoatWeight;
