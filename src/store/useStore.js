@@ -4,6 +4,7 @@ const useStore = create((set) => ({
     // State
     seatingChart: [], // Holds active seating chart
     selectedChart: '', // Selected chart file from set of stored seating chart files
+    availableCharts: [], // Set of all available chart files
     allPaddlers: [], // Set of all available paddlers
     allSterns: [], // Set of all available sterns
     allDrummers: [], // Set of all available drummers
@@ -21,7 +22,9 @@ const useStore = create((set) => ({
 
     // Actions
     setSeatingChart: (chart) => set({ seatingChart: chart }),
-    setSelectedChart: (chartFile) => set({ selectedChart: chartFile }),
+    setSelectedChart: (chart) => set({ selectedChart: chart }),
+    setAvailableCharts: (charts) => set({ availableCharts: charts }),
+
     setAllPaddlers: (allPaddlers) => set({ allPaddlers }),
     setAllSterns: (allSterns) => set({ allSterns }),
     setAllDrummers: (allDrummers) => set({ allDrummers }),
