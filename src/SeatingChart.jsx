@@ -209,8 +209,6 @@ const SeatingChart = () => {
     setAllPaddlers(fullPaddlers);
   }
 
-  const updateSeatingChart = (newChart) => storeSeatingChart(newChart);
-
   // Handles when user clicks on a paddler's name
   const handlePaddlerClick = (p) => {
     const index = seatingChart.findIndex(seat => seat.name === p.name);
@@ -297,7 +295,7 @@ const SeatingChart = () => {
         }
 
         {/* Load from seating chart */}
-        {LoadStoredSeatingChart()}
+        <LoadStoredSeatingChart />
 
         {/* Paddler selection section*/}
         <section>
@@ -410,8 +408,7 @@ const SeatingChart = () => {
             </div>
           </fieldset>
         </section>
-
-        {ExtraBoatWeight()}
+        <ExtraBoatWeight />
         <div>
           <h2>Notes</h2>
           <p>Karl prefers right but can paddle left if needed</p>
@@ -426,10 +423,7 @@ const SeatingChart = () => {
               <h2>Balance the boat</h2>
 
               <p> Press down, then drag & drop to change positions.</p>
-              <BoatChart
-                updateSeatingChart={updateSeatingChart}
-              />
-
+              <BoatChart />
               <p>
                 <button
                   className={`mr-3 ${isChartEmpty(seatingChart) ? 'button-inactive' : ''}`}

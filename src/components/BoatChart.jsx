@@ -14,8 +14,9 @@ import {
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import useStore from '../store/useStore';
+import { storeSeatingChart } from '../utils/StorageHelpers';
 
-const BoatChart = ({ updateSeatingChart }) => {
+const BoatChart = () => {
   const [maxWidth, setMaxWidth] = useState(0);    // Used to standardize width of all seat containers
   const [showWeights, setShowWeights] = useState(true);
 
@@ -80,7 +81,7 @@ const BoatChart = ({ updateSeatingChart }) => {
     const temp = updatedChart[oldIndex];
     updatedChart[oldIndex] = updatedChart[newIndex];
     updatedChart[newIndex] = temp;
-    updateSeatingChart(updatedChart);
+    storeSeatingChart(updatedChart);
   };
 
   // Display weight imbalance between seat sides.
