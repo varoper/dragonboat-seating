@@ -1,8 +1,9 @@
 // ExtraBoatWeight.js
 import React, { useState, useEffect, useRef } from 'react';
 import StorageManager from '../utils/StorageManager';
+import { storeExtraFrontWeight, storeExtraBackWeight, storeSteeringWeight } from '../utils/StorageHelpers';
+import STORAGE_KEYS from "../utils/StorageKeys";
 import useStore from '../store/useStore';
-import STORAGE_KEYS from "../consts/StorageKeys";
 
 // Inputs for additional front and back weight 
 const ExtraBoatWeight = () => {
@@ -10,25 +11,6 @@ const ExtraBoatWeight = () => {
   const extraFrontWeight = useStore((state) => state.extraFrontWeight);
   const extraBackWeight = useStore((state) => state.extraBackWeight);
   const steeringWeight = useStore((state) => state.steeringWeight);
-
-  const setExtraFrontWeight = useStore((state) => state.setExtraFrontWeight);
-  const setExtraBackWeight = useStore((state) => state.setExtraBackWeight);
-  const setSteeringWeight = useStore((state) => state.setSteeringWeight);
-
-  const storeExtraFrontWeight = (extraFrontWeight) => {
-    setExtraFrontWeight(extraFrontWeight);
-    StorageManager.set(STORAGE_KEYS.EXTRA_FRONT_WEIGHT, extraFrontWeight);
-  };
-
-  const storeExtraBackWeight = (extraBackWeight) => {
-    setExtraBackWeight(extraBackWeight);
-    StorageManager.set(STORAGE_KEYS.EXTRA_BACK_WEIGHT, extraBackWeight);
-  };
-
-  const storeSteeringWeight = (steeringWeight) => {
-    setSteeringWeight(steeringWeight);
-    StorageManager.set(STORAGE_KEYS.STEERING_WEIGHT, steeringWeight);
-  };
 
   return (
     <section>

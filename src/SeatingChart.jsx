@@ -1,14 +1,18 @@
 import React, { useState, useEffect, useRef } from 'react';
-import StorageManager from './utils/StorageManager';
 import Papa from 'papaparse';
 import useStore from './store/useStore';
+import STORAGE_KEYS from "./utils/StorageKeys";
+import StorageManager from './utils/StorageManager';
+import { storeSeatingChart, storeStern, storeDrummer, emptyChart, clearStorage } from './utils/StorageHelpers';
 import BoatChart from './components/BoatChart';
 import ExtraBoatWeight from './components/ExtraBoatWeight';
-import STORAGE_KEYS from "./consts/StorageKeys";
+import LoadStoredSeatingChart from './components/LoadStoredSeatingChart';
 
 const SeatingChart = () => {
   // Items from store
   const seatingChart = useStore((state) => state.seatingChart);
+  // const availableCharts = useStore((state) => state.availableCharts);
+  // const selectedChart = useStore((state) => state.selectedChart);
   const drummer = useStore((state) => state.drummer);
   const stern = useStore((state) => state.stern);
   const allPaddlers = useStore((state) => state.allPaddlers);
@@ -17,13 +21,11 @@ const SeatingChart = () => {
   const showAddForm = useStore((state) => state.showAddForm);
   const newPaddlerName = useStore((state) => state.newPaddlerName);
   const newPaddlerWeight = useStore((state) => state.newPaddlerWeight);
-  const selectedChart = useStore((state) => state.selectedChart);
-
-  // const [selectedChart, setSelectedChart] = useState('');
-
 
   // Actions from store
   const setSeatingChart = useStore((state) => state.setSeatingChart);
+  const setAvailableCharts = useStore((state) => state.setAvailableCharts);
+  // const setSelectedChart = useStore((state) => state.setSelectedChart);
   const setDrummer = useStore((state) => state.setDrummer);
   const setStern = useStore((state) => state.setStern);
   const setAllPaddlers = useStore((state) => state.setAllPaddlers);
@@ -35,7 +37,6 @@ const SeatingChart = () => {
   const setExtraFrontWeight = useStore((state) => state.setExtraFrontWeight);
   const setExtraBackWeight = useStore((state) => state.setExtraBackWeight);
   const setSteeringWeight = useStore((state) => state.setSteeringWeight);
-  const setSelectedChart = useStore((state) => state.setSelectedChart);
 
   // Is there a roster uploaded server-side?
   const [serverRoster, setServerRoster] = useState(false);
@@ -43,7 +44,7 @@ const SeatingChart = () => {
   const [serverChart, setServerChart] = useState(false);
   const [selectionError, setSelectionError] = useState("");
   const seatingChartRef = useRef(null);
-  const [availableCharts, setAvailableCharts] = useState([]);
+
   const [showExportInput, setShowExportInput] = useState(false);
   const [customFileName, setCustomFileName] = useState(() => {
     const today = new Date();
@@ -51,12 +52,6 @@ const SeatingChart = () => {
     const formatted = `${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}-${String(today.getFullYear()).slice(2)}`;
     return `${formatted}.csv`;
   });
-
-  const emptyChart = Array.from({ length: 20 }, () => ({
-    name: 'Empty',
-    weight: 0,
-    side: 'either',
-  }));
 
   const isChartEmpty = (seatingChart) => seatingChart.every(seat => seat.name === 'Empty') && !drummer && !stern;
   const isBoatFull = (seatingChart) => seatingChart.every(seat => seat.name !== 'Empty');
@@ -214,68 +209,6 @@ const SeatingChart = () => {
     setAllPaddlers(fullPaddlers);
   }
 
-  const storeSeatingChart = (chart) => {
-    setSeatingChart(chart);
-    StorageManager.set(STORAGE_KEYS.SEATING, chart);
-  };
-
-  const storeStern = (stern) => {
-    setStern(stern);
-    StorageManager.set(STORAGE_KEYS.STERN, stern);
-  };
-
-  const storeDrummer = (drummer) => {
-    setDrummer(drummer);
-    StorageManager.set(STORAGE_KEYS.DRUMMER, drummer);
-  };
-
-  // Gets rid of anything stored for a fresh chart
-  const clearChart = () => {
-    StorageManager.remove(STORAGE_KEYS.SEATING);
-    StorageManager.remove(STORAGE_KEYS.EXTRA_PADDLERS);
-    StorageManager.remove(STORAGE_KEYS.DRUMMER);
-    StorageManager.remove(STORAGE_KEYS.STERN);
-    StorageManager.remove(STORAGE_KEYS.EXTRA_FRONT_WEIGHT);
-    StorageManager.remove(STORAGE_KEYS.EXTRA_BACK_WEIGHT);
-    StorageManager.remove(STORAGE_KEYS.STEERING_WEIGHT);
-    setSeatingChart(emptyChart);
-    setDrummer(null);
-    setStern(null);
-    setSelectedChart('');
-    setExtraFrontWeight(0);
-    setExtraBackWeight(0);
-    setSteeringWeight(10);
-  };
-
-  // Import a seating chart stored on the server, if exists
-  const loadSeatingChartFromCSV = async (fileName) => {
-    try {
-      const response = await fetch(`/charts/${fileName}`);
-      const csvText = await response.text();
-      const { data, errors } = Papa.parse(csvText.trim(), { header: true, skipEmptyLines: true });
-      if (errors.length > 0) return console.error('CSV parsing errors:', errors);
-      const newChart = [...emptyChart];
-      data.forEach(({ name, seat }) => {
-        let paddler = allPaddlers.find(p => p.name === name) || allSterns.find(p => p.name === name) || allDrummers.find(p => p.name === name);
-        if (!paddler) return;
-        if (seat === 'drummer') storeDrummer(paddler);
-        else if (seat === 'stern') storeStern(paddler);
-        else {
-          const match = seat.match(/^([1-9]|10)([LR])$/i);
-          if (match) {
-            const row = parseInt(match[1], 10);
-            const side = match[2].toUpperCase();
-            const index = (row - 1) * 2 + (side === 'L' ? 0 : 1);
-            if (index < newChart.length) newChart[index] = paddler;
-          }
-        }
-      });
-      storeSeatingChart(newChart);
-    } catch (err) {
-      console.error('Failed to load CSV:', err);
-    }
-  };
-
   const updateSeatingChart = (newChart) => storeSeatingChart(newChart);
 
   // Handles when user clicks on a paddler's name
@@ -364,34 +297,7 @@ const SeatingChart = () => {
         }
 
         {/* Load from seating chart */}
-        <section>
-          <h2>Load a stored seating chart</h2>
-          <div className="mb-6">
-            <fieldset>
-              <label>Choose a chart</label>
-              <select
-                value={selectedChart}
-                onChange={(e) => {
-                  const file = e.target.value;
-                  if (file) {
-                    clearChart(); // clear state and stored values
-                    setSelectedChart(file); // set selected chart AFTER clearing
-                    setTimeout(() => {
-                      loadSeatingChartFromCSV(file); // delay to allow state to reset
-                    }, 0);
-                  } else {
-                    setSelectedChart('');
-                  }
-                }}
-              >
-                <option value="">-- Select --</option>
-                {availableCharts.map(file => (
-                  <option key={file} value={file}>{file}</option>
-                ))}
-              </select>
-            </fieldset>
-          </div>
-        </section>
+        {LoadStoredSeatingChart()}
 
         {/* Paddler selection section*/}
         <section>
@@ -527,7 +433,7 @@ const SeatingChart = () => {
               <p>
                 <button
                   className={`mr-3 ${isChartEmpty(seatingChart) ? 'button-inactive' : ''}`}
-                  onClick={isChartEmpty(seatingChart) ? undefined : clearChart}
+                  onClick={isChartEmpty(seatingChart) ? undefined : clearStorage}
                   disabled={isChartEmpty(seatingChart)}
                 >
                   {'Clear chart'}
