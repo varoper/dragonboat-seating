@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import Papa from 'papaparse';
 import useStore from './store/useStore';
 import STORAGE_KEYS from "./utils/StorageKeys";
@@ -37,8 +37,6 @@ const SeatingChart = () => {
 
   // Is there at least one seating chart uploaded server-side?
   const [serverChart, setServerChart] = useState(false);
-
-  const seatingChartRef = useRef(null);
 
   const isChartEmpty = (seatingChart) => seatingChart.every(seat => seat.name === 'Empty') && !drummer?.name && !stern?.name;
 
@@ -155,7 +153,7 @@ const SeatingChart = () => {
       < div className="w-full lg:w-1/2" >
         <section>
           {seatingChart.length > 0 && (
-            <div ref={seatingChartRef}>
+            <div>
               <h2>Balance the boat</h2>
 
               <p> Press down, then drag & drop to change positions.</p>
