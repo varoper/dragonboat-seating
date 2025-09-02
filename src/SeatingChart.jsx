@@ -9,6 +9,7 @@ import ExtraBoatWeight from './components/ExtraBoatWeight';
 import LoadStoredSeatingChart from './components/LoadStoredSeatingChart';
 import UploadRoster from './components/UploadRoster';
 import SelectDrummer from './components/SelectDrummer';
+import SelectStern from './components/SelectStern';
 
 const SeatingChart = () => {
   // Items from store
@@ -17,7 +18,6 @@ const SeatingChart = () => {
   const drummer = useStore((state) => state.drummer);
   const stern = useStore((state) => state.stern);
   const allPaddlers = useStore((state) => state.allPaddlers);
-  const allSterns = useStore((state) => state.allSterns);
   const showAddPaddler = useStore((state) => state.showAddPaddler);
   const newPaddlerName = useStore((state) => state.newPaddlerName);
   const newPaddlerWeight = useStore((state) => state.newPaddlerWeight);
@@ -289,21 +289,7 @@ const SeatingChart = () => {
             {/* Stern & drummer selection dropdowns */}
             <div className="flex gap-4 mb-4">
               <SelectDrummer />
-              <div>
-                <label>Select stern</label>
-                <select
-                  value={stern?.name ?? ''}
-                  onChange={(e) => {
-                    const selected = allSterns.find(p => p.name === e.target.value);
-                    storeStern(selected ?? null);
-                  }}
-                >
-                  <option value="">- Select -</option>
-                  {allSterns.map(p => (
-                    <option key={p.name} value={p.name}>{p.name}</option>
-                  ))}
-                </select>
-              </div>
+              <SelectStern />
             </div>
           </fieldset>
         </section>
