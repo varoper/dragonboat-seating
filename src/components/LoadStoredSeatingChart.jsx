@@ -2,7 +2,7 @@
 // Handles loading and rendering of seating chart .csv files stored in /charts/ on the server
 import React, { useState, useEffect, useRef } from 'react';
 import Papa from 'papaparse';
-import { storeSeatingChart, storeDrummer, storeStern, clearStorage, emptyChart } from '../utils/StorageHelpers';
+import { storeSeatingChart, storeFlagcatcher, storeDrummer, storeStern, clearStorage, emptyChart } from '../utils/StorageHelpers';
 import useStore from '../store/useStore';
 
 // Inputs for additional front and back weight 
@@ -14,6 +14,7 @@ const LoadStoredSeatingChart = () => {
   const allPaddlers = useStore((state) => state.allPaddlers);
   const allSterns = useStore((state) => state.allSterns);
   const allDrummers = useStore((state) => state.allDrummers);
+  const allFlagcatchers = useStore((state) => state.allFlagcatchers);
 
   // Import a seating chart stored on the server, if exists
   const loadSeatingChartFromCSV = async (fileName) => {
@@ -24,8 +25,13 @@ const LoadStoredSeatingChart = () => {
       if (errors.length > 0) return console.error('CSV parsing errors:', errors);
       const newChart = [...emptyChart];
       data.forEach(({ name, seat }) => {
-        let paddler = allPaddlers.find(p => p.name === name) || allSterns.find(p => p.name === name) || allDrummers.find(p => p.name === name);
+        let paddler =
+          allPaddlers.find(p => p.name === name) ||
+          allSterns.find(p => p.name === name) ||
+          allFlagcatchers.find(p => p.name === name) ||
+          allDrummers.find(p => p.name === name);
         if (!paddler) return;
+        if (seat === 'flagcatcher') storeFlagcatcher(paddler);
         if (seat === 'drummer') storeDrummer(paddler);
         else if (seat === 'stern') storeStern(paddler);
         else {

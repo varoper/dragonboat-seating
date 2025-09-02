@@ -158,7 +158,6 @@ const SeatingChart = () => {
 
           {/* Stern & drummer selection dropdowns */}
           <div className="flex gap-4 mb-4">
-
             {allFlagcatchers?.length > 0 && <SelectFlagcatcher />}
             <SelectDrummer />
             <SelectStern />
