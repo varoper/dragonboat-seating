@@ -12,6 +12,7 @@ import SelectPaddlers from './components/SelectPaddlers';
 import SelectDrummer from './components/SelectDrummer';
 import SelectStern from './components/SelectStern';
 import AddPaddler from './components/AddPaddler';
+import ExportChart from './components/ExportChart';
 
 const SeatingChart = () => {
   // Items from store
@@ -19,6 +20,7 @@ const SeatingChart = () => {
   const availableCharts = useStore((state) => state.availableCharts);
   const drummer = useStore((state) => state.drummer);
   const stern = useStore((state) => state.stern);
+  const showExportChart = useStore((state) => state.showExportChart);
 
   // Actions from store
   const setSeatingChart = useStore((state) => state.setSeatingChart);
@@ -28,6 +30,7 @@ const SeatingChart = () => {
   const setExtraFrontWeight = useStore((state) => state.setExtraFrontWeight);
   const setExtraBackWeight = useStore((state) => state.setExtraBackWeight);
   const setSteeringWeight = useStore((state) => state.setSteeringWeight);
+  const toggleShowExportChart = useStore((state) => state.toggleShowExportChart);
 
   // Is there a roster uploaded server-side?
   const [serverRoster, setServerRoster] = useState(null);
@@ -37,16 +40,7 @@ const SeatingChart = () => {
 
   const seatingChartRef = useRef(null);
 
-  const [showExportInput, setShowExportInput] = useState(false);
-  const [customFileName, setCustomFileName] = useState(() => {
-    const today = new Date();
-    // MM-DD-YY
-    const formatted = `${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}-${String(today.getFullYear()).slice(2)}`;
-    return `${formatted}.csv`;
-  });
-
   const isChartEmpty = (seatingChart) => seatingChart.every(seat => seat.name === 'Empty') && !drummer?.name && !stern?.name;
-  const isBoatFull = (seatingChart) => seatingChart.every(seat => seat.name !== 'Empty');
 
   // Fetching the roster on the server
   useEffect(() => {
@@ -130,29 +124,6 @@ const SeatingChart = () => {
     }
   }, [drummer]);
 
-
-  // Handles exporting a seating chart as a .csv file
-  const exportSeatingChartToCSV = (fileName) => {
-    const csvRows = [['name', 'seat']];
-    if (drummer?.name && drummer.name !== 'Empty') csvRows.push([drummer.name, 'drummer']);
-    seatingChart.forEach((p, i) => {
-      if (p.name !== 'Empty') {
-        const row = Math.floor(i / 2) + 1;
-        const side = i % 2 === 0 ? 'L' : 'R';
-        csvRows.push([p.name, `${row}${side}`]);
-      }
-    });
-    if (stern?.name && stern.name !== 'Empty') csvRows.push([stern.name, 'stern']);
-
-    const blob = new Blob([csvRows.map(r => r.join(',')).join('\n')], { type: 'text/csv;charset=utf-8;' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = fileName ?? `seating-chart.csv`;
-    a.click();
-    URL.revokeObjectURL(url);
-  };
-
   return (
     <div className="flex flex-col lg:flex-row lg:gap-6">
       <div className="w-full lg:w-1/2">
@@ -178,10 +149,6 @@ const SeatingChart = () => {
           </div>
         </section>
         <ExtraBoatWeight />
-        <div>
-          <h2>Notes</h2>
-          <p>Karl prefers right but can paddle left if needed</p>
-        </div>
       </div>
 
       {/* Show seating chart once generated */}
@@ -202,41 +169,16 @@ const SeatingChart = () => {
                   {'Clear chart'}
                 </button>
 
-                {!showExportInput && (
-                  <button onClick={() => setShowExportInput(true)}>
+                {!showExportChart && (
+                  <button onClick={() => toggleShowExportChart()}>
                     Export chart
                   </button>
                 )}
               </p>
 
-              {showExportInput && (
-                <div className="mt-4 space-y-2 toggle-form">
-                  <div>
-                    <label htmlFor="csv_filename">Choose file name</label>
-                    <input
-                      id="csv_filename"
-                      type="text"
-                      className="w-36"
-                      value={customFileName}
-                      onChange={(e) => setCustomFileName(e.target.value)}
-                    />
-                  </div>
-                  <div className="flex gap-2 mt-2">
-                    <button
-                      onClick={() => exportSeatingChartToCSV(customFileName)}
-                    >
-                      Download
-                    </button>
-                    <button
-                      onClick={() => setShowExportInput(false)}
-                      className="button-alt"
-                    >
-                      Cancel
-                    </button>
-                  </div>
-                </div>
+              {showExportChart && (
+                <ExportChart />
               )}
-
 
             </div>
           )}

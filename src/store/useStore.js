@@ -19,6 +19,7 @@ const useStore = create((set) => ({
     extraFrontWeight: 0, // Int for additional weight in front
     extraBackWeight: 0, // Int for additional weight in back
     steeringWeight: 10, // Int for additional steering weight
+    showExportChart: false, // Toggles if "Export chart" form is shown
 
     // Actions
     setSeatingChart: (chart) => set({ seatingChart: chart }),
@@ -35,8 +36,8 @@ const useStore = create((set) => ({
     setDrummer: (drummer) => set({ drummer }),
     setStern: (stern) => set({ stern }),
 
-    setShowAddPaddler: (showAddPaddler) => set({ showAddPaddler }),
     toggleShowAddPaddler: () => set((state) => ({ showAddPaddler: !state.showAddPaddler })),
+    toggleShowExportChart: () => set((state) => ({ showExportChart: !state.showExportChart })),
 
     setNewPaddlerName: (newPaddlerName) => set({ newPaddlerName }),
     setNewPaddlerWeight: (newPaddlerWeight) => set({ newPaddlerWeight }),

@@ -46,7 +46,7 @@ const ExtraBoatWeight = () => {
             />
           </div>
         </div>
-        <p className="mt-3">When using a drum, add that weight to the "front" field.</p>
+        <p className="mt-3">When using a drum, add that weight to the "front" field. These fields can also be used to add the weight of a drummer, stern, or flagcatcher who is not in the roster.</p>
       </fieldset>
     </section>
   );
