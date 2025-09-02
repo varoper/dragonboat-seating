@@ -27,8 +27,7 @@
   },
   "scripts": {
     "dev": "vite",
-    "build": "npm run rosters && vite build && npm run postbuild",
-    "postbuild": "rename dist\\index.html nichi.html",
+    "build": "npm run rosters && vite build",
     "preview": "vite preview",
     "rosters": "node generateChartIndex.js"
   },
