@@ -39,7 +39,7 @@ const UploadRoster = () => {
           Expected columns: <code>name</code>, <code>weight</code>, <code>side</code>, <code>role</code>
         </p>
         <p className="text-sm">
-          <a href="/example-paddlers.csv" download>
+          <a href="example-paddlers.csv" download>
             Download CSV template
           </a>. Read the instructions!
         </p>

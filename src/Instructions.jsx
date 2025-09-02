@@ -28,7 +28,7 @@ function Instructions() {
         Fannie,160,either,<br />
       </pre>
 
-      <p>You can <a href="/example-paddlers.csv" download>download a sample roster</a> and edit it with your own team's info.</p>
+      <p>You can <a href="example-paddlers.csv" download>download a sample roster</a> and edit it with your own team's info.</p>
       <h2>
         Balance & seating strategies
       </h2>
