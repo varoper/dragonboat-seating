@@ -13,7 +13,7 @@ const useStore = create((set) => ({
     overId: null, // ID of seat in "drag" state
     drummer: null, // Selected drummer
     stern: null, // Selected stern
-    showAddForm: false, // Toggles if "Add paddler" form is shown
+    showAddPaddler: false, // Toggles if "Add paddler" form is shown
     newPaddlerName: '', // String for paddler name
     newPaddlerWeight: '', // String for paddler weight
     extraFrontWeight: 0, // Int for additional weight in front
@@ -35,8 +35,8 @@ const useStore = create((set) => ({
     setDrummer: (drummer) => set({ drummer }),
     setStern: (stern) => set({ stern }),
 
-    setShowAddForm: (showAddForm) => set({ showAddForm }),
-    toggleShowAddForm: () => set((state) => ({ showAddForm: !state.showAddForm })),
+    setShowAddPaddler: (showAddPaddler) => set({ showAddPaddler }),
+    toggleShowAddPaddler: () => set((state) => ({ showAddPaddler: !state.showAddPaddler })),
 
     setNewPaddlerName: (newPaddlerName) => set({ newPaddlerName }),
     setNewPaddlerWeight: (newPaddlerWeight) => set({ newPaddlerWeight }),
