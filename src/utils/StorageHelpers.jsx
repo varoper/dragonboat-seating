@@ -137,3 +137,21 @@ export const handleRosterResults = (results) => {
   }
   setAllPaddlers(fullPaddlers);
 }
+
+// Handles when user clicks on a paddler's name
+export const handlePaddlerClick = (p) => {
+
+  const seatingChart = useStore.getState().seatingChart;
+
+  const index = seatingChart.findIndex(seat => seat.name === p.name);
+  if (index !== -1) {
+    const updated = [...seatingChart];
+    updated[index] = { name: 'Empty', weight: 0, side: 'either' };
+    return storeSeatingChart(updated);
+  }
+
+  const emptyIndex = seatingChart.findIndex(seat => seat.name === 'Empty');
+  const updated = [...seatingChart];
+  updated[emptyIndex] = p;
+  storeSeatingChart(updated);
+};
