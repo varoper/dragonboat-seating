@@ -10,6 +10,7 @@ import LoadStoredSeatingChart from './components/LoadStoredSeatingChart';
 import UploadRoster from './components/UploadRoster';
 import SelectPaddlers from './components/SelectPaddlers';
 import SelectDrummer from './components/SelectDrummer';
+import SelectFlagcatcher from './components/SelectFlagcatcher';
 import SelectStern from './components/SelectStern';
 import AddPaddler from './components/AddPaddler';
 import ExportChart from './components/ExportChart';
@@ -19,6 +20,8 @@ const SeatingChart = () => {
   const seatingChart = useStore((state) => state.seatingChart);
   const availableCharts = useStore((state) => state.availableCharts);
   const drummer = useStore((state) => state.drummer);
+  const flagcatcher = useStore((state) => state.flagcatcher);
+  const allFlagcatchers = useStore((state) => state.allFlagcatchers);
   const stern = useStore((state) => state.stern);
   const showExportChart = useStore((state) => state.showExportChart);
 
@@ -26,6 +29,7 @@ const SeatingChart = () => {
   const setSeatingChart = useStore((state) => state.setSeatingChart);
   const setAvailableCharts = useStore((state) => state.setAvailableCharts);
   const setDrummer = useStore((state) => state.setDrummer);
+  const setFlagcatcher = useStore((state) => state.setFlagcatcher);
   const setStern = useStore((state) => state.setStern);
   const setExtraFrontWeight = useStore((state) => state.setExtraFrontWeight);
   const setExtraBackWeight = useStore((state) => state.setExtraBackWeight);
@@ -38,7 +42,7 @@ const SeatingChart = () => {
   // Is there at least one seating chart uploaded server-side?
   const [serverChart, setServerChart] = useState(false);
 
-  const isChartEmpty = (seatingChart) => seatingChart.every(seat => seat.name === 'Empty') && !drummer?.name && !stern?.name;
+  const isChartEmpty = (seatingChart) => seatingChart.every(seat => seat.name === 'Empty') && !drummer?.name && !stern?.name && !flagcatcher?.name;
 
   // Fetching the roster on the server
   useEffect(() => {
@@ -79,6 +83,7 @@ const SeatingChart = () => {
   useEffect(() => {
     const savedChart = StorageManager.get(STORAGE_KEYS.SEATING);
     const savedDrummer = StorageManager.get(STORAGE_KEYS.DRUMMER);
+    const savedFlagcatcher = StorageManager.get(STORAGE_KEYS.FLAGCATCHER);
     const savedStern = StorageManager.get(STORAGE_KEYS.STERN);
     const savedExtraFrontWeight = StorageManager.get(STORAGE_KEYS.EXTRA_FRONT_WEIGHT);
     const savedExtraBackWeight = StorageManager.get(STORAGE_KEYS.EXTRA_BACK_WEIGHT);
@@ -86,6 +91,9 @@ const SeatingChart = () => {
 
     if (savedDrummer) {
       setDrummer(JSON.parse(savedDrummer));
+    }
+    if (savedFlagcatcher) {
+      setFlagcatcher(JSON.parse(savedFlagcatcher));
     }
     if (savedStern) {
       setStern(JSON.parse(savedStern));
@@ -122,6 +130,14 @@ const SeatingChart = () => {
     }
   }, [drummer]);
 
+  // Make sure flagcatcher is not in seating chart
+  useEffect(() => {
+    if (flagcatcher) {
+      const cleaned = seatingChart.map(seat => seat.name === flagcatcher.name ? { name: 'Empty', weight: 0, side: 'either' } : seat);
+      storeSeatingChart(cleaned);
+    }
+  }, [flagcatcher]);
+
   return (
     <div className="flex flex-col lg:flex-row lg:gap-6">
       <div className="w-full lg:w-1/2">
@@ -142,6 +158,8 @@ const SeatingChart = () => {
 
           {/* Stern & drummer selection dropdowns */}
           <div className="flex gap-4 mb-4">
+
+            {allFlagcatchers?.length > 0 && <SelectFlagcatcher />}
             <SelectDrummer />
             <SelectStern />
           </div>

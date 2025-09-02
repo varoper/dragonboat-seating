@@ -9,6 +9,7 @@ const SelectPaddlers = () => {
   const seatingChart = useStore((state) => state.seatingChart);
   const stern = useStore((state) => state.stern);
   const drummer = useStore((state) => state.drummer);
+  const flagcatcher = useStore((state) => state.flagcatcher);
 
   return (
     <fieldset>
@@ -22,6 +23,7 @@ const SelectPaddlers = () => {
           const isDisabled =
             (!isInChart && (stern?.name === p.name)) ||
             (!isInChart && (drummer?.name === p.name)) ||
+            (!isInChart && (flagcatcher?.name === p.name)) ||
             (!isInChart && noEmptySeats);
 
           return (

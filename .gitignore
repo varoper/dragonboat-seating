@@ -13,8 +13,8 @@
 /dist
 
 # Ignore all .csv files in /charts/ and /rosters/
-charts/*.csv
-rosters/*.csv
+public/rosters/*.csv
+public/charts/*.csv
 
 # But don't ignore index.json
 !charts/index.json

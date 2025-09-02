@@ -8,10 +8,13 @@ const useStore = create((set) => ({
     allPaddlers: [], // Set of all available paddlers
     allSterns: [], // Set of all available sterns
     allDrummers: [], // Set of all available drummers
+    allFlagcatchers: [], // Set of all available flagcatchers
+    boatType: "twentyperson", // Type of boat being used, default to 20-person
     topView: true, // Layout direction of rendered seating chart
     activeId: null, // ID of selected seat in chart
     overId: null, // ID of seat in "drag" state
     drummer: null, // Selected drummer
+    flagcatcher: null, // Selected flagcatcher
     stern: null, // Selected stern
     showAddPaddler: false, // Toggles if "Add paddler" form is shown
     newPaddlerName: '', // String for paddler name
@@ -25,15 +28,18 @@ const useStore = create((set) => ({
     setSeatingChart: (chart) => set({ seatingChart: chart }),
     setSelectedChart: (chart) => set({ selectedChart: chart }),
     setAvailableCharts: (charts) => set({ availableCharts: charts }),
+    setBoatType: (boatType) => set({ boatType }),
 
     setAllPaddlers: (allPaddlers) => set({ allPaddlers }),
     setAllSterns: (allSterns) => set({ allSterns }),
     setAllDrummers: (allDrummers) => set({ allDrummers }),
+    setAllFlagcatchers: (allFlagcatchers) => set({ allFlagcatchers }),
 
     toggleTopView: () => set((state) => ({ topView: !state.topView })),
     setActiveId: (id) => set({ activeId: id }),
     setOverId: (id) => set({ overId: id }),
     setDrummer: (drummer) => set({ drummer }),
+    setFlagcatcher: (flagcatcher) => set({ flagcatcher }),
     setStern: (stern) => set({ stern }),
 
     toggleShowAddPaddler: () => set((state) => ({ showAddPaddler: !state.showAddPaddler })),
@@ -41,11 +47,9 @@ const useStore = create((set) => ({
 
     setNewPaddlerName: (newPaddlerName) => set({ newPaddlerName }),
     setNewPaddlerWeight: (newPaddlerWeight) => set({ newPaddlerWeight }),
-
     setExtraFrontWeight: (extraFrontWeight) => set({ extraFrontWeight }),
     setExtraBackWeight: (extraBackWeight) => set({ extraBackWeight }),
     setSteeringWeight: (steeringWeight) => set({ steeringWeight }),
-
 }));
 
 export default useStore;

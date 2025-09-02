@@ -15,7 +15,7 @@ function Instructions() {
       <h3>side</h3>
       <p>Required. This is the side the paddler is able to paddle on. Use one of the following: 'left', 'right', 'either', 'none'</p>
       <h3>role</h3>
-      <p>Optional. Leave empty if the person only paddles. You can add 'drummer' or 'stern'. These are used in balancing the front and back of the boat.</p>
+      <p>Optional. Leave empty if the person only paddles. You can add 'drummer', 'stern', or 'flagcatcher'. These are used in balancing the front and back of the boat. Including at least one 'flagcatcher' in your roster will inform the balancer app that you are balancing an 18 person flagcatcher boat. Otherwise, the default is a 20 person boat.</p>
       <p>Here is a sample roster:</p>
       <pre>
         name,weight,side,role<br />
@@ -28,7 +28,7 @@ function Instructions() {
         Fannie,160,either,<br />
       </pre>
 
-      <p>You can <a href="#">download a sample roster (TODO ADD THIS)</a> and edit it with your own team's info.</p>
+      <p>You can <a href="/example-paddlers.csv" download>download a sample roster</a> and edit it with your own team's info.</p>
       <h2>
         Balance & seating strategies
       </h2>

@@ -7,6 +7,7 @@ const ExportChart = () => {
 
   const toggleShowExportChart = useStore((state) => state.toggleShowExportChart);
   const seatingChart = useStore((state) => state.seatingChart);
+  const flagcatcher = useStore((state) => state.flagcatcher);
   const drummer = useStore((state) => state.drummer);
   const stern = useStore((state) => state.stern);
 
@@ -20,6 +21,7 @@ const ExportChart = () => {
   // Handles exporting a seating chart as a .csv file
   const exportSeatingChartToCSV = (fileName) => {
     const csvRows = [['name', 'seat']];
+    if (flagcatcher?.name && flagcatcher.name !== 'Empty') csvRows.push([flagcatcher.name, 'flagcatcher']);
     if (drummer?.name && drummer.name !== 'Empty') csvRows.push([drummer.name, 'drummer']);
     seatingChart.forEach((p, i) => {
       if (p.name !== 'Empty') {
