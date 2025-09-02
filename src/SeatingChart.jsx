@@ -3,11 +3,12 @@ import Papa from 'papaparse';
 import useStore from './store/useStore';
 import STORAGE_KEYS from "./utils/StorageKeys";
 import StorageManager from './utils/StorageManager';
-import { storeSeatingChart, storeStern, storeDrummer, emptyChart, clearStorage, handleRosterResults } from './utils/StorageHelpers';
+import { storeSeatingChart, emptyChart, clearStorage, handleRosterResults } from './utils/StorageHelpers';
 import BoatChart from './components/BoatChart';
 import ExtraBoatWeight from './components/ExtraBoatWeight';
 import LoadStoredSeatingChart from './components/LoadStoredSeatingChart';
 import UploadRoster from './components/UploadRoster';
+import SelectPaddlers from './components/SelectPaddlers';
 import SelectDrummer from './components/SelectDrummer';
 import SelectStern from './components/SelectStern';
 
@@ -17,7 +18,6 @@ const SeatingChart = () => {
   const availableCharts = useStore((state) => state.availableCharts);
   const drummer = useStore((state) => state.drummer);
   const stern = useStore((state) => state.stern);
-  const allPaddlers = useStore((state) => state.allPaddlers);
   const showAddPaddler = useStore((state) => state.showAddPaddler);
   const newPaddlerName = useStore((state) => state.newPaddlerName);
   const newPaddlerWeight = useStore((state) => state.newPaddlerWeight);
@@ -41,7 +41,6 @@ const SeatingChart = () => {
   // Is there at least one seating chart uploaded server-side?
   const [serverChart, setServerChart] = useState(false);
 
-  const [selectionError, setSelectionError] = useState("");
   const seatingChartRef = useRef(null);
 
   const [showExportInput, setShowExportInput] = useState(false);
@@ -137,23 +136,6 @@ const SeatingChart = () => {
     }
   }, [drummer]);
 
-  // Handles when user clicks on a paddler's name
-  const handlePaddlerClick = (p) => {
-    const index = seatingChart.findIndex(seat => seat.name === p.name);
-    if (index !== -1) {
-      const updated = [...seatingChart];
-      updated[index] = { name: 'Empty', weight: 0, side: 'either' };
-      return storeSeatingChart(updated);
-    }
-    if (isBoatFull(seatingChart)) { return setSelectionError('All seats filled.'); }
-
-    const emptyIndex = seatingChart.findIndex(seat => seat.name === 'Empty');
-    const updated = [...seatingChart];
-    updated[emptyIndex] = p;
-    storeSeatingChart(updated);
-    setSelectionError('');
-  };
-
   // Handles the addition of a new paddler
   const handleAddNewPaddler = () => {
     if (!newPaddlerName || isNaN(parseInt(newPaddlerWeight))) return;
@@ -209,89 +191,61 @@ const SeatingChart = () => {
         {/* Paddler selection section*/}
         <section>
           <h2>Build out the crew</h2>
-          <fieldset>
-            <label>Select up to 20 paddlers</label>
 
-            {/* Display error message if too many paddlers are selected */}
-            {selectionError && <p className="text-rose-700">{selectionError}</p>}
+          <SelectPaddlers />
 
-            {/* Render paddler names as selectable containers */}
-            <div className="flex flex-wrap gap-2 pt-1 mb-5">
-              {allPaddlers.map((p) => {
-                const isInChart = seatingChart.some(seat => seat.name === p.name);
-                const noEmptySeats = !seatingChart.some(seat => seat.name === 'Empty');
-                const isDisabled =
-                  (!isInChart && (stern?.name === p.name)) ||
-                  (!isInChart && (drummer?.name === p.name)) ||
-                  (!isInChart && noEmptySeats);
-
-                return (
-                  <div
-                    key={p.name}
-                    onClick={() => !isDisabled && handlePaddlerClick(p)}
-                    className={`paddler
-                   ${isInChart ? 'bg-sky-200' : 'bg-white'}
-                  ${isDisabled ? 'opacity-50 cursor-default hover:bg-white hover:border-slate-300' : 'cursor-pointer'}`}
+          {/* Add additional paddlers */}
+          <div className="mb-6">
+            {!showAddPaddler ? (
+              <button
+                onClick={toggleShowAddPaddler}
+              >
+                {showAddPaddler ? '- Hide add paddler' : '+ Add paddler'}
+              </button>
+            ) :
+              (
+                <div className="toggle-form">
+                  <div>
+                    <label for="new_paddler_name">Name</label>
+                    <input
+                      type="text"
+                      id="new_paddler_name"
+                      value={newPaddlerName}
+                      onChange={(e) => setNewPaddlerName(e.target.value)}
+                      className="w-28"
+                    />
+                  </div>
+                  <div>
+                    <label for="new_paddler_weight">Weight</label>
+                    <input
+                      type="number"
+                      id="new_paddler_weight"
+                      value={newPaddlerWeight}
+                      onChange={(e) => setNewPaddlerWeight(e.target.value)}
+                      className="w-16"
+                    />
+                  </div>
+                  <button
+                    onClick={handleAddNewPaddler}
                   >
-                    {p.name}
-                  </div>
-                );
-              })}
-            </div>
+                    Add
+                  </button>
+                  <button
+                    onClick={toggleShowAddPaddler}
+                    className="button-alt"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              )}
+            <p className="mt-3">Use this to add one-off paddler that is not in your roster.</p>
+          </div>
 
-            {/* Add additional paddlers */}
-            <div className="mb-6">
-              {!showAddPaddler ? (
-                <button
-                  onClick={toggleShowAddPaddler}
-                >
-                  {showAddPaddler ? '- Hide add paddler' : '+ Add paddler'}
-                </button>
-              ) :
-                (
-                  <div className="toggle-form">
-                    <div>
-                      <label for="new_paddler_name">Name</label>
-                      <input
-                        type="text"
-                        id="new_paddler_name"
-                        value={newPaddlerName}
-                        onChange={(e) => setNewPaddlerName(e.target.value)}
-                        className="w-28"
-                      />
-                    </div>
-                    <div>
-                      <label for="new_paddler_weight">Weight</label>
-                      <input
-                        type="number"
-                        id="new_paddler_weight"
-                        value={newPaddlerWeight}
-                        onChange={(e) => setNewPaddlerWeight(e.target.value)}
-                        className="w-16"
-                      />
-                    </div>
-                    <button
-                      onClick={handleAddNewPaddler}
-                    >
-                      Add
-                    </button>
-                    <button
-                      onClick={toggleShowAddPaddler}
-                      className="button-alt"
-                    >
-                      Cancel
-                    </button>
-                  </div>
-                )}
-              <p class="mt-3">Use this to add one-off paddler that is not in your roster.</p>
-            </div>
-
-            {/* Stern & drummer selection dropdowns */}
-            <div className="flex gap-4 mb-4">
-              <SelectDrummer />
-              <SelectStern />
-            </div>
-          </fieldset>
+          {/* Stern & drummer selection dropdowns */}
+          <div className="flex gap-4 mb-4">
+            <SelectDrummer />
+            <SelectStern />
+          </div>
         </section>
         <ExtraBoatWeight />
         <div>
