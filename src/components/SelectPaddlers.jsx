@@ -1,6 +1,6 @@
 // SelectPaddlers.js
 import React from 'react';
-import { storeSeatingChart } from '../utils/StorageHelpers';
+import { handlePaddlerClick } from '../utils/StorageHelpers';
 import useStore from '../store/useStore';
 
 const SelectPaddlers = () => {
@@ -9,21 +9,6 @@ const SelectPaddlers = () => {
   const seatingChart = useStore((state) => state.seatingChart);
   const stern = useStore((state) => state.stern);
   const drummer = useStore((state) => state.drummer);
-
-  // Handles when user clicks on a paddler's name
-  const handlePaddlerClick = (p) => {
-    const index = seatingChart.findIndex(seat => seat.name === p.name);
-    if (index !== -1) {
-      const updated = [...seatingChart];
-      updated[index] = { name: 'Empty', weight: 0, side: 'either' };
-      return storeSeatingChart(updated);
-    }
-
-    const emptyIndex = seatingChart.findIndex(seat => seat.name === 'Empty');
-    const updated = [...seatingChart];
-    updated[emptyIndex] = p;
-    storeSeatingChart(updated);
-  };
 
   return (
     <fieldset>
