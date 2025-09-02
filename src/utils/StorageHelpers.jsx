@@ -25,6 +25,12 @@ export const storeDrummer = (drummer) => {
   StorageManager.set(STORAGE_KEYS.DRUMMER, drummer);
 };
 
+export const storeFlagcatcher = (flagcatcher) => {
+  const setFlagcatcher = useStore.getState().setFlagcatcher;
+  setFlagcatcher(flagcatcher);
+  StorageManager.set(STORAGE_KEYS.FLAGCATCHER, flagcatcher);
+};
+
 export const storeExtraFrontWeight = (extraFrontWeight) => {
   const setExtraFrontWeight = useStore.getState().setExtraFrontWeight;
   setExtraFrontWeight(extraFrontWeight);
@@ -59,6 +65,7 @@ export const clearStorage = () => {
   const setSeatingChart = useStore.getState().setSeatingChart;
   const setSelectedChart = useStore.getState().setSelectedChart;
   const setDrummer = useStore.getState().setDrummer;
+  const setFlagcatcher = useStore.getState().setFlagcatcher;
   const setStern = useStore.getState().setStern;
   const setExtraFrontWeight = useStore.getState().setExtraFrontWeight;
   const setExtraBackWeight = useStore.getState().setExtraBackWeight;
@@ -67,6 +74,7 @@ export const clearStorage = () => {
   StorageManager.remove(STORAGE_KEYS.SEATING);
   StorageManager.remove(STORAGE_KEYS.EXTRA_PADDLERS);
   StorageManager.remove(STORAGE_KEYS.DRUMMER);
+  StorageManager.remove(STORAGE_KEYS.FLAGCATCHER);
   StorageManager.remove(STORAGE_KEYS.STERN);
   StorageManager.remove(STORAGE_KEYS.EXTRA_FRONT_WEIGHT);
   StorageManager.remove(STORAGE_KEYS.EXTRA_BACK_WEIGHT);
@@ -74,6 +82,7 @@ export const clearStorage = () => {
 
   setSeatingChart(emptyChart);
   setDrummer(null);
+  setFlagcatcher(null);
   setStern(null);
   setSelectedChart('');
   setExtraFrontWeight(0);
@@ -88,6 +97,7 @@ export const handleRosterResults = (results) => {
   const setAllPaddlers = useStore.getState().setAllPaddlers;
   const setAllSterns = useStore.getState().setAllSterns;
   const setAllDrummers = useStore.getState().setAllDrummers;
+  const setAllFlagcatchers = useStore.getState().setAllFlagcatchers;
 
   // Validate headers
   const expectedHeaders = ['name', 'weight', 'side', 'role'];
@@ -101,7 +111,7 @@ export const handleRosterResults = (results) => {
 
   // Validate row data
   const validSides = ['either', 'left', 'right', 'none'];
-  const validRoles = ['', 'drummer', 'stern'];
+  const validRoles = ['', 'drummer', 'stern', 'flagcatcher'];
 
   for (const [i, row] of data.entries()) {
     const rowNum = i + 2; // Header is row 1
@@ -130,6 +140,7 @@ export const handleRosterResults = (results) => {
   let fullPaddlers = parsed.filter(p => p.side !== 'none');
   setAllSterns(parsed.filter(p => p.role === 'stern'));
   setAllDrummers(parsed.filter(p => p.role === 'drummer'));
+  setAllFlagcatchers(parsed.filter(p => p.role === 'flagcatcher'));
 
   const extra = StorageManager.get(STORAGE_KEYS.EXTRA_PADDLERS);
   if (extra) {

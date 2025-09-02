@@ -21,6 +21,8 @@ const BoatChart = () => {
   const [showWeights, setShowWeights] = useState(true);
 
   const seatingChart = useStore((state) => state.seatingChart);
+  const allFlagcatchers = useStore((state) => state.allFlagcatchers);
+  const flagcatcher = useStore((state) => state.flagcatcher);
   const drummer = useStore((state) => state.drummer);
   const stern = useStore((state) => state.stern);
   const topView = useStore((state) => state.topView);
@@ -29,6 +31,7 @@ const BoatChart = () => {
   const extraFrontWeight = useStore((state) => state.extraFrontWeight);
   const extraBackWeight = useStore((state) => state.extraBackWeight);
   const steeringWeight = useStore((state) => state.steeringWeight);
+  const isFlagcatcher = allFlagcatchers?.length > 0;
 
   // Actions
   const toggleTopView = useStore((state) => state.toggleTopView);
@@ -149,13 +152,13 @@ const BoatChart = () => {
       if (i >= 14 && i <= 19) rocketWeight += paddler.weight;
     });
 
-    const extraSideWeight = (parseInt(extraFrontWeight, 10) + parseInt(extraBackWeight, 10) + (drummer ? drummer.weight : 0) + (stern ? stern.weight : 0)) / 2;
+    const extraSideWeight = (parseInt(extraFrontWeight, 10) + parseInt(extraBackWeight, 10) + (flagcatcher ? flagcatcher.weight : 0) + (drummer ? drummer.weight : 0) + (stern ? stern.weight : 0)) / 2;
 
-    frontWeight += parseInt(extraFrontWeight, 10) + (drummer ? drummer.weight : 0);
+    frontWeight += parseInt(extraFrontWeight, 10) + (flagcatcher ? flagcatcher.weight : 0) + (drummer ? drummer.weight : 0);
     backWeight += parseInt(extraBackWeight, 10) + (stern ? stern.weight : 0) + parseInt(steeringWeight, 10);
     leftWeight += extraSideWeight + parseInt(steeringWeight, 10);
     rightWeight += extraSideWeight;
-    pacerWeight += parseInt(extraFrontWeight, 10) + (drummer ? drummer.weight : 0);
+    pacerWeight += parseInt(extraFrontWeight, 10) + (flagcatcher ? flagcatcher.weight : 0) + (drummer ? drummer.weight : 0);
     rocketWeight += parseInt(extraBackWeight, 10) + (stern ? stern.weight : 0) + parseInt(steeringWeight, 10);
 
     return { frontWeight, backWeight, leftWeight, rightWeight, pacerWeight, rocketWeight };
@@ -219,6 +222,26 @@ const BoatChart = () => {
 
   const { frontWeight, backWeight, leftWeight, rightWeight, pacerWeight, rocketWeight } = calculateWeightStats();
 
+  // Display for flagcatcher.
+  const renderFlagcatcher = () => {
+    if (!flagcatcher) return null;
+    return (
+      <div className="grid" >
+        <div className="flex items-center gap-8">
+          <div className="w-12 boat-label">
+            Flagcatcher
+          </div>
+          <div
+            className={`paddler px-2 py-1 my-1 rounded-xl flex flex-col justify-center items-center  text-center bg-sky-200 hover:border-slate-300`}>
+            <span>
+              <span className="font-medium">{flagcatcher.name}</span>{showWeights && `: ${flagcatcher.weight}`}
+            </span>
+          </div>
+        </div>
+      </div >
+    )
+  };
+
   // Display for drummer.
   const renderDrummer = () => {
     if (!drummer) return null;
@@ -261,8 +284,10 @@ const BoatChart = () => {
 
   // Display for rows of seats.
   const renderSeats = () => {
-    // Array of row indices [0..9]
-    const rowIndices = Array.from({ length: 10 }, (_, i) => i);
+    // If flagcatcher exists, skip row 10 (index 9)
+    const rowIndices = isFlagcatcher
+      ? Array.from({ length: 9 }, (_, i) => i)
+      : Array.from({ length: 10 }, (_, i) => i);
 
     // Reverse if topView is false
     const orderedRows = topView ? rowIndices : [...rowIndices].reverse();
@@ -334,11 +359,11 @@ const BoatChart = () => {
         <SortableContext items={seatingChart.map((_, i) => i.toString())} strategy={rectSortingStrategy}>
           <br />
           <div className="inline-block">
-            {topView ? renderDrummer() : renderStern()}
-            <div className="grid grid-rows-10 gap-2 py-1">
+            {topView ? (<> {renderFlagcatcher()} {renderDrummer()} </>) : renderStern()}
+            <div className={`grid grid-rows-${isFlagcatcher ? "9" : "10"} gap-2 py-1`}>
               {renderSeats()}
             </div>
-            {topView ? renderStern() : renderDrummer()}
+            {topView ? renderStern() : (<> {renderDrummer()} {renderFlagcatcher()} </>)}
           </div>
 
         </SortableContext>

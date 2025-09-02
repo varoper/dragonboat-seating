@@ -4,6 +4,7 @@ const STORAGE_KEYS = {
     SEATING: 'seatingChart',
     EXTRA_PADDLERS: 'extraPaddlers',
     DRUMMER: 'drummer',
+    FLAGCATCHER: 'flagcatcher',
     STERN: 'stern',
     EXTRA_FRONT_WEIGHT: 'extraFrontWeight',
     EXTRA_BACK_WEIGHT: 'extraBackWeight',
