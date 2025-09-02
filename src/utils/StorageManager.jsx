@@ -1,4 +1,4 @@
-// storageManager.js
+// StorageManager.js
 // Simplify putting things in localStorage
 const StorageManager = {
   set: (key, value) => {

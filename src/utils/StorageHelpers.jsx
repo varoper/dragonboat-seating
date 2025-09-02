@@ -47,12 +47,14 @@ export const storeSteeringWeight = (steeringWeight) => {
  * Additional helpers
  */
 
+// Creates an empty chart
 export const emptyChart = Array.from({ length: 20 }, () => ({
   name: 'Empty',
   weight: 0,
   side: 'either',
 }));
 
+// CLears all stored values and resets state
 export const clearStorage = () => {
   const setSeatingChart = useStore.getState().setSeatingChart;
   const setSelectedChart = useStore.getState().setSelectedChart;
@@ -79,3 +81,59 @@ export const clearStorage = () => {
   setSteeringWeight(10);
 };
 
+// Put the roster data wherever it needs to go
+export const handleRosterResults = (results) => {
+
+  const { data, meta, errors } = results;
+  const setAllPaddlers = useStore.getState().setAllPaddlers;
+  const setAllSterns = useStore.getState().setAllSterns;
+  const setAllDrummers = useStore.getState().setAllDrummers;
+
+  // Validate headers
+  const expectedHeaders = ['name', 'weight', 'side', 'role'];
+  const actualHeaders = meta.fields;
+  const headerMismatch = !expectedHeaders.every(h => actualHeaders.includes(h));
+
+  if (headerMismatch) {
+    console.error("CSV header mismatch. Expected:", expectedHeaders, "Got:", actualHeaders);
+    throw new Error('Invalid CSV headers');
+  }
+
+  // Validate row data
+  const validSides = ['either', 'left', 'right', 'none'];
+  const validRoles = ['', 'drummer', 'stern'];
+
+  for (const [i, row] of data.entries()) {
+    const rowNum = i + 2; // Header is row 1
+    const { name, weight, side, role } = row;
+
+    if (!name || isNaN(parseInt(weight))) {
+      throw new Error(`Row ${rowNum}: Missing or invalid name/weight`);
+    }
+
+    if (!validSides.includes(side)) {
+      throw new Error(`Row ${rowNum}: Invalid side '${side}'`);
+    }
+
+    if (!validRoles.includes(role?.trim() || '')) {
+      throw new Error(`Row ${rowNum}: Invalid role '${role}'`);
+    }
+  }
+
+  const parsed = results.data.map(p => ({
+    name: p.name,
+    weight: parseInt(p.weight, 10),
+    side: p.side?.toLowerCase?.() || 'either',
+    role: p.role?.toLowerCase?.() || '',
+  }));
+
+  let fullPaddlers = parsed.filter(p => p.side !== 'none');
+  setAllSterns(parsed.filter(p => p.role === 'stern'));
+  setAllDrummers(parsed.filter(p => p.role === 'drummer'));
+
+  const extra = StorageManager.get(STORAGE_KEYS.EXTRA_PADDLERS);
+  if (extra) {
+    fullPaddlers = [...fullPaddlers, ...JSON.parse(extra)];
+  }
+  setAllPaddlers(fullPaddlers);
+}

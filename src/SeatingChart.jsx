@@ -3,35 +3,32 @@ import Papa from 'papaparse';
 import useStore from './store/useStore';
 import STORAGE_KEYS from "./utils/StorageKeys";
 import StorageManager from './utils/StorageManager';
-import { storeSeatingChart, storeStern, storeDrummer, emptyChart, clearStorage } from './utils/StorageHelpers';
+import { storeSeatingChart, storeStern, storeDrummer, emptyChart, clearStorage, handleRosterResults } from './utils/StorageHelpers';
 import BoatChart from './components/BoatChart';
 import ExtraBoatWeight from './components/ExtraBoatWeight';
 import LoadStoredSeatingChart from './components/LoadStoredSeatingChart';
+import UploadRoster from './components/UploadRoster';
 
 const SeatingChart = () => {
   // Items from store
   const seatingChart = useStore((state) => state.seatingChart);
-  // const availableCharts = useStore((state) => state.availableCharts);
-  // const selectedChart = useStore((state) => state.selectedChart);
+  const availableCharts = useStore((state) => state.availableCharts);
   const drummer = useStore((state) => state.drummer);
   const stern = useStore((state) => state.stern);
   const allPaddlers = useStore((state) => state.allPaddlers);
   const allSterns = useStore((state) => state.allSterns);
   const allDrummers = useStore((state) => state.allDrummers);
-  const showAddForm = useStore((state) => state.showAddForm);
+  const showAddPaddler = useStore((state) => state.showAddPaddler);
   const newPaddlerName = useStore((state) => state.newPaddlerName);
   const newPaddlerWeight = useStore((state) => state.newPaddlerWeight);
 
   // Actions from store
   const setSeatingChart = useStore((state) => state.setSeatingChart);
   const setAvailableCharts = useStore((state) => state.setAvailableCharts);
-  // const setSelectedChart = useStore((state) => state.setSelectedChart);
   const setDrummer = useStore((state) => state.setDrummer);
   const setStern = useStore((state) => state.setStern);
   const setAllPaddlers = useStore((state) => state.setAllPaddlers);
-  const setAllSterns = useStore((state) => state.setAllSterns);
-  const setAllDrummers = useStore((state) => state.setAllDrummers);
-  const toggleShowAddForm = useStore((state) => state.toggleShowAddForm);
+  const toggleShowAddPaddler = useStore((state) => state.toggleShowAddPaddler);
   const setNewPaddlerName = useStore((state) => state.setNewPaddlerName);
   const setNewPaddlerWeight = useStore((state) => state.setNewPaddlerWeight);
   const setExtraFrontWeight = useStore((state) => state.setExtraFrontWeight);
@@ -39,9 +36,11 @@ const SeatingChart = () => {
   const setSteeringWeight = useStore((state) => state.setSteeringWeight);
 
   // Is there a roster uploaded server-side?
-  const [serverRoster, setServerRoster] = useState(false);
+  const [serverRoster, setServerRoster] = useState(null);
+
   // Is there at least one seating chart uploaded server-side?
   const [serverChart, setServerChart] = useState(false);
+
   const [selectionError, setSelectionError] = useState("");
   const seatingChartRef = useRef(null);
 
@@ -53,7 +52,7 @@ const SeatingChart = () => {
     return `${formatted}.csv`;
   });
 
-  const isChartEmpty = (seatingChart) => seatingChart.every(seat => seat.name === 'Empty') && !drummer && !stern;
+  const isChartEmpty = (seatingChart) => seatingChart.every(seat => seat.name === 'Empty') && !drummer?.name && !stern?.name;
   const isBoatFull = (seatingChart) => seatingChart.every(seat => seat.name !== 'Empty');
 
   // Fetching the roster on the server
@@ -61,7 +60,8 @@ const SeatingChart = () => {
     fetch('/rosters/paddlers.csv')
       .then(response => {
         if (!response.ok) {
-          throw new Error('CSV file not found');
+          setServerRoster(false);
+          return null;
         }
         return response.text();
       })
@@ -78,7 +78,8 @@ const SeatingChart = () => {
             setServerRoster(true);
           }
         });
-      });
+      })
+      .catch(() => setServerRoster(false));
   }, []);
 
   // Loading in saved seating charts
@@ -136,79 +137,6 @@ const SeatingChart = () => {
     }
   }, [drummer]);
 
-  // User upload of roster
-  const handleRosterUpload = (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
-
-    const reader = new FileReader();
-    reader.onload = (event) => {
-      const csv = event.target.result;
-      Papa.parse(csv, {
-        header: true,
-        skipEmptyLines: true,
-        complete: (results) => {
-          handleRosterResults(results);
-        }
-      });
-    };
-    reader.readAsText(file);
-  };
-
-  // Put the roster data wherever it needs to go
-  const handleRosterResults = (results) => {
-
-    const { data, meta, errors } = results;
-
-    // Validate headers
-    const expectedHeaders = ['name', 'weight', 'side', 'role'];
-    const actualHeaders = meta.fields;
-    const headerMismatch = !expectedHeaders.every(h => actualHeaders.includes(h));
-
-    if (headerMismatch) {
-      console.error("CSV header mismatch. Expected:", expectedHeaders, "Got:", actualHeaders);
-      throw new Error('Invalid CSV headers');
-    }
-
-    // Validate row data
-    const validSides = ['either', 'left', 'right', 'none'];
-    const validRoles = ['', 'drummer', 'stern'];
-
-    for (const [i, row] of data.entries()) {
-      const rowNum = i + 2; // Header is row 1
-      const { name, weight, side, role } = row;
-
-      if (!name || isNaN(parseInt(weight))) {
-        throw new Error(`Row ${rowNum}: Missing or invalid name/weight`);
-      }
-
-      if (!validSides.includes(side)) {
-        throw new Error(`Row ${rowNum}: Invalid side '${side}'`);
-      }
-
-      if (!validRoles.includes(role?.trim() || '')) {
-        throw new Error(`Row ${rowNum}: Invalid role '${role}'`);
-      }
-    }
-
-    const parsed = results.data.map(p => ({
-      name: p.name,
-      weight: parseInt(p.weight, 10),
-      side: p.side?.toLowerCase?.() || 'either',
-      role: p.role?.toLowerCase?.() || '',
-    }));
-
-    let fullPaddlers = parsed.filter(p => p.side !== 'none');
-    setAllSterns(parsed.filter(p => p.role === 'stern'));
-    setAllDrummers(parsed.filter(p => p.role === 'drummer'));
-
-    const extra = StorageManager.get(STORAGE_KEYS.EXTRA_PADDLERS);
-    if (extra) {
-      fullPaddlers = [...fullPaddlers, ...JSON.parse(extra)];
-    }
-    setAllPaddlers(fullPaddlers);
-  }
-
   // Handles when user clicks on a paddler's name
   const handlePaddlerClick = (p) => {
     const index = seatingChart.findIndex(seat => seat.name === p.name);
@@ -243,13 +171,13 @@ const SeatingChart = () => {
     handlePaddlerClick(newPaddler);
     setNewPaddlerName("");
     setNewPaddlerWeight("");
-    setShowAddForm(false);
+    setShowAddPaddler(false);
   };
 
   // Handles exporting a seating chart as a .csv file
   const exportSeatingChartToCSV = (fileName) => {
     const csvRows = [['name', 'seat']];
-    if (drummer && drummer?.name !== 'Empty') csvRows.push([drummer.name, 'drummer']);
+    if (drummer?.name && drummer.name !== 'Empty') csvRows.push([drummer.name, 'drummer']);
     seatingChart.forEach((p, i) => {
       if (p.name !== 'Empty') {
         const row = Math.floor(i / 2) + 1;
@@ -257,13 +185,13 @@ const SeatingChart = () => {
         csvRows.push([p.name, `${row}${side}`]);
       }
     });
-    if (stern && stern?.name !== 'Empty') csvRows.push([stern.name, 'stern']);
+    if (stern?.name && stern.name !== 'Empty') csvRows.push([stern.name, 'stern']);
 
     const blob = new Blob([csvRows.map(r => r.join(',')).join('\n')], { type: 'text/csv;charset=utf-8;' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = fileName || `seating-chart.csv`;
+    a.download = fileName ?? `seating-chart.csv`;
     a.click();
     URL.revokeObjectURL(url);
   };
@@ -272,30 +200,11 @@ const SeatingChart = () => {
     <div className="flex flex-col lg:flex-row lg:gap-6">
       <div className="w-full lg:w-1/2">
 
-        {!serverRoster &&
-          <section>
-            <h2>Upload your team's roster</h2>
-            <div className="space-y-2">
-              <input
-                className="file:button-alt"
-                type="file"
-                accept=".csv"
-                onChange={handleRosterUpload}
-              />
-              <p className="text-sm text-slate-600">
-                Expected columns: <code>name</code>, <code>weight</code>, <code>side</code>, <code>role</code>
-              </p>
-              <p className="text-sm">
-                <a href="/example-paddlers.csv" download>
-                  Download CSV template
-                </a>. Read the instructions!
-              </p>
-            </div>
-          </section>
-        }
+        {/* Upload roster if none exists on server */}
+        {serverRoster === false && <UploadRoster />}
 
-        {/* Load from seating chart */}
-        <LoadStoredSeatingChart />
+        {/* Load from seating chart if seating charts exist on server */}
+        {availableCharts?.length > 0 && <LoadStoredSeatingChart />}
 
         {/* Paddler selection section*/}
         <section>
@@ -311,7 +220,10 @@ const SeatingChart = () => {
               {allPaddlers.map((p) => {
                 const isInChart = seatingChart.some(seat => seat.name === p.name);
                 const noEmptySeats = !seatingChart.some(seat => seat.name === 'Empty');
-                const isDisabled = (!isInChart && (stern && stern.name === p.name)) || (!isInChart && (drummer && drummer.name === p.name)) || (!isInChart && noEmptySeats);
+                const isDisabled =
+                  (!isInChart && (stern?.name === p.name)) ||
+                  (!isInChart && (drummer?.name === p.name)) ||
+                  (!isInChart && noEmptySeats);
 
                 return (
                   <div
@@ -329,11 +241,11 @@ const SeatingChart = () => {
 
             {/* Add additional paddlers */}
             <div className="mb-6">
-              {!showAddForm ? (
+              {!showAddPaddler ? (
                 <button
-                  onClick={toggleShowAddForm}
+                  onClick={toggleShowAddPaddler}
                 >
-                  {showAddForm ? '- Hide add paddler' : '+ Add paddler'}
+                  {showAddPaddler ? '- Hide add paddler' : '+ Add paddler'}
                 </button>
               ) :
                 (
@@ -364,13 +276,14 @@ const SeatingChart = () => {
                       Add
                     </button>
                     <button
-                      onClick={toggleShowAddForm}
+                      onClick={toggleShowAddPaddler}
                       className="button-alt"
                     >
                       Cancel
                     </button>
                   </div>
                 )}
+              <p class="mt-3">Use this to add one-off paddler that is not in your roster.</p>
             </div>
 
             {/* Stern & drummer selection dropdowns */}
@@ -378,10 +291,10 @@ const SeatingChart = () => {
               <div>
                 <label>Select drummer</label>
                 <select
-                  value={drummer ? drummer.name : ''}
+                  value={drummer?.name ?? ''}
                   onChange={(e) => {
                     const selected = allDrummers.find(p => p.name === e.target.value);
-                    storeDrummer(selected || null);
+                    storeDrummer(selected ?? null);
                   }}
                 >
                   <option value="">- Select -</option>
@@ -393,10 +306,10 @@ const SeatingChart = () => {
               <div>
                 <label>Select stern</label>
                 <select
-                  value={stern ? stern.name : ''}
+                  value={stern?.name ?? ''}
                   onChange={(e) => {
                     const selected = allSterns.find(p => p.name === e.target.value);
-                    storeStern(selected || null);
+                    storeStern(selected ?? null);
                   }}
                 >
                   <option value="">- Select -</option>

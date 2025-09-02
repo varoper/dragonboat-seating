@@ -1,8 +1,6 @@
 // ExtraBoatWeight.js
 import React, { useState, useEffect, useRef } from 'react';
-import StorageManager from '../utils/StorageManager';
 import { storeExtraFrontWeight, storeExtraBackWeight, storeSteeringWeight } from '../utils/StorageHelpers';
-import STORAGE_KEYS from "../utils/StorageKeys";
 import useStore from '../store/useStore';
 
 // Inputs for additional front and back weight 
@@ -48,6 +46,7 @@ const ExtraBoatWeight = () => {
             />
           </div>
         </div>
+        <p className="mt-3">When using a drum, add that weight to the "front" field.</p>
       </fieldset>
     </section>
   );
