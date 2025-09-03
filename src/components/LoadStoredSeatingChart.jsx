@@ -19,7 +19,7 @@ const LoadStoredSeatingChart = () => {
   // Import a seating chart stored on the server, if exists
   const loadSeatingChartFromCSV = async (fileName) => {
     try {
-      const response = await fetch(`/charts/${fileName}`);
+      const response = await fetch(`./charts/${fileName}`);
       const csvText = await response.text();
       const { data, errors } = Papa.parse(csvText.trim(), { header: true, skipEmptyLines: true });
       if (errors.length > 0) return console.error('CSV parsing errors:', errors);
