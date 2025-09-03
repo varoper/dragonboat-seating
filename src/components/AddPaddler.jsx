@@ -40,7 +40,7 @@ const AddPaddler = () => {
   };
 
   return (
-    <div className="mb-6">
+    <div className="mb-3">
       {!showAddPaddler ? (
         <button
           onClick={toggleShowAddPaddler}

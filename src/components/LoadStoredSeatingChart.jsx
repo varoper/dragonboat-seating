@@ -23,7 +23,7 @@ const LoadStoredSeatingChart = () => {
       const csvText = await response.text();
       const { data, errors } = Papa.parse(csvText.trim(), { header: true, skipEmptyLines: true });
       if (errors.length > 0) return console.error('CSV parsing errors:', errors);
-      const newChart = [...emptyChart];
+      const newChart = [...emptyChart()];
       data.forEach(({ name, seat }) => {
         let paddler =
           allPaddlers.find(p => p.name === name) ||

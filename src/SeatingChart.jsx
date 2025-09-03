@@ -46,7 +46,7 @@ const SeatingChart = () => {
 
   // Fetching the roster on the server
   useEffect(() => {
-    fetch('/rosters/paddlers.csv')
+    fetch('./rosters/paddlers.csv')
       .then(response => {
         if (!response.ok) {
           setServerRoster(false);
@@ -101,7 +101,7 @@ const SeatingChart = () => {
     if (savedChart && JSON.parse(savedChart).length > 0) {
       setSeatingChart(JSON.parse(savedChart));
     } else {
-      setSeatingChart(emptyChart);
+      setSeatingChart(emptyChart());
     }
     if (savedExtraFrontWeight) {
       setExtraFrontWeight(JSON.parse(savedExtraFrontWeight));
@@ -157,7 +157,7 @@ const SeatingChart = () => {
           <AddPaddler />
 
           {/* Stern & drummer selection dropdowns */}
-          <div className="flex gap-4 mb-4">
+          <div className="flex gap-4 mb-6">
             {allFlagcatchers?.length > 0 && <SelectFlagcatcher />}
             <SelectDrummer />
             <SelectStern />

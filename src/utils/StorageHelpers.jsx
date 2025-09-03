@@ -54,11 +54,18 @@ export const storeSteeringWeight = (steeringWeight) => {
  */
 
 // Creates an empty chart
-export const emptyChart = Array.from({ length: 20 }, () => ({
-  name: 'Empty',
-  weight: 0,
-  side: 'either',
-}));
+export const emptyChart = () => {
+
+  console.log("allFlagcatchers in emptyChart:", useStore.getState().allFlagcatchers);
+  const allFlagcatchers = useStore.getState().allFlagcatchers ?? [];
+  const rowCount = allFlagcatchers.length > 0 ? 18 : 20;
+
+  return Array.from({ length: rowCount }, () => ({
+    name: 'Empty',
+    weight: 0,
+    side: 'either',
+  }))
+};
 
 // CLears all stored values and resets state
 export const clearStorage = () => {
@@ -80,7 +87,7 @@ export const clearStorage = () => {
   StorageManager.remove(STORAGE_KEYS.EXTRA_BACK_WEIGHT);
   StorageManager.remove(STORAGE_KEYS.STEERING_WEIGHT);
 
-  setSeatingChart(emptyChart);
+  setSeatingChart(emptyChart());
   setDrummer(null);
   setFlagcatcher(null);
   setStern(null);
