@@ -31,7 +31,6 @@ const BoatChart = () => {
   const extraFrontWeight = useStore((state) => state.extraFrontWeight);
   const extraBackWeight = useStore((state) => state.extraBackWeight);
   const steeringWeight = useStore((state) => state.steeringWeight);
-  const isFlagcatcher = allFlagcatchers?.length > 0;
 
   // Actions
   const toggleTopView = useStore((state) => state.toggleTopView);
@@ -285,7 +284,7 @@ const BoatChart = () => {
   // Display for rows of seats.
   const renderSeats = () => {
     // If flagcatcher exists, skip row 10 (index 9)
-    const rowIndices = isFlagcatcher
+    const rowIndices = allFlagcatchers?.length > 0
       ? Array.from({ length: 9 }, (_, i) => i)
       : Array.from({ length: 10 }, (_, i) => i);
 
@@ -360,7 +359,7 @@ const BoatChart = () => {
           <br />
           <div className="inline-block">
             {topView ? (<> {renderFlagcatcher()} {renderDrummer()} </>) : renderStern()}
-            <div className={`grid grid-rows-${isFlagcatcher ? "9" : "10"} gap-2 py-1`}>
+            <div className={`grid grid-rows-${allFlagcatchers?.length > 0 ? "9" : "10"} gap-2 py-1`}>
               {renderSeats()}
             </div>
             {topView ? renderStern() : (<> {renderDrummer()} {renderFlagcatcher()} </>)}

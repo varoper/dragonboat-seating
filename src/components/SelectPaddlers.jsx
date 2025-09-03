@@ -10,10 +10,15 @@ const SelectPaddlers = () => {
   const stern = useStore((state) => state.stern);
   const drummer = useStore((state) => state.drummer);
   const flagcatcher = useStore((state) => state.flagcatcher);
+  const allFlagcatchers = useStore((state) => state.allFlagcatchers);
+
+  console.log("seatingChart in SelectPaddlers:", seatingChart);
 
   return (
     <fieldset>
-      <legend>Select up to 20 paddlers</legend>
+      <legend>
+        Select up to {allFlagcatchers?.length > 0 ? 18 : 20} paddlers
+      </legend>
 
       {/* Render paddler names as selectable containers */}
       <div className="flex flex-wrap gap-2 pt-1 mb-5">
