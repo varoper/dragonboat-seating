@@ -73,7 +73,7 @@ const SeatingChart = () => {
 
   // Loading in saved seating charts
   useEffect(() => {
-    fetch('/charts/index.json')
+    fetch('./charts/index.json')
       .then(res => res.json())
       .then(files => setAvailableCharts(files))
       .catch(err => console.error('Failed to fetch chart list:', err));
