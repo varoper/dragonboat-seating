@@ -137,8 +137,23 @@ const BoatChart = () => {
       if (!paddler || !paddler.weight) return;
 
       // Front: indices 0–9
-      if (i < 10) frontWeight += paddler.weight;
-      else backWeight += paddler.weight;
+
+      // Front/back for flagcatcher is calculated differently. Because there are 9 rows,
+      // and the front 1/2 is more heavily weighted, we try dividing the 5th row in 1/3, 2/3 
+      // between front and back
+      if (allFlagcatchers?.length > 0) {
+        if (i < 8) {
+          frontWeight += paddler.weight;
+        }
+        else if (i === 9 || i === 10) {
+          frontWeight += paddler.weight * .33;
+          backWeight += paddler.weight * .67;
+        }
+        else backWeight += paddler.weight;
+      } else {
+        if (i < 10) frontWeight += paddler.weight;
+        else backWeight += paddler.weight;
+      }
 
       // Left seat = even index; right seat = odd index
       if (i % 2 === 0) leftWeight += paddler.weight;
