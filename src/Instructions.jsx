@@ -33,9 +33,13 @@ function Instructions() {
         Balance & seating strategies
       </h2>
       <p>A boat with equal weights on the left and right sides is ideal. If that cannot be achieved, then slightly left-heavy is better than slightly right-heavy, as the stern can more easily balance out a left-heavy boat by standing on the right.</p>
-      <p>Some teams like having the boat a bit front-heavy for race day.</p>
+
       <p>Place your most technical paddlers at the front and back of the boat, as these sections will have the most impact on balance.</p>
       <p>If you have paddlers with mixed experience, place more experienced paddlers around newer paddlers (instead of grouping newer paddlers together) to miminize any paddling mistakes the newer paddlers may make from impacting the rest of the boat. </p>
+
+      <h3>Race strategy</h3>
+      <p>Race seating balance should be more precise than it may be for practices.</p>
+      <p>Some teams like having the boat slightly front-heavy for race day. This can be particularly impactful for faster teams. As the boat picks up speed, the bow (front) of the boat can lift, so by having the weight slightly heavier in the front, this alleviates the issue of rear drag. Less experienced or slower teams may prefer to have a more balanced front and back.</p>
       <p>On race day, make sure paddlers only take what they need on the boat for that race. Unless it is an endurance race or the paddler has special needs, water can be left on shore.</p>
     </div>
   );
