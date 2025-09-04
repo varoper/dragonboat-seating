@@ -118,7 +118,7 @@ const BoatChart = () => {
       <div className="mb-1">
         {aContent} {compare} {bContent}{' '}
         <span className={`${balanced ? 'text-emerald-600' : 'text-rose-600'}`}>
-          (Off by {diff.toFixed(2)})
+          (Off by {Math.round(diff)})
         </span>
       </div>
     );
