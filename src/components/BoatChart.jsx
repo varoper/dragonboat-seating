@@ -345,7 +345,7 @@ const BoatChart = () => {
       <div className="p-2 my-2 inline-block border border-slate-200 bg-gradient-to-b from-white to-purple-50">
         {renderImbalance('Left', 'Right', leftWeight, rightWeight, 15)}
         {renderImbalance('Front 5', 'Back 5', frontWeight, backWeight, 15)}
-        {renderImbalance('Pacers', 'Rockets', pacerWeight, rocketWeight, 15)}
+        {allFlagcatchers?.length === 0 && renderImbalance('Pacers', 'Rockets', pacerWeight, rocketWeight, 15)}
       </div>
 
       <DndContext
