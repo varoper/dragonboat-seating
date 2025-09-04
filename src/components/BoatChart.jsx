@@ -96,9 +96,9 @@ const BoatChart = () => {
       <>
         {label_a}:{' '}
         {a > b ? (
-          <span className="font-bold">{a}</span>
+          <span className="font-bold">{Math.round(a)}</span>
         ) : (
-          `${a}`
+          `${Math.round(a)}`
         )}
       </>
     );
@@ -107,9 +107,9 @@ const BoatChart = () => {
       <>
         {label_b}:{' '}
         {b > a ? (
-          <span className="font-bold">{b}</span>
+          <span className="font-bold">{Math.round(b)}</span>
         ) : (
-          `${b}`
+          `${Math.round(b)}`
         )}
       </>
     );

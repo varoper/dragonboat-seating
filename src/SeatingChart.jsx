@@ -173,7 +173,7 @@ const SeatingChart = () => {
             <div>
               <h2>Balance the boat</h2>
 
-              <p> Press down, then drag & drop to change positions.</p>
+              <p> Press down, then drag & drop to change positions. Note that all numbers round to nearest integer.</p>
               <BoatChart />
               <p>
                 <button
