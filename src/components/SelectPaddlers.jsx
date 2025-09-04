@@ -12,8 +12,6 @@ const SelectPaddlers = () => {
   const flagcatcher = useStore((state) => state.flagcatcher);
   const allFlagcatchers = useStore((state) => state.allFlagcatchers);
 
-  console.log("seatingChart in SelectPaddlers:", seatingChart);
-
   return (
     <fieldset>
       <legend>

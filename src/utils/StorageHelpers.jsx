@@ -106,9 +106,9 @@ export const handleRosterResults = (results) => {
   const setAllDrummers = useStore.getState().setAllDrummers;
   const setAllFlagcatchers = useStore.getState().setAllFlagcatchers;
 
-  // Validate headers
+  // Expected CSV headers
   const expectedHeaders = ['name', 'weight', 'side', 'role'];
-  const actualHeaders = meta.fields;
+  const actualHeaders = meta.fields.map(h => h.toLowerCase().trim());
   const headerMismatch = !expectedHeaders.every(h => actualHeaders.includes(h));
 
   if (headerMismatch) {
@@ -116,15 +116,18 @@ export const handleRosterResults = (results) => {
     throw new Error('Invalid CSV headers');
   }
 
-  // Validate row data
+  // Allowed values
   const validSides = ['either', 'left', 'right', 'none'];
   const validRoles = ['', 'drummer', 'stern', 'flagcatcher'];
 
-  for (const [i, row] of data.entries()) {
+  const parsed = data.map((row, i) => {
     const rowNum = i + 2; // Header is row 1
-    const { name, weight, side, role } = row;
+    const name = row.name?.trim();
+    const weight = parseInt(row.weight, 10);
+    const side = row.side?.trim().toLowerCase() || 'either';
+    const role = row.role?.trim().toLowerCase() || '';
 
-    if (!name || isNaN(parseInt(weight))) {
+    if (!name || isNaN(weight)) {
       throw new Error(`Row ${rowNum}: Missing or invalid name/weight`);
     }
 
@@ -132,17 +135,12 @@ export const handleRosterResults = (results) => {
       throw new Error(`Row ${rowNum}: Invalid side '${side}'`);
     }
 
-    if (!validRoles.includes(role?.trim() || '')) {
+    if (!validRoles.includes(role)) {
       throw new Error(`Row ${rowNum}: Invalid role '${role}'`);
     }
-  }
 
-  const parsed = results.data.map(p => ({
-    name: p.name,
-    weight: parseInt(p.weight, 10),
-    side: p.side?.toLowerCase?.() || 'either',
-    role: p.role?.toLowerCase?.() || '',
-  }));
+    return { name, weight, side, role };
+  });
 
   let fullPaddlers = parsed.filter(p => p.side !== 'none');
   setAllSterns(parsed.filter(p => p.role === 'stern'));
