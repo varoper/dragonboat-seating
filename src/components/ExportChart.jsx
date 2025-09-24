@@ -10,6 +10,9 @@ const ExportChart = () => {
   const flagcatcher = useStore((state) => state.flagcatcher);
   const drummer = useStore((state) => state.drummer);
   const stern = useStore((state) => state.stern);
+  const extraFrontWeight = useStore((state) => state.extraFrontWeight);
+  const extraBackWeight = useStore((state) => state.extraBackWeight);
+  const steeringWeight = useStore((state) => state.steeringWeight);
 
   const [customFileName, setCustomFileName] = useState(() => {
     const today = new Date();
@@ -31,6 +34,10 @@ const ExportChart = () => {
       }
     });
     if (stern?.name && stern.name !== 'Empty') csvRows.push([stern.name, 'stern']);
+    csvRows.push(['', '']);
+    if (extraFrontWeight) csvRows.push(['extraFrontWeight', extraFrontWeight]);
+    if (extraBackWeight) csvRows.push(['extraBackWeight', extraBackWeight]);
+    if (steeringWeight) csvRows.push(['steeringWeight', steeringWeight]);
 
     const blob = new Blob([csvRows.map(r => r.join(',')).join('\n')], { type: 'text/csv;charset=utf-8;' });
     const url = URL.createObjectURL(blob);

@@ -2,7 +2,7 @@
 // Handles loading and rendering of seating chart .csv files stored in /charts/ on the server
 import React, { useState, useEffect, useRef } from 'react';
 import Papa from 'papaparse';
-import { storeSeatingChart, storeFlagcatcher, storeDrummer, storeStern, clearStorage, emptyChart } from '../utils/StorageHelpers';
+import { storeSeatingChart, storeFlagcatcher, storeDrummer, storeStern, storeExtraFrontWeight, storeExtraBackWeight, storeSteeringWeight, clearStorage, emptyChart } from '../utils/StorageHelpers';
 import useStore from '../store/useStore';
 
 // Inputs for additional front and back weight 
@@ -16,6 +16,9 @@ const LoadStoredSeatingChart = () => {
   const allDrummers = useStore((state) => state.allDrummers);
   const allFlagcatchers = useStore((state) => state.allFlagcatchers);
   const setMissingPaddlers = useStore((state) => state.setMissingPaddlers);
+  const extraFrontWeight = useStore((state) => state.extraFrontWeight);
+  const extraBackWeight = useStore((state) => state.extraBackWeight);
+  const steeringWeight = useStore((state) => state.steeringWeight);
 
   // Import a seating chart stored on the server, if exists
   const loadSeatingChartFromCSV = async (fileName) => {
@@ -28,7 +31,24 @@ const LoadStoredSeatingChart = () => {
       const newChart = [...emptyChart()];
       const missing = []; // track names not found in roster
 
+      // Flags to detect empty line
+      let afterEmptyLine = false;
+
       data.forEach(({ name, seat }) => {
+
+        if (!name && !seat) {
+          afterEmptyLine = true;
+          return;
+        }
+
+        if (afterEmptyLine) {
+          // The next non-empty rows are extra weights
+          if (name === 'extraFrontWeight') storeExtraFrontWeight(Number(seat) || extraFrontWeight);
+          else if (name === 'extraBackWeight') storeExtraBackWeight(Number(seat) || extraBackWeight);
+          else if (name === 'steeringWeight') storeSteeringWeight(Number(seat) || steeringWeight);
+          return;
+        }
+
         let paddler =
           allPaddlers.find(p => p.name === name) ||
           allSterns.find(p => p.name === name) ||

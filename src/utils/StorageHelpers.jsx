@@ -55,8 +55,6 @@ export const storeSteeringWeight = (steeringWeight) => {
 
 // Creates an empty chart
 export const emptyChart = () => {
-
-  console.log("allFlagcatchers in emptyChart:", useStore.getState().allFlagcatchers);
   const allFlagcatchers = useStore.getState().allFlagcatchers ?? [];
   const rowCount = allFlagcatchers.length > 0 ? 18 : 20;
 
