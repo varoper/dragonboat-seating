@@ -1,16 +1,18 @@
 // SelectPaddlers.js
+// Clickable list of paddlers to add to seating chart
 import React from 'react';
+import { X } from "lucide-react";
 import { handlePaddlerClick } from '../utils/StorageHelpers';
 import useStore from '../store/useStore';
 
 const SelectPaddlers = () => {
-
   const allPaddlers = useStore((state) => state.allPaddlers);
   const seatingChart = useStore((state) => state.seatingChart);
   const stern = useStore((state) => state.stern);
   const drummer = useStore((state) => state.drummer);
   const flagcatcher = useStore((state) => state.flagcatcher);
   const allFlagcatchers = useStore((state) => state.allFlagcatchers);
+  const removePaddler = useStore((state) => state.removePaddler);
 
   return (
     <fieldset>
@@ -33,11 +35,24 @@ const SelectPaddlers = () => {
             <div
               key={p.name}
               onClick={() => !isDisabled && handlePaddlerClick(p)}
-              className={`paddler
+              className={`relative paddler
                    ${isInChart ? 'bg-sky-200' : 'bg-white'}
                   ${isDisabled ? 'opacity-50 cursor-default hover:bg-white hover:border-slate-300' : 'cursor-pointer'}`}
             >
               {p.name}
+
+              {p.isCustom && (
+                <button
+                  className="absolute -top-1 -right-1 bg-rose-600 text-white rounded-full p-0.5 hover:bg-rose-500"
+                  onClick={(e) => {
+                    e.stopPropagation(); // prevent triggering paddler click
+                    removePaddler(p.name);
+                  }}
+                >
+                  <X size={12} />
+                </button>
+              )}
+
             </div>
           );
         })}
