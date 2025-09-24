@@ -9,7 +9,8 @@ const useStore = create((set) => ({
     allSterns: [], // Set of all available sterns
     allDrummers: [], // Set of all available drummers
     allFlagcatchers: [], // Set of all available flagcatchers
-    boatType: "twentyperson", // Type of boat being used, default to 20-person
+    missingPaddlers: [], // Paddlers in seating chart but not in roster
+    // boatType: "twentyperson", // Use eventually if needing to add 10-person, etc.
     topView: true, // Layout direction of rendered seating chart
     activeId: null, // ID of selected seat in chart
     overId: null, // ID of seat in "drag" state
@@ -34,6 +35,7 @@ const useStore = create((set) => ({
     setAllSterns: (allSterns) => set({ allSterns }),
     setAllDrummers: (allDrummers) => set({ allDrummers }),
     setAllFlagcatchers: (allFlagcatchers) => set({ allFlagcatchers }),
+    setMissingPaddlers: (missing) => set({ missingPaddlers: missing }),
 
     toggleTopView: () => set((state) => ({ topView: !state.topView })),
     setActiveId: (id) => set({ activeId: id }),

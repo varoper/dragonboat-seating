@@ -15,6 +15,7 @@ const LoadStoredSeatingChart = () => {
   const allSterns = useStore((state) => state.allSterns);
   const allDrummers = useStore((state) => state.allDrummers);
   const allFlagcatchers = useStore((state) => state.allFlagcatchers);
+  const setMissingPaddlers = useStore((state) => state.setMissingPaddlers);
 
   // Import a seating chart stored on the server, if exists
   const loadSeatingChartFromCSV = async (fileName) => {
@@ -23,14 +24,22 @@ const LoadStoredSeatingChart = () => {
       const csvText = await response.text();
       const { data, errors } = Papa.parse(csvText.trim(), { header: true, skipEmptyLines: true });
       if (errors.length > 0) return console.error('CSV parsing errors:', errors);
+
       const newChart = [...emptyChart()];
+      const missing = []; // track names not found in roster
+
       data.forEach(({ name, seat }) => {
         let paddler =
           allPaddlers.find(p => p.name === name) ||
           allSterns.find(p => p.name === name) ||
           allFlagcatchers.find(p => p.name === name) ||
           allDrummers.find(p => p.name === name);
-        if (!paddler) return;
+
+        if (!paddler) {
+          missing.push({ name, seat });
+          paddler = { name: 'Empty', weight: 0, side: 'either' };
+        }
+
         if (seat === 'flagcatcher') storeFlagcatcher(paddler);
         if (seat === 'drummer') storeDrummer(paddler);
         else if (seat === 'stern') storeStern(paddler);
@@ -45,6 +54,7 @@ const LoadStoredSeatingChart = () => {
         }
       });
       storeSeatingChart(newChart);
+      setMissingPaddlers(missing);
     } catch (err) {
       console.error('Failed to load CSV:', err);
     }
