@@ -8,6 +8,7 @@ import useStore from '../store/useStore';
 
 const AddPaddler = () => {
 
+  const missingPaddlers = useStore(state => state.missingPaddlers);
   const allPaddlers = useStore((state) => state.allPaddlers);
   const showAddPaddler = useStore((state) => state.showAddPaddler);
   const newPaddlerName = useStore((state) => state.newPaddlerName);
@@ -41,6 +42,20 @@ const AddPaddler = () => {
 
   return (
     <div className="mb-3">
+
+      {missingPaddlers.length > 0 && (
+        <div className="text-rose-600 mb-6">
+          <p>⚠ Missing from roster:</p>
+          <ul className="list-disc pl-5 ml-6">
+            {missingPaddlers.map((p, idx) => (
+              <li key={idx}>
+                {p.name} (seat: {p.seat})
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+
       {!showAddPaddler ? (
         <button
           onClick={toggleShowAddPaddler}
