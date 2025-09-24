@@ -22,7 +22,13 @@ const AddPaddler = () => {
   // Handles the addition of a new paddler
   const handleAddNewPaddler = () => {
     if (!newPaddlerName || isNaN(parseInt(newPaddlerWeight))) return;
-    const newPaddler = { name: newPaddlerName, weight: parseInt(newPaddlerWeight), side: 'either', role: '' };
+    const newPaddler = {
+      name: newPaddlerName,
+      weight: parseInt(newPaddlerWeight),
+      side: 'either',
+      role: '',
+      isCustom: true
+    };
 
     let updatedPaddlers = [...allPaddlers, newPaddler];
     setAllPaddlers(updatedPaddlers);

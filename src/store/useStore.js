@@ -52,6 +52,24 @@ const useStore = create((set) => ({
     setExtraFrontWeight: (extraFrontWeight) => set({ extraFrontWeight }),
     setExtraBackWeight: (extraBackWeight) => set({ extraBackWeight }),
     setSteeringWeight: (steeringWeight) => set({ steeringWeight }),
+
+    removePaddler: (name) =>
+        set((state) => ({
+            // Remove from roster list
+            allPaddlers: state.allPaddlers.filter((p) => p.name !== name),
+
+            // Replace in seating chart if currently seated
+            seatingChart: state.seatingChart.map((seat) =>
+                seat.name === name
+                    ? { name: "Empty", weight: 0, side: "either" }
+                    : seat
+            ),
+
+            // Clear from stern/drummer/flagcatcher if they were assigned
+            stern: state.stern?.name === name ? null : state.stern,
+            drummer: state.drummer?.name === name ? null : state.drummer,
+            flagcatcher: state.flagcatcher?.name === name ? null : state.flagcatcher,
+        })),
 }));
 
 export default useStore;
