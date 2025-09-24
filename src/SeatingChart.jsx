@@ -116,9 +116,6 @@ const SeatingChart = () => {
 
   // Make sure selected stern is not in seating chart
   useEffect(() => {
-
-    console.log('Stern seatingChart:', seatingChart);
-
     if (stern) {
       const cleaned = seatingChart.map(seat => seat.name === stern.name ? { name: 'Empty', weight: 0, side: 'either' } : seat);
       storeSeatingChart(cleaned);
