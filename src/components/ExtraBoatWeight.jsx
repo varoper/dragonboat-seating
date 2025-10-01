@@ -16,7 +16,7 @@ const ExtraBoatWeight = () => {
       <fieldset>
         <div className="flex gap-4">
           <div>
-            <label for="extra_front_weight">Front</label>
+            <label htmlFor="extra_front_weight">Front</label>
             <input
               type="number"
               id="extra_front_weight"
@@ -26,7 +26,7 @@ const ExtraBoatWeight = () => {
             />
           </div>
           <div>
-            <label for="extra_back_weight">Back</label>
+            <label htmlFor="extra_back_weight">Back</label>
             <input
               type="number"
               id="extra_back_weight"
@@ -36,7 +36,7 @@ const ExtraBoatWeight = () => {
             />
           </div>
           <div>
-            <label for="steering_weight">Steering mechanism</label>
+            <label htmlFor="steering_weight">Steering mechanism</label>
             <input
               type="number"
               id="steering_weight"
