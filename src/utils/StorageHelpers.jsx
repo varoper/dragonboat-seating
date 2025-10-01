@@ -77,7 +77,6 @@ export const clearStorage = () => {
   const setSteeringWeight = useStore.getState().setSteeringWeight;
 
   StorageManager.remove(STORAGE_KEYS.SEATING);
-  StorageManager.remove(STORAGE_KEYS.EXTRA_PADDLERS);
   StorageManager.remove(STORAGE_KEYS.DRUMMER);
   StorageManager.remove(STORAGE_KEYS.FLAGCATCHER);
   StorageManager.remove(STORAGE_KEYS.STERN);

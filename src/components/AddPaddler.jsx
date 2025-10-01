@@ -72,7 +72,7 @@ const AddPaddler = () => {
         (
           <div className="toggle-form">
             <div>
-              <label for="new_paddler_name">Name</label>
+              <label htmlFor="new_paddler_name">Name</label>
               <input
                 type="text"
                 id="new_paddler_name"
@@ -82,7 +82,7 @@ const AddPaddler = () => {
               />
             </div>
             <div>
-              <label for="new_paddler_weight">Weight</label>
+              <label htmlFor="new_paddler_weight">Weight</label>
               <input
                 type="number"
                 id="new_paddler_weight"

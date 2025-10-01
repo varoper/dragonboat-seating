@@ -387,7 +387,7 @@ const BoatChart = () => {
           className="mr-3 mt-3"
           onClick={() => setShowWeights((prev) => !prev)}
         >
-          {showWeights ? 'Hide Weights' : 'Show Weights'}
+          {showWeights ? 'Hide weights' : 'Show Weights'}
         </button>
         <button className="mr-3 mt-3" onClick={toggleTopView}>
           {topView ? "Top first ↑" : "Bottom first ↓"}
