@@ -102,7 +102,7 @@ export const handleRosterResults = (results) => {
   const setAllDrummers = useStore.getState().setAllDrummers;
   const setAllFlagcatchers = useStore.getState().setAllFlagcatchers;
 
-  console.log(results)
+  // console.log(results)
   // Required headers
   const requiredHeaders = ['name', 'weight', 'side', 'role'];
   const actualHeaders = meta.fields.map(h => h.toLowerCase().trim());
@@ -125,7 +125,7 @@ export const handleRosterResults = (results) => {
     const side = row.side?.trim().toLowerCase() || 'either';
     const role = row.role?.trim().toLowerCase() || '';
 
-    console.log("weight + height", row, weight, height);
+    // console.log("weight + height", row, weight, height);
 
     if (!name || isNaN(weight)) {
       throw new Error(`Row ${rowNum}: Missing or invalid name/weight`);
