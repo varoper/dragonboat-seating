@@ -1,6 +1,6 @@
 # Dragon Boat Seating
 
-This is an app to aid captains and coaches in balancing their dragon boats. 
+This is an app to aid captains and coaches in balancing their dragon boats. [View the demo here](https://varoper.github.io/dragonboat-seating/).
 
 ## Setting your roster
 
