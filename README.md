@@ -1,5 +1,6 @@
-# DragonBoatBalancer
+# Dragon Boat Seating
 
+This is an app to aid captains and coaches in balancing their dragon boats. 
 
 ## Setting your roster
 
