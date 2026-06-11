@@ -96,20 +96,20 @@ export const clearStorage = () => {
 
 // Put the roster data wherever it needs to go
 export const handleRosterResults = (results) => {
-
   const { data, meta, errors } = results;
   const setAllPaddlers = useStore.getState().setAllPaddlers;
   const setAllSterns = useStore.getState().setAllSterns;
   const setAllDrummers = useStore.getState().setAllDrummers;
   const setAllFlagcatchers = useStore.getState().setAllFlagcatchers;
 
-  // Expected CSV headers
-  const expectedHeaders = ['name', 'weight', 'side', 'role'];
+  console.log(results)
+  // Required headers
+  const requiredHeaders = ['name', 'weight', 'side', 'role'];
   const actualHeaders = meta.fields.map(h => h.toLowerCase().trim());
-  const headerMismatch = !expectedHeaders.every(h => actualHeaders.includes(h));
+  const headerMismatch = !requiredHeaders.every(h => actualHeaders.includes(h));
 
   if (headerMismatch) {
-    console.error("CSV header mismatch. Expected:", expectedHeaders, "Got:", actualHeaders);
+    console.error("CSV header mismatch. Expected:", requiredHeaders, "Got:", actualHeaders);
     throw new Error('Invalid CSV headers');
   }
 
@@ -121,8 +121,11 @@ export const handleRosterResults = (results) => {
     const rowNum = i + 2; // Header is row 1
     const name = row.name?.trim();
     const weight = parseInt(row.weight, 10);
+    const height = row.height?.trim() || "";
     const side = row.side?.trim().toLowerCase() || 'either';
     const role = row.role?.trim().toLowerCase() || '';
+
+    console.log("weight + height", row, weight, height);
 
     if (!name || isNaN(weight)) {
       throw new Error(`Row ${rowNum}: Missing or invalid name/weight`);
@@ -136,7 +139,7 @@ export const handleRosterResults = (results) => {
       throw new Error(`Row ${rowNum}: Invalid role '${role}'`);
     }
 
-    return { name, weight, side, role };
+    return { name, weight, height, side, role };
   });
 
   let fullPaddlers = parsed.filter(p => p.side !== 'none');

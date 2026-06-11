@@ -36,7 +36,7 @@ const UploadRoster = () => {
           onChange={handleRosterUpload}
         />
         <p className="text-sm text-slate-600">
-          Expected columns: <code>name</code>, <code>weight</code>, <code>side</code>, <code>role</code>
+          Columns: <code>name</code>, <code>weight</code>, <code>height</code>(optional), <code>side</code>, <code>role</code>
         </p>
         <p className="text-sm">
           <a href="example-paddlers.csv" download>

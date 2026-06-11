@@ -25,6 +25,7 @@ const AddPaddler = () => {
     const newPaddler = {
       name: newPaddlerName,
       weight: parseInt(newPaddlerWeight),
+      height: '',
       side: 'either',
       role: '',
       isCustom: true

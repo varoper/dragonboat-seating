@@ -50,8 +50,10 @@ const SeatingChart = () => {
       .then(response => {
         if (!response.ok) {
           setServerRoster(false);
+          // console.log('No roster found on server');
           return null;
         }
+        // console.log('Roster found on server, loading...');
         return response.text();
       })
       .then(csv => {
@@ -59,6 +61,7 @@ const SeatingChart = () => {
         if (!csv.includes('name,weight,side')) {
           throw new Error('Unexpected CSV format');
         }
+        // console.log('Parsing roster CSV...', csv);
         Papa.parse(csv, {
           header: true,
           skipEmptyLines: true,

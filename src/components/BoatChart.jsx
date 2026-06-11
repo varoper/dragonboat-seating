@@ -19,6 +19,7 @@ import { storeSeatingChart } from '../utils/StorageHelpers';
 const BoatChart = () => {
   const [maxWidth, setMaxWidth] = useState(0);    // Used to standardize width of all seat containers
   const [showWeights, setShowWeights] = useState(true);
+  const [showHeights, setShowHeights] = useState(false);
 
   const seatingChart = useStore((state) => state.seatingChart);
   const allFlagcatchers = useStore((state) => state.allFlagcatchers);
@@ -225,7 +226,9 @@ const BoatChart = () => {
       >
         {paddler && paddler.name !== 'Empty' ? (
           <span>
-            <span className="font-medium">{paddler.name}</span>{showWeights && `: ${paddler.weight}`}
+            <span className="font-medium">{paddler.name}</span>
+            {showWeights && `: ${paddler.weight}`}
+            {showHeights && `: ${paddler.height}`}
           </span>
         ) : (
           <span className="opacity-50">Empty</span>
@@ -248,7 +251,8 @@ const BoatChart = () => {
           <div
             className={`paddler px-2 py-1 my-1 rounded-xl flex flex-col justify-center items-center  text-center bg-sky-200 hover:border-slate-300`}>
             <span>
-              <span className="font-medium">{flagcatcher.name}</span>{showWeights && `: ${flagcatcher.weight}`}
+              <span className="font-medium">{flagcatcher.name}</span>
+              {showWeights && `: ${flagcatcher.weight}`}
             </span>
           </div>
         </div>
@@ -387,7 +391,13 @@ const BoatChart = () => {
           className="mr-3 mt-3"
           onClick={() => setShowWeights((prev) => !prev)}
         >
-          {showWeights ? 'Hide weights' : 'Show Weights'}
+          {showWeights ? 'Hide weights' : 'Show weights'}
+        </button>
+        <button
+          className="mr-3 mt-3"
+          onClick={() => setShowHeights((prev) => !prev)}
+        >
+          {showHeights ? 'Hide heights' : 'Show heights'}
         </button>
         <button className="mr-3 mt-3" onClick={toggleTopView}>
           {topView ? "Top first ↑" : "Bottom first ↓"}
