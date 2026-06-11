@@ -28,9 +28,10 @@
   },
   "scripts": {
     "dev": "vite",
-    "build": "npm run charts && vite build",
+    "build": "npm run charts && vite build && npm run docs",
     "preview": "vite preview",
-    "charts": "node generateChartIndex.js"
+    "charts": "node generateChartIndex.js",
+    "docs": "node generateDocsFiles.js"
   },
   "eslintConfig": {
     "extends": [
