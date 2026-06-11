@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import SeatingChart from './SeatingChart';
 import Instructions from './Instructions';
+import About from './About';
 
 function App() {
   const [currentTab, setCurrentTab] = useState('chart');
@@ -26,7 +27,7 @@ function App() {
   return (
     <div className="App">
       <div className="px-3 md:px-6 lg:px-12 pt-3 border-b-2 border-slate-300 bg-gradient-to-b from-sky-50 to-sky-200">
-        <h1>DragonBoat<span className="text-purple-600 font-bold">Balancer</span></h1>
+        <h1>DragonBoat<span className="text-purple-600 font-bold">Seating</span></h1>
         <div className="inline-flex rounded-t-md overflow-hidden -mb-0.5">
           {tabs.map(({ key, label }) => (
             <a
@@ -60,12 +61,17 @@ function App() {
               <Instructions />
             )
           }
+          {
+            currentTab === 'about' && (
+              <About />
+            )
+          }
         </div>
       </div>
       <div className="py-6 px-3 md:px-6 lg:px-12">
-        <p className="text-sm align-right">Created by VA Roper to make coaching just a little bit easier.</p>
+        <p className="text-sm align-right">Created by <a target="_blank" href="https://varoper.com/">VA Roper</a> to make coaching just a little bit easier.</p>
       </div>
-    </div>
+    </div >
   );
 }
 
