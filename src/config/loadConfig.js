@@ -3,7 +3,7 @@
 
 export async function loadConfig() {
     try {
-        const res = await fetch('/config.json');
+        const res = await fetch(`${import.meta.env.BASE_URL}config.json`);
 
         // If file doesn't exist or server error
         if (!res.ok) {
