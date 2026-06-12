@@ -2,10 +2,11 @@ import React, { useState, useEffect, useRef } from 'react';
 import SeatingChart from './SeatingChart';
 import Instructions from './Instructions';
 import About from './About';
-import { config } from './config';
+import { loadConfig } from './config/loadConfig';
 
 function App() {
   const [currentTab, setCurrentTab] = useState('chart');
+  const [config, setConfig] = useState({});
 
   const tabs = [
     { key: 'chart', label: 'Balancer' },
@@ -13,7 +14,13 @@ function App() {
     { key: 'about', label: 'About' },
   ];
 
-  console.log("AHHHH", config.teamName);
+  // Load configuration
+  useEffect(() => {
+    loadConfig().then(setConfig);
+  }, []);
+
+  const teamName = config.teamName || '';
+  console.log("teamName", config.teamName);
 
   // Load correct tab
   useEffect(() => {
@@ -30,7 +37,7 @@ function App() {
   return (
     <div className="App">
       <div className="px-3 md:px-6 lg:px-12 pt-3 border-b-2 border-slate-300 bg-gradient-to-b from-sky-50 to-sky-200">
-        <h1>DragonBoat<span className="text-purple-600 font-bold">Seating</span> {config.teamName}</h1>
+        <h1>DragonBoat<span className="text-purple-600 font-bold">Seating</span> {teamName}</h1>
         <div className="inline-flex rounded-t-md overflow-hidden -mb-0.5">
           {tabs.map(({ key, label }) => (
             <a
